@@ -106,6 +106,7 @@ func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) st
 
 	// prepare before part
 	beforePart := strings.Repeat(" ", start)
+	afterPart := strings.Repeat(" ", width-end)
 
 	// prepare span part
 	var spanPart string
@@ -118,5 +119,5 @@ func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) st
 		spanPart = "├" + strings.Repeat("─", (end-start)-2) + "┤"
 	}
 
-	return beforePart + spanPart
+	return beforePart + spanPart + afterPart
 }

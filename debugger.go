@@ -105,7 +105,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		for _, root := range roots {
 			walkTrace(root, func(node *MemoryNode) bool {
 				// calculate length
-				length := node.Depth*2 + len(node.Span.Name) + 9 // (9.99ms)
+				length := node.Depth*2 + len(node.Span.Name)
 				if length > longest {
 					longest = length
 				}
@@ -121,7 +121,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		_, _ = fmt.Fprintf(&buf, "----- TRACE -----\n")
 
 		// prepare format
-		format := fmt.Sprintf("%%-%ds  %%s\n", longest)
+		format := fmt.Sprintf("%%-%ds   %%s   %%s\n", longest)
 
 		// print roots
 		for _, root := range roots {
@@ -132,14 +132,14 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 				// auto truncate
 				duration := autoTruncate(node.Span.Duration, 3)
 
-				// prepare tag
-				tag := fmt.Sprintf("%s (%s)", prefix+node.Span.Name, duration.String())
+				// prepare name
+				name := fmt.Sprintf("%s", prefix+node.Span.Name)
 
 				// prepare bar
 				bar := buildBar(node.Span.Start.Sub(root.Span.Start), node.Span.Duration, root.Span.End.Sub(node.Span.End), 80)
 
 				// print span
-				_, _ = fmt.Fprintf(&buf, format, tag, bar)
+				_, _ = fmt.Fprintf(&buf, format, name, bar, duration.String())
 
 				return true
 			})

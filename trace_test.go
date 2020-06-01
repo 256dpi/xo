@@ -42,11 +42,11 @@ func TestTrace(t *testing.T) {
 
 		trace.End()
 
-		assert.Equal(t, []MockSpan{
+		assert.Equal(t, []MemorySpan{
 			{
 				Name:     "bar",
 				Duration: 10 * time.Millisecond,
-				Events: []MockSpanEvent{
+				Events: []MemorySpanEvent{
 					{
 						Name: "error",
 						Attributes: map[string]interface{}{
@@ -66,7 +66,7 @@ func TestTrace(t *testing.T) {
 			{
 				Name:     "trace",
 				Duration: 30 * time.Millisecond,
-				Events: []MockSpanEvent{
+				Events: []MemorySpanEvent{
 					{
 						Name: "log",
 						Attributes: map[string]interface{}{
@@ -75,6 +75,6 @@ func TestTrace(t *testing.T) {
 					},
 				},
 			},
-		}, mock.Spans)
+		}, mock.ReducedSpans(10*time.Millisecond))
 	})
 }

@@ -15,10 +15,9 @@ import (
 func Trap(fn func(mock *Mock)) {
 	// create mock
 	mock := &Mock{
-		Spans:           make([]MockSpan, 0, 2048),
-		Events:          make([]sentry.Event, 0, 2048),
-		TraceResolution: 10 * time.Millisecond,
-		CleanEvents:     true,
+		Spans:       make([]MemorySpan, 0, 2048),
+		Events:      make([]sentry.Event, 0, 2048),
+		CleanEvents: true,
 	}
 
 	// create provider
@@ -69,73 +68,60 @@ func Trap(fn func(mock *Mock)) {
 	fn(mock)
 }
 
-type MockSpanEvent struct {
-	// The event name.
-	Name string
-
-	// Attached event attributes.
-	Attributes map[string]interface{}
-}
-
-type MockSpan struct {
-	// The span name.
-	Name string
-
-	// The span duration.
-	Duration time.Duration
-
-	// The span attributes.
-	Attributes map[string]interface{}
-
-	// Attached span events.
-	Events []MockSpanEvent
-}
-
 type Mock struct {
-	// The collected spans.
-	Spans []MockSpan
-
-	// The collected events.
-	Events []sentry.Event
-
-	// The used trace resolution.
-	//
-	// Default: 10ms.
-	TraceResolution time.Duration
-
 	// Whether events should be cleaned.
 	//
 	// Default: true.
 	CleanEvents bool
+
+	// The collected spans.
+	Spans []MemorySpan
+
+	// The collected events.
+	Events []sentry.Event
 }
 
-// SpanSyncer will return a span syncer that stores received spans.
-func (m *Mock) SpanSyncer() trace.SpanSyncer {
-	return SpanSyncer(func(span *trace.SpanData) {
-		// collect events
-		var events []MockSpanEvent
-		for _, event := range span.MessageEvents {
-			events = append(events, MockSpanEvent{
-				Name:       event.Name,
-				Attributes: otelKVToMap(event.Attributes),
-			})
-		}
+// ReducedSpans will return a copy of the span list with reduced information.
+// This representation can be used in tests for easy direct comparison.
+func (m *Mock) ReducedSpans(resolution time.Duration) []MemorySpan {
+	// prepare list
+	list := make([]MemorySpan, 0, len(m.Spans))
 
-		// compute duration
-		df := float64(span.EndTime.Sub(span.StartTime)) / float64(m.TraceResolution)
-		duration := time.Duration(math.Round(df)) * m.TraceResolution
+	// cleanup and copy spans
+	for _, span := range m.Spans {
+		// resize duration
+		df := float64(span.Duration) / float64(resolution)
+		duration := time.Duration(math.Round(df)) * resolution
+
+		// cleanup span
+		span.ID = ""
+		span.Trace = ""
+		span.Parent = ""
+		span.Start = time.Time{}
+		span.End = time.Time{}
+		span.Duration = duration
 
 		// add span
-		m.Spans = append(m.Spans, MockSpan{
-			Name:       span.Name,
-			Duration:   duration,
-			Attributes: otelKVToMap(span.Attributes),
-			Events:     events,
-		})
+		list = append(list, span)
+	}
+
+	return list
+}
+
+// Reset all mock data.
+func (m *Mock) Reset() {
+	m.Spans = nil
+	m.Events = nil
+}
+
+// SpanSyncer will return a span syncer that collects spans.
+func (m *Mock) SpanSyncer() trace.SpanSyncer {
+	return SpanSyncer(func(span *trace.SpanData) {
+		m.Spans = append(m.Spans, traceSpanDataToMemorySpan(span))
 	})
 }
 
-// SentryTransport will return a sentry transport that stores received events.
+// SentryTransport will return a sentry transport that collects events.
 func (m *Mock) SentryTransport() sentry.Transport {
 	return SentryTransport(func(event *sentry.Event) {
 		// clean if requested

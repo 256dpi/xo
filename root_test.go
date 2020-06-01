@@ -11,8 +11,6 @@ import (
 
 func TestRootHandler(t *testing.T) {
 	Trap(func(mock *Mock) {
-		mock.TraceResolution = time.Millisecond
-
 		handler := serve.Compose(
 			RootHandler(NumberCleaner),
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +26,7 @@ func TestRootHandler(t *testing.T) {
 		assert.Equal(t, http.StatusOK, res.Code)
 		assert.Equal(t, "", res.Body.String())
 
-		assert.Equal(t, []MockSpan{
+		assert.Equal(t, []MemorySpan{
 			{
 				Name:     "foo",
 				Duration: time.Millisecond,
@@ -47,6 +45,6 @@ func TestRootHandler(t *testing.T) {
 					"http.header":  "map[]",
 				},
 			},
-		}, mock.Spans)
+		}, mock.ReducedSpans(time.Millisecond))
 	})
 }

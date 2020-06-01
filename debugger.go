@@ -6,7 +6,7 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -45,7 +45,7 @@ func (c *DebuggerConfig) Ensure() {
 
 type Debugger struct {
 	config DebuggerConfig
-	spans  map[apiTrace.SpanID]*trace.SpanData
+	spans  map[string]MemorySpan
 	mutex  sync.Mutex
 }
 
@@ -55,43 +55,42 @@ func NewDebugger(config DebuggerConfig) *Debugger {
 
 	return &Debugger{
 		config: config,
-		spans:  make(map[apiTrace.SpanID]*trace.SpanData, 2048),
+		spans:  make(map[string]MemorySpan, 2048),
 	}
 }
 
 // SpanSyncer will return a span syncer that prints received spans.
 func (d *Debugger) SpanSyncer() trace.SpanSyncer {
-	return SpanSyncer(func(span *trace.SpanData) {
+	return SpanSyncer(func(data *trace.SpanData) {
 		// acquire mutex
 		d.mutex.Lock()
 		defer d.mutex.Unlock()
 
-		// store trace if not root
-		if span.ParentSpanID.IsValid() && !span.HasRemoteParent {
-			d.spans[span.SpanContext.SpanID] = span
+		// convert span
+		span := traceSpanDataToMemorySpan(data)
+
+		// store span if not root
+		if span.Parent != "" {
+			d.spans[span.ID] = span
 			return
 		}
 
 		// collect spans
-		table := make(map[apiTrace.SpanID]*trace.SpanData)
-		list := make([]*trace.SpanData, 0, 512)
+		table := make(map[string]MemorySpan)
+		list := make([]MemorySpan, 0, 512)
 		for id, s := range d.spans {
-			if s.SpanContext.TraceID == span.SpanContext.TraceID {
+			if s.Trace == span.Trace {
 				list = append(list, s)
 				delete(d.spans, id)
-				table[s.SpanContext.SpanID] = s
+				table[s.ID] = s
 			}
 		}
 
 		// add root
 		list = append(list, span)
 
-		// TODO: Transform list into a tree and print.
-
-		// sort list
-		sort.Slice(list, func(i, j int) bool {
-			return list[i].StartTime.Before(list[j].StartTime)
-		})
+		// build traces
+		roots := buildTraces(list)
 
 		// prepare buffer
 		var buf bytes.Buffer
@@ -99,14 +98,28 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		// print header
 		_, _ = fmt.Fprintf(&buf, "----- TRACE -----\n")
 
-		// print spans
-		for _, span := range list {
+		// prepare printer
+		var printer func(out io.Writer, node *MemoryNode, depth int)
+		printer = func(out io.Writer, node *MemoryNode, depth int) {
 			// compute duration
-			df := float64(span.EndTime.Sub(span.StartTime)) / float64(d.config.TraceResolution)
+			df := float64(node.Span.End.Sub(node.Span.Start)) / float64(d.config.TraceResolution)
 			duration := time.Duration(math.Round(df)) * d.config.TraceResolution
 
+			// prepare prefix
+			prefix := strings.Repeat(" ", depth*2)
+
 			// print span
-			_, _ = fmt.Fprintf(&buf, "%s: %s\n", span.Name, duration.String())
+			_, _ = fmt.Fprintf(&buf, "%s%s (%s)\n", prefix, node.Span.Name, duration.String())
+
+			// print children
+			for _, child := range node.Children {
+				printer(out, child, depth+1)
+			}
+		}
+
+		// print roots
+		for _, root := range roots {
+			printer(&buf, root, 0)
 		}
 
 		// write trace

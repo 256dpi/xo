@@ -28,11 +28,11 @@ func TestTrack(t *testing.T) {
 
 		root.End()
 
-		assert.Equal(t, []MockSpan{
+		assert.Equal(t, []MemorySpan{
 			{Name: "foo"},
 			{Name: "bar"},
 			{Name: "track"},
 			{Name: "root"},
-		}, mock.Spans)
+		}, mock.ReducedSpans(0))
 	})
 }

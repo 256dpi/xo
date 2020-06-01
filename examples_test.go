@@ -49,7 +49,7 @@ func ExampleRun() {
 func ExampleTrack() {
 	// enable debugger
 	SetupDebugger(DebuggerConfig{
-		TraceResolution: 10 * time.Millisecond,
+		TraceResolution: 100 * time.Millisecond,
 	})
 
 	// ensure teardown
@@ -58,39 +58,30 @@ func ExampleTrack() {
 	// get context
 	ctx := context.Background()
 
-	// track one
-	ctx, span1 := Track(ctx, "One")
-	defer span1.End()
-
-	time.Sleep(10 * time.Millisecond)
-
-	// track two
-	ctx, span2 := Track(ctx, "Two")
-	defer span2.End()
-
-	time.Sleep(10 * time.Millisecond)
-
-	// track three
-	_, span3 := Track(ctx, "Three")
-	defer span3.End()
-
-	// wait a bit
-	time.Sleep(10 * time.Millisecond)
+	// track
+	ctx1, span1 := Track(ctx, "One")
+	time.Sleep(100 * time.Millisecond)
+	ctx2, span2 := Track(ctx1, "Two")
+	time.Sleep(100 * time.Millisecond)
+	_, span3 := Track(ctx2, "Three")
+	time.Sleep(100 * time.Millisecond)
+	span3.End()
+	span2.End()
+	ctx4, span4 := Track(ctx1, "Four")
+	time.Sleep(100 * time.Millisecond)
+	_, span5 := Track(ctx4, "Five")
+	time.Sleep(100 * time.Millisecond)
+	span5.End()
+	span4.End()
+	span1.End()
 
 	// Output:
 	// ----- TRACE -----
-	// One: 30ms
-	// Two: 20ms
-	// Three: 10ms
-
-	// ----- TRACE -----
-	// api.MainHandler (150ms)         |---------------------- 150ms ----------------------|
-	//    auth.Handler (45ms)              |----- 45ms ------|
-	//       auth.VerifyUser (10ms)            |-------------|
-	//    api.Handler (105ms)                                    |--------------------|
-	//       api.GetPost (80ms)                                   |---------------|
-	//          db.LoadPosts (30ms)                               |------|
-	//          db.LoadComments (50ms)                                   |--------|
+	// One (500ms)
+	//   Two (200ms)
+	//     Three (100ms)
+	//   Four (200ms)
+	//     Five (100ms)
 }
 
 func ExampleCapture() {

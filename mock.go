@@ -103,6 +103,16 @@ func (m *Mock) ReducedSpans(resolution time.Duration) []MemorySpan {
 		span.End = time.Time{}
 		span.Duration = duration
 
+		// copy events
+		var events []MemorySpanEvent
+		for _, event := range span.Events {
+			event.Time = time.Time{}
+			events = append(events, event)
+		}
+
+		// set event
+		span.Events = events
+
 		// add span
 		list = append(list, span)
 	}

@@ -7,8 +7,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/export/trace"
 )
 
-// TODO: Drop span events?
-
 type MemorySpanEvent struct {
 	// The event name.
 	Name string

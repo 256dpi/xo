@@ -119,9 +119,11 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 	return SentryTransport(func(event *sentry.Event) {
 		// reverse stack traces
 		for i := range event.Exception {
-			st := event.Exception[i].Stacktrace
-			for i, j := 0, len(st.Frames)-1; i < j; i, j = i+1, j-1 {
-				st.Frames[i], st.Frames[j] = st.Frames[j], st.Frames[i]
+			if event.Exception[i].Stacktrace != nil {
+				st := event.Exception[i].Stacktrace
+				for i, j := 0, len(st.Frames)-1; i < j; i, j = i+1, j-1 {
+					st.Frames[i], st.Frames[j] = st.Frames[j], st.Frames[i]
+				}
 			}
 		}
 
@@ -144,8 +146,10 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		_, _ = fmt.Fprintf(&buf, "Exceptions:\n")
 		for _, exc := range event.Exception {
 			_, _ = fmt.Fprintf(&buf, "- %s (%s)\n", exc.Value, exc.Type)
-			for _, frame := range exc.Stacktrace.Frames {
-				_, _ = fmt.Fprintf(&buf, "  > %s (%s): %s:%d\n", frame.Function, frame.Module, frame.AbsPath, frame.Lineno)
+			if exc.Stacktrace != nil {
+				for _, frame := range exc.Stacktrace.Frames {
+					_, _ = fmt.Fprintf(&buf, "  > %s (%s): %s:%d\n", frame.Function, frame.Module, frame.AbsPath, frame.Lineno)
+				}
 			}
 		}
 

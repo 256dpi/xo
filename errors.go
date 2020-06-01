@@ -8,7 +8,6 @@ import (
 )
 
 // TODO: Add own implementations?
-// => Trim GOROOT from stack traces?
 
 // F is the function used to format errors.
 var F = errors.Errorf

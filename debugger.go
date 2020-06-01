@@ -16,8 +16,9 @@ import (
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
-// TODO: Add logging.
-// TODO: Add metrics.
+// TODO: Add logging?
+// TODO: Add metrics?
+// TODO: Add profiling?
 
 type DebuggerConfig struct {
 	TraceOutput     io.Writer

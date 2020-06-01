@@ -35,14 +35,10 @@ func TestRootHandler(t *testing.T) {
 				Name:     "GET /foo/#/bar",
 				Duration: 10 * time.Millisecond,
 				Attributes: map[string]interface{}{
-					"peer.address": "192.0.2.1:1234",
-					"http.proto":   "HTTP/1.1",
-					"http.method":  "GET",
-					"http.host":    "example.com",
-					"http.path":    "/foo/#/bar",
-					"http.url":     "/foo/123/bar",
-					"http.length":  int64(0),
-					"http.header":  "map[]",
+					"proto":  "HTTP/1.1",
+					"host":   "example.com",
+					"url":    "/foo/123/bar",
+					"length": int64(0),
 				},
 			},
 		}, mock.ReducedSpans(10*time.Millisecond))

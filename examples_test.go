@@ -64,12 +64,14 @@ func ExampleTrack() {
 	ctx2, span2 := Track(ctx1, "Two")
 	time.Sleep(100 * time.Millisecond)
 	_, span3 := Track(ctx2, "Three")
+	span3.Tag("foo", "bar")
 	time.Sleep(100 * time.Millisecond)
 	span3.End()
 	span2.End()
 	ctx4, span4 := Track(ctx1, "Four")
 	time.Sleep(100 * time.Millisecond)
 	_, span5 := Track(ctx4, "Five")
+	span5.Tag("baz", 42)
 	time.Sleep(100 * time.Millisecond)
 	span5.End()
 	span4.End()
@@ -79,9 +81,9 @@ func ExampleTrack() {
 	// ----- TRACE -----
 	// One         ├──────────────────────────────────────────────────────────────────────────────┤   500ms
 	//   Two                       ├──────────────────────────────┤                                   200ms
-	//     Three                                   ├──────────────┤                                   100ms
+	//     Three                                   ├──────────────┤                                   100ms   foo:"bar"
 	//   Four                                                      ├──────────────────────────────┤   200ms
-	//     Five                                                                    ├──────────────┤   100ms
+	//     Five                                                                    ├──────────────┤   100ms   baz:42
 }
 
 func ExampleCapture() {
@@ -103,9 +105,9 @@ func ExampleCapture() {
 	// - runtime: {"go_maxprocs":8,"go_numcgocalls":1,"go_numroutines":2,"name":"go","version":"go1.14.1"}
 	// Exceptions:
 	// - some error (*errors.fundamental)
-	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:95
+	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:97
 	//   > main (main): _testmain.go:84
 	// - some error (*errors.withStack)
-	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:95
+	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:97
 	//   > main (main): _testmain.go:84
 }

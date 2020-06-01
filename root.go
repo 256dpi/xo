@@ -25,16 +25,10 @@ func RootHandler(cleaners ...func([]string) []string) func(http.Handler) http.Ha
 
 			// create span from request
 			ctx, span := Track(r.Context(), name)
-			span.Tag("peer.address", r.RemoteAddr)
-			span.Tag("http.proto", r.Proto)
-			span.Tag("http.method", r.Method)
-			span.Tag("http.host", r.Host)
-			span.Tag("http.path", path)
-			span.Tag("http.url", r.URL.String())
-			span.Tag("http.length", r.ContentLength)
-			span.Tag("http.header", r.Header)
-
-			// TODO: What do to with headers?
+			span.Tag("proto", r.Proto)
+			span.Tag("host", r.Host)
+			span.Tag("url", r.URL.String())
+			span.Tag("length", r.ContentLength)
 
 			// ensure end
 			defer span.End()

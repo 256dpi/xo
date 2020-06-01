@@ -35,15 +35,18 @@ func main() {
 		b := r.URL.Query().Get("b")
 
 		// call business logic
-		res, err := businessLogic(ctx, a, b)
+		result, err := businessLogic(ctx, a, b)
 		if err != nil {
 			xo.Capture(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
+		// tag result
+		span.Tag("result", result)
+
 		// write result
-		_, _ = w.Write([]byte(res))
+		_, _ = w.Write([]byte(result))
 	})
 
 	// prepare handler
@@ -58,6 +61,10 @@ func main() {
 
 func businessLogic(ctx context.Context, a, b string) (res string, err error) {
 	return res, xo.Run(ctx, func(ctx *xo.Context) error {
+		// tag params
+		ctx.Tag("a", a)
+		ctx.Tag("b", b)
+
 		// parse param a
 		aa, err := strconv.ParseInt(a, 10, 64)
 		if err != nil {

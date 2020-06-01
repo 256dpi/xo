@@ -2,6 +2,7 @@ package xo
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"os"
 	"sort"
@@ -84,6 +85,26 @@ func mustEncode(value interface{}) string {
 	}
 
 	return string(buf)
+}
+
+func buildMap(dict map[string]interface{}) string {
+	// prepare builder
+	var builder strings.Builder
+
+	// add all key values
+	iterateMap(dict, func(key string, value interface{}) {
+		builder.WriteString(key)
+		builder.WriteRune(':')
+		switch value.(type) {
+		case string:
+			builder.WriteString(fmt.Sprintf("%q", value))
+		default:
+			builder.WriteString(fmt.Sprintf("%v", value))
+		}
+		builder.WriteRune(' ')
+	})
+
+	return builder.String()
 }
 
 func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) string {

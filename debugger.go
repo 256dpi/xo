@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 
 	"github.com/getsentry/sentry-go"
 	"go.opentelemetry.io/otel/api/global"
@@ -121,25 +122,30 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		_, _ = fmt.Fprintf(&buf, "----- TRACE -----\n")
 
 		// prepare format
-		format := fmt.Sprintf("%%-%ds   %%s   %%s\n", longest)
+		format := fmt.Sprintf("%%-%ds   %%s   %%-6s  %%s", longest)
 
 		// print roots
 		for _, root := range roots {
 			walkTrace(root, func(node *MemoryNode) bool {
-				// prepare prefix
-				prefix := strings.Repeat(" ", node.Depth*2)
-
-				// auto truncate
-				duration := autoTruncate(node.Span.Duration, 3)
-
 				// prepare name
+				prefix := strings.Repeat(" ", node.Depth*2)
 				name := fmt.Sprintf("%s", prefix+node.Span.Name)
 
 				// prepare bar
 				bar := buildBar(node.Span.Start.Sub(root.Span.Start), node.Span.Duration, root.Span.End.Sub(node.Span.End), 80)
 
+				// prepare duration
+				duration := autoTruncate(node.Span.Duration, 3)
+
+				// prepare attributes
+				attributes := buildMap(node.Span.Attributes)
+
+				// build span
+				str := strings.TrimRightFunc(fmt.Sprintf(format, name, bar, duration.String(), attributes), unicode.IsSpace)
+
 				// print span
-				_, _ = fmt.Fprintf(&buf, format, name, bar, duration.String())
+				_, _ = buf.WriteString(str)
+				_, _ = buf.WriteRune('\n')
 
 				return true
 			})

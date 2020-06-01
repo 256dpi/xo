@@ -104,20 +104,19 @@ func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) st
 		}
 	}
 
-	// prepare parts
+	// prepare before part
 	beforePart := strings.Repeat(" ", start)
-	spanPart := strings.Repeat("-", end-start)
-	afterPart := strings.Repeat(" ", width-end)
 
-	// adjust span part
-	switch len(spanPart) {
+	// prepare span part
+	var spanPart string
+	switch end - start {
 	case 1:
-		spanPart = "|"
+		spanPart = "┼"
 	case 2:
-		spanPart = "||"
+		spanPart = "├┤"
 	default:
-		spanPart = "|" + spanPart[1:len(spanPart)-1] + "|"
+		spanPart = "├" + strings.Repeat("─", (end-start)-2) + "┤"
 	}
 
-	return beforePart + spanPart + afterPart
+	return beforePart + spanPart
 }

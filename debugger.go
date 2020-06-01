@@ -105,27 +105,20 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		// print header
 		_, _ = fmt.Fprintf(&buf, "----- TRACE -----\n")
 
-		// prepare printer
-		var printer func(out io.Writer, root, node *MemoryNode, depth int)
-		printer = func(out io.Writer, root, node *MemoryNode, depth int) {
-			// prepare prefix
-			prefix := strings.Repeat(" ", depth*2)
-
-			// prepare bar
-			bar := buildBar(node.Span.Start.Sub(root.Span.Start), node.Span.Duration, root.Span.End.Sub(node.Span.End), 80)
-
-			// print span
-			_, _ = fmt.Fprintf(&buf, "%s  %s (%s)\n", bar, prefix+node.Span.Name, node.Span.Duration.String())
-
-			// print children
-			for _, child := range node.Children {
-				printer(out, root, child, depth+1)
-			}
-		}
-
 		// print roots
 		for _, root := range roots {
-			printer(&buf, root, root, 0)
+			walkTrace(root, func(node *MemoryNode) bool {
+				// prepare prefix
+				prefix := strings.Repeat(" ", node.Depth*2)
+
+				// prepare bar
+				bar := buildBar(node.Span.Start.Sub(root.Span.Start), node.Span.Duration, root.Span.End.Sub(node.Span.End), 80)
+
+				// print span
+				_, _ = fmt.Fprintf(&buf, "%s  %s (%s)\n", bar, prefix+node.Span.Name, node.Span.Duration.String())
+
+				return true
+			})
 		}
 
 		// write trace

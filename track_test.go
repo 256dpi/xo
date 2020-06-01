@@ -34,6 +34,6 @@ func TestTrack(t *testing.T) {
 			{Name: "bar"},
 			{Name: "track"},
 			{Name: "root"},
-		}, mock.ReducedSpans(10 *time.Millisecond))
+		}, mock.ReducedSpans(10*time.Millisecond))
 	})
 }

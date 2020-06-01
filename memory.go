@@ -43,9 +43,17 @@ type MemorySpan struct {
 }
 
 type MemoryNode struct {
-	Span     MemorySpan
-	Parent   *MemoryNode
+	// The nodes span.
+	Span MemorySpan
+
+	// The nodes parent, if any.
+	Parent *MemoryNode
+
+	// The node parent, if any.
 	Children []*MemoryNode
+
+	// The nodes depth.
+	Depth int
 }
 
 func buildTraces(list []MemorySpan) []*MemoryNode {
@@ -72,6 +80,7 @@ func buildTraces(list []MemorySpan) []*MemoryNode {
 		if node.Span.Parent != "" {
 			parent := nodes[node.Span.Parent]
 			if parent != nil {
+				node.Parent = parent
 				parent.Children = append(parent.Children, node)
 			}
 		}
@@ -80,7 +89,32 @@ func buildTraces(list []MemorySpan) []*MemoryNode {
 	// sort traces
 	sortNodes(roots)
 
+	// set depth
+	for _, node := range nodes {
+		depth := &node.Depth
+		for node.Parent != nil {
+			node = node.Parent
+			*depth++
+		}
+	}
+
 	return roots
+}
+
+func walkTrace(node *MemoryNode, fn func(node *MemoryNode) bool) bool {
+	// yield node
+	if !fn(node) {
+		return false
+	}
+
+	// yield children
+	for _, child := range node.Children {
+		if !walkTrace(child, fn) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func sortNodes(nodes []*MemoryNode) {

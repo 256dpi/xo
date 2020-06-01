@@ -112,11 +112,17 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 				// prepare prefix
 				prefix := strings.Repeat(" ", node.Depth*2)
 
+				// auto truncate
+				duration := autoTruncate(node.Span.Duration, 3)
+
+				// prepare tag
+				tag := fmt.Sprintf( "%s (%s)", prefix+node.Span.Name, duration.String())
+
 				// prepare bar
 				bar := buildBar(node.Span.Start.Sub(root.Span.Start), node.Span.Duration, root.Span.End.Sub(node.Span.End), 80)
 
 				// print span
-				_, _ = fmt.Fprintf(&buf, "%s  %s (%s)\n", bar, prefix+node.Span.Name, node.Span.Duration.String())
+				_, _ = fmt.Fprintf(&buf, "%s  %s\n", bar, tag)
 
 				return true
 			})

@@ -117,7 +117,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 
 				// check event names
 				for _, event := range node.Span.Events {
-					length := node.Depth*2 + len(event.Name)
+					length := node.Depth*2 + 1 + len(event.Name)
 					if length > longest {
 						longest = length
 					}
@@ -140,8 +140,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		for _, root := range roots {
 			walkTrace(root, func(node *MemoryNode) bool {
 				// prepare name
-				prefix := strings.Repeat(" ", node.Depth*2)
-				name := fmt.Sprintf("%s", prefix+node.Span.Name)
+				name := strings.Repeat(" ", node.Depth*2) + node.Span.Name
 
 				// prepare bar
 				bar := buildBar(node.Span.Start.Sub(root.Span.Start), node.Span.Duration, root.Span.End.Sub(node.Span.End), 80)
@@ -163,7 +162,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 				for _, event := range node.Span.Events {
 					// prepare name
 					prefix := strings.Repeat(" ", node.Depth*2)
-					name := fmt.Sprintf("%s", prefix+event.Name)
+					name := fmt.Sprintf("%s:%s", prefix, event.Name)
 
 					// prepare dot
 					dot := buildDot(event.Time.Sub(root.Span.Start), root.Span.End.Sub(event.Time), 80)

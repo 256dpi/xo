@@ -70,6 +70,7 @@ func ExampleTrack() {
 	span3.End()
 	span2.End()
 	ctx4, span4 := Track(ctx1, "Four")
+	span4.Record(F("fatal"))
 	time.Sleep(100 * time.Millisecond)
 	_, span5 := Track(ctx4, "Five")
 	span5.Tag("baz", 42)
@@ -82,9 +83,10 @@ func ExampleTrack() {
 	// ===== TRACE =====
 	// One         ├──────────────────────────────────────────────────────────────────────────────┤   500ms
 	//   Two                       ├──────────────────────────────┤                                   200ms
-	//   log                       •                                                                  100ms   hello:"world"
+	//   :log                      •                                                                  100ms   hello:"world"
 	//     Three                                   ├──────────────┤                                   100ms   foo:"bar"
 	//   Four                                                      ├──────────────────────────────┤   200ms
+	//   :error                                                    •                                  300ms   error.message:"fatal" error.type:"*errors.fundamental"
 	//     Five                                                                    ├──────────────┤   100ms   baz:42
 }
 

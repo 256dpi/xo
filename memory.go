@@ -13,6 +13,9 @@ type MemorySpanEvent struct {
 	// The event name.
 	Name string
 
+	// The event time.
+	Time time.Time
+
 	// Attached event attributes.
 	Attributes map[string]interface{}
 }
@@ -137,6 +140,7 @@ func traceSpanDataToMemorySpan(data *trace.SpanData) MemorySpan {
 	for _, event := range data.MessageEvents {
 		events = append(events, MemorySpanEvent{
 			Name:       event.Name,
+			Time:       event.Time,
 			Attributes: otelKVToMap(event.Attributes),
 		})
 	}

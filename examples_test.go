@@ -62,6 +62,7 @@ func ExampleTrack() {
 	ctx1, span1 := Track(ctx, "One")
 	time.Sleep(100 * time.Millisecond)
 	ctx2, span2 := Track(ctx1, "Two")
+	span2.Log("hello", "world")
 	time.Sleep(100 * time.Millisecond)
 	_, span3 := Track(ctx2, "Three")
 	span3.Tag("foo", "bar")
@@ -78,9 +79,10 @@ func ExampleTrack() {
 	span1.End()
 
 	// Output:
-	// ----- TRACE -----
+	// ===== TRACE =====
 	// One         ├──────────────────────────────────────────────────────────────────────────────┤   500ms
 	//   Two                       ├──────────────────────────────┤                                   200ms
+	//   log                       •                                                                  100ms   hello:"world"
 	//     Three                                   ├──────────────┤                                   100ms   foo:"bar"
 	//   Four                                                      ├──────────────────────────────┤   200ms
 	//     Five                                                                    ├──────────────┤   100ms   baz:42
@@ -97,7 +99,7 @@ func ExampleCapture() {
 	Capture(W(F("some error")))
 
 	// Output:
-	// ----- EVENT -----
+	// ===== EVENT =====
 	// Level: error
 	// Context:
 	// - device: {"arch":"amd64","num_cpu":8}

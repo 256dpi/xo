@@ -90,11 +90,15 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		// add root
 		list = append(list, span)
 
-		// adjust duration
+		// adjust times and durations
 		for i, span := range list {
 			span.Start = span.Start.Round(d.config.TraceResolution)
 			span.End = span.End.Round(d.config.TraceResolution)
 			span.Duration = span.End.Sub(span.Start)
+			for j, event := range span.Events {
+				event.Time = event.Time.Round(d.config.TraceResolution)
+				span.Events[j] = event
+			}
 			list[i] = span
 		}
 
@@ -105,10 +109,18 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		var longest int
 		for _, root := range roots {
 			walkTrace(root, func(node *MemoryNode) bool {
-				// calculate length
+				// check span name
 				length := node.Depth*2 + len(node.Span.Name)
 				if length > longest {
 					longest = length
+				}
+
+				// check event names
+				for _, event := range node.Span.Events {
+					length := node.Depth*2 + len(event.Name)
+					if length > longest {
+						longest = length
+					}
 				}
 
 				return true
@@ -119,7 +131,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		var buf bytes.Buffer
 
 		// print header
-		_, _ = fmt.Fprintf(&buf, "----- TRACE -----\n")
+		_, _ = fmt.Fprintf(&buf, "===== TRACE =====\n")
 
 		// prepare format
 		format := fmt.Sprintf("%%-%ds   %%s   %%-6s  %%s", longest)
@@ -147,6 +159,29 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 				_, _ = buf.WriteString(str)
 				_, _ = buf.WriteRune('\n')
 
+				// print events
+				for _, event := range node.Span.Events {
+					// prepare name
+					prefix := strings.Repeat(" ", node.Depth*2)
+					name := fmt.Sprintf("%s", prefix+event.Name)
+
+					// prepare dot
+					dot := buildDot(event.Time.Sub(root.Span.Start), root.Span.End.Sub(event.Time), 80)
+
+					// prepare timing
+					timing := autoTruncate(event.Time.Sub(root.Span.Start), 3)
+
+					// prepare attributes
+					attributes := buildMap(event.Attributes)
+
+					// build span
+					str := strings.TrimRightFunc(fmt.Sprintf(format, name, dot, timing.String(), attributes), unicode.IsSpace)
+
+					// print span
+					_, _ = buf.WriteString(str)
+					_, _ = buf.WriteRune('\n')
+				}
+
 				return true
 			})
 		}
@@ -173,7 +208,7 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		var buf bytes.Buffer
 
 		// print header
-		_, _ = fmt.Fprintf(&buf, "----- EVENT -----\n")
+		_, _ = fmt.Fprintf(&buf, "===== EVENT =====\n")
 
 		// print info
 		_, _ = fmt.Fprintf(&buf, "Level: %s\n", event.Level)

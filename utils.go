@@ -142,3 +142,25 @@ func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) st
 
 	return beforePart + spanPart + afterPart
 }
+
+func buildDot(beforeLength, afterLength time.Duration, width int) string {
+	// calculate total and step
+	total := beforeLength + afterLength
+	step := total / time.Duration(width)
+
+	// calculate position and rest
+	position := int(beforeLength / step)
+	rest := width - position - 1
+
+	// handle negative
+	if rest < 0 {
+		position--
+		rest++
+	}
+
+	// prepare before part
+	beforePart := strings.Repeat(" ", position)
+	afterPart := strings.Repeat(" ", rest)
+
+	return beforePart + "•" + afterPart
+}

@@ -2,7 +2,6 @@ package xo
 
 import (
 	"context"
-	"math"
 	"time"
 
 	"github.com/getsentry/sentry-go"
@@ -89,9 +88,12 @@ func (m *Mock) ReducedSpans(resolution time.Duration) []MemorySpan {
 
 	// cleanup and copy spans
 	for _, span := range m.Spans {
-		// resize duration
-		df := float64(span.Duration) / float64(resolution)
-		duration := time.Duration(math.Round(df)) * resolution
+		// truncate timestamps
+		span.Start = span.Start.Round(resolution)
+		span.End = span.End.Round(resolution)
+
+		// recalculate duration
+		duration := span.End.Sub(span.Start)
 
 		// cleanup span
 		span.ID = ""

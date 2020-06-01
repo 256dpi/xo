@@ -5,6 +5,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"time"
 	"unicode"
 
 	"go.opentelemetry.io/otel/api/kv"
@@ -68,4 +69,40 @@ func mustEncode(value interface{}) string {
 	}
 
 	return string(buf)
+}
+
+func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) string {
+	// calculate total and step
+	total := beforeLength + spanLength + afterLength
+	step := total / time.Duration(width)
+
+	// calculate points
+	start := int(beforeLength / step)
+	end := int((beforeLength + spanLength) / step)
+
+	// handle zero
+	if end-start == 0 {
+		if end < width {
+			end++
+		} else {
+			start--
+		}
+	}
+
+	// prepare parts
+	beforePart := strings.Repeat(" ", start)
+	spanPart := strings.Repeat("-", end-start)
+	afterPart := strings.Repeat(" ", width-end)
+
+	// adjust span part
+	switch len(spanPart) {
+	case 1:
+		spanPart = "|"
+	case 2:
+		spanPart = "||"
+	default:
+		spanPart = "|" + spanPart[1:len(spanPart)-1] + "|"
+	}
+
+	return beforePart + spanPart + afterPart
 }

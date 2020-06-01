@@ -86,7 +86,7 @@ func buildTraces(list []MemorySpan) []*MemoryNode {
 func sortNodes(nodes []*MemoryNode) {
 	// sort children
 	sort.Slice(nodes, func(i, j int) bool {
-		return nodes[i].Span.Start.Before(nodes[i].Span.Start)
+		return nodes[i].Span.Start.Before(nodes[j].Span.Start)
 	})
 
 	// sort children

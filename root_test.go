@@ -17,7 +17,7 @@ func TestRootHandler(t *testing.T) {
 				_, span := Track(r.Context(), "foo")
 				defer span.End()
 
-				time.Sleep(time.Millisecond)
+				time.Sleep(10 * time.Millisecond)
 				w.WriteHeader(http.StatusOK)
 			}),
 		)
@@ -29,11 +29,11 @@ func TestRootHandler(t *testing.T) {
 		assert.Equal(t, []MemorySpan{
 			{
 				Name:     "foo",
-				Duration: time.Millisecond,
+				Duration: 10 * time.Millisecond,
 			},
 			{
 				Name:     "GET /foo/#/bar",
-				Duration: time.Millisecond,
+				Duration: 10 * time.Millisecond,
 				Attributes: map[string]interface{}{
 					"peer.address": "192.0.2.1:1234",
 					"http.proto":   "HTTP/1.1",
@@ -45,6 +45,6 @@ func TestRootHandler(t *testing.T) {
 					"http.header":  "map[]",
 				},
 			},
-		}, mock.ReducedSpans(time.Millisecond))
+		}, mock.ReducedSpans(10*time.Millisecond))
 	})
 }

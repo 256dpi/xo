@@ -3,6 +3,7 @@ package xo
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -33,6 +34,6 @@ func TestTrack(t *testing.T) {
 			{Name: "bar"},
 			{Name: "track"},
 			{Name: "root"},
-		}, mock.ReducedSpans(0))
+		}, mock.ReducedSpans(10 *time.Millisecond))
 	})
 }

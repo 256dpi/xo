@@ -95,22 +95,27 @@ func (t *Trace) Push(name string) {
 	t.stack = append(t.stack, child)
 }
 
-// Tag will add the provided attribute to the last pushed span.
+// Rename will set a new name on the tail.
+func (t *Trace) Rename(name string) {
+	t.Tail().Rename(name)
+}
+
+// Tag will add the provided attribute to the tail.
 func (t *Trace) Tag(key string, value interface{}) {
 	t.Tail().Tag(key, value)
 }
 
-// Attach will add the provided event to the last pushed span.
+// Attach will add the provided event to the tail.
 func (t *Trace) Attach(event string, attributes M) {
 	t.Tail().Attach(event, attributes)
 }
 
-// Log will attach a log event to the last pushed span.
+// Log will attach a log event to the tail.
 func (t *Trace) Log(format string, args ...interface{}) {
 	t.Tail().Log(format, args...)
 }
 
-// Record will attach an error event to the last pushed span.
+// Record will attach an error event to the tail.
 func (t *Trace) Record(err error) {
 	t.Tail().Record(err)
 }

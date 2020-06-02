@@ -17,9 +17,14 @@ type Span struct {
 	span trace.Span
 }
 
+// AutoTrack calls Track with the callers short name.
+func AutoTrack(ctx context.Context) (context.Context, Span) {
+	return Track(ctx, GetCaller(1).Short)
+}
+
 // Track is used to mark and annotate a function call. It will automatically
 // wrap the context with a child from the span history found in the provided
-// context. If no span history was found it will return a noop span.
+// context. If no span history was found it will start a new span.
 //
 // If the function finds a trace in the context and its root span matches
 // the span from the context it will create a child from the traces tail.
@@ -31,6 +36,13 @@ func Track(ctx context.Context, name string) (context.Context, Span) {
 	return ctx, Span{
 		ctx:  ctx,
 		span: span,
+	}
+}
+
+// Rename will set a new name on the span.
+func (s Span) Rename(name string) {
+	if s.span != nil {
+		s.span.SetName(name)
 	}
 }
 

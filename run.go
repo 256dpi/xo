@@ -11,8 +11,13 @@ type Context struct {
 	// The caller.
 	Caller Caller
 
-	// The span created to track execution.
+	// The span.
 	Span Span
+}
+
+// Rename will set a new name on the span.
+func (c *Context) Rename(name string) {
+	c.Span.Rename(name)
 }
 
 // Attach will add the provided event to the span.

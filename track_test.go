@@ -8,6 +8,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAutoTrack(t *testing.T) {
+	Trap(func(mock *Mock) {
+		ctx, span := AutoTrack(nil)
+		assert.NotNil(t, ctx)
+		assert.NotNil(t, span)
+		span.End()
+
+		assert.Equal(t, []MemorySpan{
+			{Name: "xo.TestAutoTrack.func1"},
+		}, mock.ReducedSpans(10*time.Millisecond))
+	})
+}
+
 func TestTrack(t *testing.T) {
 	Trap(func(mock *Mock) {
 		ctx, span := Track(nil, "foo")

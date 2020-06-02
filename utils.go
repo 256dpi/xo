@@ -111,6 +111,9 @@ func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) st
 	// calculate total and step
 	total := beforeLength + spanLength + afterLength
 	step := total / time.Duration(width)
+	if step == 0 {
+		step = 1
+	}
 
 	// calculate points
 	start := int(beforeLength / step)
@@ -133,7 +136,7 @@ func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) st
 	var spanPart string
 	switch end - start {
 	case 1:
-		spanPart = "┼"
+		spanPart = "│"
 	case 2:
 		spanPart = "├┤"
 	default:
@@ -147,6 +150,9 @@ func buildDot(beforeLength, afterLength time.Duration, width int) string {
 	// calculate total and step
 	total := beforeLength + afterLength
 	step := total / time.Duration(width)
+	if step == 0 {
+		step = 1
+	}
 
 	// calculate position and rest
 	position := int(beforeLength / step)

@@ -3,6 +3,7 @@ package xo
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -106,9 +107,44 @@ func ExampleCapture() {
 	// Context:
 	// - device: {"arch":"amd64","num_cpu":8}
 	// - os: {"name":"darwin"}
-	// - runtime: {"go_maxprocs":8,"go_numcgocalls":1,"go_numroutines":2,"name":"go","version":"go1.14.1"}
+	// - runtime: {"go_maxprocs":8,"go_numcgocalls":1,"go_numroutines":4,"name":"go","version":"go1.14.1"}
 	// Exceptions:
 	// - some error (*xo.Err)
-	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:101
-	//   > main (main): _testmain.go:92
+	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:102
+	//   > main (main): _testmain.go:96
+}
+
+func ExampleSink() {
+	// intercept
+	reset := Intercept()
+	defer reset()
+
+	// builtin fmt
+	fmt.Println("foo", "bar")
+	fmt.Printf("%d %d\n", 7, 42)
+	time.Sleep(10 * time.Millisecond)
+
+	// builtin logger
+	log.SetFlags(0)
+	log.Println("foo", "bar")
+	log.Printf("%d %d", 7, 42)
+	time.Sleep(10 * time.Millisecond)
+
+	// custom logger
+	sink := Sink("FOO")
+	logger := log.New(sink, "", 0)
+	logger.Println("foo", "bar")
+	logger.Printf("%d %d", 7, 42)
+	time.Sleep(10 * time.Millisecond)
+
+	// Output:
+	// ===== STDOUT =====
+	// foo bar
+	// 7 42
+	// ===== LOG =====
+	// foo bar
+	// 7 42
+	// ===== FOO =====
+	// foo bar
+	// 7 42
 }

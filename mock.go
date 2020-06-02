@@ -165,10 +165,12 @@ func (m *Mock) SentryTransport() sentry.Transport {
 
 			// rewrite line numbers
 			for i := range event.Exception {
-				st := event.Exception[i].Stacktrace
-				for j := range st.Frames {
-					if st.Frames[j].Lineno > 0 {
-						st.Frames[j].Lineno = -1
+				if event.Exception[i].Stacktrace != nil {
+					st := event.Exception[i].Stacktrace
+					for j := range st.Frames {
+						if st.Frames[j].Lineno > 0 {
+							st.Frames[j].Lineno = -1
+						}
 					}
 				}
 			}

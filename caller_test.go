@@ -37,6 +37,12 @@ func TestCallerFormat(t *testing.T) {
 	str := caller.String()
 	assert.Equal(t, "xo.TestCallerFormat", str)
 
+	str = fmt.Sprintf("%s", caller)
+	assert.Equal(t, "xo.TestCallerFormat", str)
+
+	str = fmt.Sprintf("%q", caller)
+	assert.Equal(t, `"xo.TestCallerFormat"`, str)
+
 	str = fmt.Sprintf("%v", caller)
 	assert.Equal(t, "github.com/256dpi/xo.TestCallerFormat", str)
 

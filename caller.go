@@ -58,10 +58,18 @@ func (c Caller) String() string {
 	return c.Short
 }
 
-// Format will format the caller depending on %s, %v or %+v.
+// Format will format the caller.
+//
+//  %s   short name
+//  %q   quoted short name
+//  %v   full name
+//  %+v  stack trace
+//
 func (c Caller) Format(s fmt.State, verb rune) {
 	if verb == 's' {
 		_, _ = io.WriteString(s, c.Short)
+	} else if verb == 'q' {
+		_, _ = fmt.Fprintf(s, "%q", c.Short)
 	} else if verb == 'v' {
 		if s.Flag('+') {
 			c.Dump(s)

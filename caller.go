@@ -5,17 +5,17 @@ import (
 	"strings"
 )
 
-// CallerInfo describes a caller.
-type CallerInfo struct {
-	Full  string
+// Caller describes a caller.
+type Caller struct {
 	Short string
+	Full  string
 	File  string
 	Line  int
 	Stack []uintptr
 }
 
-// Caller returns information on the current caller.
-func Caller(skip ...int) CallerInfo {
+// GetCaller returns information on the current caller.
+func GetCaller(skip ...int) Caller {
 	// sum skip
 	sum := 2
 	for _, s := range skip {
@@ -31,7 +31,7 @@ func Caller(skip ...int) CallerInfo {
 	frame, _ := runtime.CallersFrames(stack).Next()
 
 	// get name, file and line
-	name := frame.Func.Name()
+	name := frame.Function
 	file := frame.File
 	line := frame.Line
 
@@ -41,9 +41,9 @@ func Caller(skip ...int) CallerInfo {
 		short = short[idx+1:]
 	}
 
-	return CallerInfo{
-		Full:  name,
+	return Caller{
 		Short: short,
+		Full:  name,
 		File:  file,
 		Line:  line,
 		Stack: stack,

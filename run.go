@@ -9,7 +9,7 @@ type Context struct {
 	context.Context
 
 	// The caller.
-	Caller CallerInfo
+	Caller Caller
 
 	// The span created to track execution.
 	Span *Span
@@ -34,7 +34,7 @@ func Run(ctx context.Context, fn func(ctx *Context) error) (err error) {
 	}
 
 	// get caller
-	caller := Caller(1)
+	caller := GetCaller(1)
 
 	// track
 	ctx, span := Track(ctx, caller.Short)

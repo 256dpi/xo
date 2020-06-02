@@ -21,7 +21,7 @@ func TestRun(t *testing.T) {
 		return F("error")
 	})
 	assert.Error(t, err)
-	assert.Equal(t, "xo.TestRun: error", err.Error())
+	assert.Equal(t, "error", err.Error())
 
 	err = Run(nil, func(ctx *Context) error {
 		ctx.Tag("tag", 42)
@@ -29,7 +29,7 @@ func TestRun(t *testing.T) {
 		panic("error")
 	})
 	assert.Error(t, err)
-	assert.Equal(t, "xo.TestRun: PANIC: error", err.Error())
+	assert.Equal(t, "PANIC: error", err.Error())
 }
 
 func BenchmarkRun(b *testing.B) {

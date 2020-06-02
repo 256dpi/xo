@@ -20,10 +20,8 @@ func TestSentry(t *testing.T) {
 				Level: "error",
 				Exception: []sentry.Exception{
 					{
-						Type:     "*xo.Error",
-						Value:    "some error",
-						Module:   "",
-						ThreadID: "",
+						Type:  "*xo.Error",
+						Value: "some error",
 						Stacktrace: &sentry.Stacktrace{
 							Frames: []sentry.Frame{
 								{
@@ -31,7 +29,6 @@ func TestSentry(t *testing.T) {
 									Module:   "github.com/256dpi/xo",
 									Filename: "sentry_test.go",
 									AbsPath:  "/Users/256dpi/Development/GitHub/256dpi/xo/sentry_test.go",
-									Lineno:   -1,
 									InApp:    true,
 								},
 							},
@@ -47,7 +44,6 @@ func TestSentry(t *testing.T) {
 									Module:   "github.com/256dpi/xo",
 									Filename: "sentry_test.go",
 									AbsPath:  "/Users/256dpi/Development/GitHub/256dpi/xo/sentry_test.go",
-									Lineno:   -1,
 									InApp:    true,
 								},
 								{
@@ -55,7 +51,6 @@ func TestSentry(t *testing.T) {
 									Module:   "github.com/256dpi/xo",
 									Filename: "mock.go",
 									AbsPath:  "/Users/256dpi/Development/GitHub/256dpi/xo/mock.go",
-									Lineno:   -1,
 									InApp:    true,
 								},
 								{
@@ -63,7 +58,6 @@ func TestSentry(t *testing.T) {
 									Module:   "github.com/256dpi/xo",
 									Filename: "sentry_test.go",
 									AbsPath:  "/Users/256dpi/Development/GitHub/256dpi/xo/sentry_test.go",
-									Lineno:   -1,
 									InApp:    true,
 								},
 							},

@@ -2,6 +2,7 @@ package xo
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -22,6 +23,7 @@ func TestRun(t *testing.T) {
 	})
 	assert.Error(t, err)
 	assert.Equal(t, "error", err.Error())
+	assert.Equal(t, "xo.TestRun: error", fmt.Sprintf("%v", err))
 
 	err = Run(nil, func(ctx *Context) error {
 		ctx.Tag("tag", 42)
@@ -30,6 +32,7 @@ func TestRun(t *testing.T) {
 	})
 	assert.Error(t, err)
 	assert.Equal(t, "PANIC: error", err.Error())
+	assert.Equal(t, "xo.TestRun: PANIC: error", fmt.Sprintf("%v", err))
 }
 
 func BenchmarkRun(b *testing.B) {

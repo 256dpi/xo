@@ -70,11 +70,11 @@ func TestCallerFormat(t *testing.T) {
 	str = fmt.Sprintf("%+v", caller)
 	assert.Equal(t, []string{
 		"github.com/256dpi/xo.TestCallerFormat",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/caller_test.go:56",
+		"  /Users/256dpi/Development/GitHub/256dpi/xo/caller_test.go:LN",
 		"testing.tRunner",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:992",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
 		"runtime.goexit",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:1373",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
 	}, splitTrace(str))
 }
 

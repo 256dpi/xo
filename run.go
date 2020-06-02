@@ -37,7 +37,7 @@ func Run(ctx context.Context, fn func(ctx *Context) error) (err error) {
 	caller := Caller(1)
 
 	// track
-	ctx, span := Track(ctx, caller.Full)
+	ctx, span := Track(ctx, caller.Short)
 	defer span.End()
 
 	// wrap

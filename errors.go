@@ -6,9 +6,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-// TODO: Add own implementations?
-
-type Error struct {
+// Err is the error returned by F(), W() and WF().
+type Err struct {
 	Err    error
 	Msg    string
 	Caller Caller
@@ -16,7 +15,7 @@ type Error struct {
 
 // F will format and error similar to errors.New() and fmt.Errorf().
 func F(format string, args ...interface{}) error {
-	return &Error{
+	return &Err{
 		Msg:    fmt.Sprintf(format, args...),
 		Caller: GetCaller(1),
 	}
@@ -24,7 +23,7 @@ func F(format string, args ...interface{}) error {
 
 // W will wrap an error.
 func W(err error) error {
-	return &Error{
+	return &Err{
 		Err:    err,
 		Caller: GetCaller(1),
 	}
@@ -32,7 +31,7 @@ func W(err error) error {
 
 // WF will wrap and error with a formatted message.
 func WF(err error, format string, args ...interface{}) error {
-	return &Error{
+	return &Err{
 		Err:    err,
 		Msg:    fmt.Sprintf(format, args...),
 		Caller: GetCaller(1),
@@ -40,7 +39,7 @@ func WF(err error, format string, args ...interface{}) error {
 }
 
 // Error will return the error as a string.
-func (e *Error) Error() string {
+func (e *Err) Error() string {
 	if e.Msg != "" && e.Err != nil {
 		return e.Msg + ": " + e.Err.Error()
 	} else if e.Err != nil {
@@ -51,7 +50,7 @@ func (e *Error) Error() string {
 }
 
 // Unwrap will return the wrapped error, if any.
-func (e *Error) Unwrap() error {
+func (e *Err) Unwrap() error {
 	return e.Err
 }
 
@@ -62,7 +61,7 @@ func (e *Error) Unwrap() error {
 //  %v   caller + message
 //  %+v  parent + message + stack
 //
-func (e *Error) Format(s fmt.State, verb rune) {
+func (e *Err) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 'v':
 		if s.Flag('+') {
@@ -84,61 +83,46 @@ func (e *Error) Format(s fmt.State, verb rune) {
 	}
 }
 
-func (e *Error) StackTrace() []uintptr {
+// StackTrace will return the stack trace (for sentry).
+func (e *Err) StackTrace() []uintptr {
 	return e.Caller.Stack
 }
 
-// Safe error?
-
-// SafeError wraps an error to indicate presentation safety.
-type SafeError struct {
-	Err error
+// SafeErr wraps an Err to indicate presentation safety.
+type SafeErr struct {
+	Err
 }
 
-// E is a short-hand function to construct a safe error.
-func E(format string, args ...interface{}) error {
-	return Safe(F(format, args...))
+// SF is a short-hand function to construct a safe error.
+func SF(format string, args ...interface{}) error {
+	return &SafeErr{
+		Err: Err{
+			Msg:    fmt.Sprintf(format, args...),
+			Caller: GetCaller(1),
+		},
+	}
 }
 
-// Safe wraps an error and marks it as safe. Wrapped errors are safe to be
+// SW wraps an error and marks it as safe. Wrapped errors are safe to be
 // presented to the client if appropriate.
-func Safe(err error) error {
-	return &SafeError{
-		Err: err,
+func SW(err error) error {
+	return &SafeErr{
+		Err: Err{
+			Err:    err,
+			Caller: GetCaller(1),
+		},
 	}
 }
 
-// Error implements the error interface.
-func (err *SafeError) Error() string {
-	return err.Err.Error()
-}
-
-// Unwrap will return the wrapped error.
-func (err *SafeError) Unwrap() error {
-	return err.Err
-}
-
-// Format implements the fmt.Formatter interface.
-func (err *SafeError) Format(s fmt.State, verb rune) {
-	// check if err implements formatter
-	if fErr, ok := err.Err.(fmt.Formatter); ok {
-		fErr.Format(s, verb)
-		return
-	}
-
-	// write string
-	justPrint(s, err.Error())
-}
-
-// IsSafe can be used to check if an error has been wrapped using Safe. It will
+// IsSafe can be used to check if an error has been wrapped using SW. It will
 // also detect further wrapped safe errors.
 func IsSafe(err error) bool {
 	return AsSafe(err) != nil
 }
 
 // AsSafe will return the safe error from an error chain.
-func AsSafe(err error) *SafeError {
-	var safeErr *SafeError
+func AsSafe(err error) *SafeErr {
+	var safeErr *SafeErr
 	errors.As(err, &safeErr)
 	return safeErr
 }

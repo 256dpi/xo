@@ -86,7 +86,7 @@ func ExampleTrack() {
 	//   :log                      •                                                                  100ms   hello:"world"
 	//     Three                                   ├──────────────┤                                   100ms   foo:"bar"
 	//   Four                                                      ├──────────────────────────────┤   200ms
-	//   :error                                                    •                                  300ms   error.message:"fatal" error.type:"*xo.Error"
+	//   :error                                                    •                                  300ms   error.message:"fatal" error.type:"*xo.Err"
 	//     Five                                                                    ├──────────────┤   100ms   baz:42
 }
 
@@ -108,10 +108,10 @@ func ExampleCapture() {
 	// - os: {"name":"darwin"}
 	// - runtime: {"go_maxprocs":8,"go_numcgocalls":1,"go_numroutines":2,"name":"go","version":"go1.14.1"}
 	// Exceptions:
-	// - some error (*xo.Error)
+	// - some error (*xo.Err)
 	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:101
 	//   > main (main): _testmain.go:86
-	// - some error (*xo.Error)
+	// - some error (*xo.Err)
 	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:101
 	//   > main (main): _testmain.go:86
 }

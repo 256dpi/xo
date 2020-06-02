@@ -106,8 +106,8 @@ func TestWF(t *testing.T) {
 	}, splitTrace(str))
 }
 
-func TestE(t *testing.T) {
-	err := E("foo")
+func TestSF(t *testing.T) {
+	err := SF("foo")
 	assert.True(t, IsSafe(err))
 
 	str := err.Error()
@@ -117,14 +117,12 @@ func TestE(t *testing.T) {
 	assert.Equal(t, `foo`, str)
 
 	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, `xo.E: foo`, str)
+	assert.Equal(t, `xo.TestSF: foo`, str)
 
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"github.com/256dpi/xo.E",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors.go:LN",
-		"github.com/256dpi/xo.TestE",
+		"github.com/256dpi/xo.TestSF",
 		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
 		"testing.tRunner",
 		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
@@ -144,21 +142,19 @@ func TestE(t *testing.T) {
 	assert.Equal(t, "bar: foo", str)
 
 	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, "xo.TestE: bar: foo", str)
+	assert.Equal(t, "xo.TestSF: bar: foo", str)
 
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"github.com/256dpi/xo.E",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors.go:LN",
-		"github.com/256dpi/xo.TestE",
+		"github.com/256dpi/xo.TestSF",
 		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
 		"testing.tRunner",
 		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
 		"runtime.goexit",
 		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
 		"bar",
-		"github.com/256dpi/xo.TestE",
+		"github.com/256dpi/xo.TestSF",
 		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
 		"testing.tRunner",
 		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
@@ -167,13 +163,13 @@ func TestE(t *testing.T) {
 	}, splitTrace(str))
 }
 
-func TestSafeError(t *testing.T) {
+func TestSafeErr(t *testing.T) {
 	err1 := F("foo")
 	assert.False(t, IsSafe(err1))
 	assert.Equal(t, "foo", err1.Error())
 	assert.Nil(t, AsSafe(err1))
 
-	err2 := Safe(err1)
+	err2 := SW(err1)
 	assert.True(t, IsSafe(err2))
 	assert.Equal(t, "foo", err2.Error())
 	assert.Equal(t, err2, AsSafe(err2))

@@ -68,7 +68,7 @@ func Run(ctx context.Context, fn func(ctx *Context) error) (err error) {
 		}
 
 		// wrap error
-		err = &Error{
+		err = &Err{
 			Err:    err,
 			Caller: xtc.Caller,
 		}

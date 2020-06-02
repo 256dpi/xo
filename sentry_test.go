@@ -20,7 +20,7 @@ func TestSentry(t *testing.T) {
 				Level: "error",
 				Exception: []sentry.Exception{
 					{
-						Type:  "*xo.Error",
+						Type:  "*xo.Err",
 						Value: "some error",
 						Stacktrace: &sentry.Stacktrace{
 							Frames: []sentry.Frame{
@@ -35,7 +35,7 @@ func TestSentry(t *testing.T) {
 						},
 					},
 					{
-						Type:  "*xo.Error",
+						Type:  "*xo.Err",
 						Value: "some error",
 						Stacktrace: &sentry.Stacktrace{
 							Frames: []sentry.Frame{

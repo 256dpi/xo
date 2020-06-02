@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -30,7 +29,7 @@ type DebuggerConfig struct {
 func (c *DebuggerConfig) Ensure() {
 	// set default trace output
 	if c.TraceOutput == nil {
-		c.TraceOutput = os.Stdout
+		c.TraceOutput = Sink("TRACE")
 	}
 
 	// set default trace resolution
@@ -40,7 +39,7 @@ func (c *DebuggerConfig) Ensure() {
 
 	// set default event output
 	if c.EventOutput == nil {
-		c.EventOutput = os.Stdout
+		c.EventOutput = Sink("EVENT")
 	}
 }
 
@@ -130,9 +129,6 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		// prepare buffer
 		var buf bytes.Buffer
 
-		// print header
-		_, _ = fmt.Fprintf(&buf, "===== TRACE =====\n")
-
 		// prepare format
 		format := fmt.Sprintf("%%-%ds   %%s   %%-6s  %%s", longest)
 
@@ -205,9 +201,6 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 
 		// prepare buffer
 		var buf bytes.Buffer
-
-		// print header
-		_, _ = fmt.Fprintf(&buf, "===== EVENT =====\n")
 
 		// print info
 		_, _ = fmt.Fprintf(&buf, "Level: %s\n", event.Level)

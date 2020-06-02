@@ -48,6 +48,10 @@ func ExampleRun() {
 }
 
 func ExampleTrack() {
+	// intercept
+	reset := Intercept()
+	defer reset()
+
 	// enable debugger
 	SetupDebugger(DebuggerConfig{
 		TraceResolution: 100 * time.Millisecond,
@@ -80,6 +84,9 @@ func ExampleTrack() {
 	span4.End()
 	span1.End()
 
+	// flush
+	time.Sleep(10 * time.Millisecond)
+
 	// Output:
 	// ===== TRACE =====
 	// One         ├──────────────────────────────────────────────────────────────────────────────┤   500ms
@@ -92,6 +99,10 @@ func ExampleTrack() {
 }
 
 func ExampleCapture() {
+	// intercept
+	reset := Intercept()
+	defer reset()
+
 	// enable debugger
 	SetupDebugger(DebuggerConfig{})
 
@@ -101,16 +112,19 @@ func ExampleCapture() {
 	// capture error
 	Capture(F("some error"))
 
+	// flush
+	time.Sleep(10 * time.Millisecond)
+
 	// Output:
 	// ===== EVENT =====
 	// Level: error
 	// Context:
 	// - device: {"arch":"amd64","num_cpu":8}
 	// - os: {"name":"darwin"}
-	// - runtime: {"go_maxprocs":8,"go_numcgocalls":1,"go_numroutines":4,"name":"go","version":"go1.14.1"}
+	// - runtime: {"go_maxprocs":8,"go_numcgocalls":1,"go_numroutines":18,"name":"go","version":"go1.14.1"}
 	// Exceptions:
 	// - some error (*xo.Err)
-	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:102
+	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:113
 	//   > main (main): _testmain.go:96
 }
 

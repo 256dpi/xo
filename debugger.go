@@ -107,7 +107,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 				name := strings.Repeat(" ", node.Depth*2) + node.Span.Name
 
 				// prepare bar
-				bar := buildBar(node.Span.Start.Sub(root.Span.Start), node.Span.Duration, root.Span.End.Sub(node.Span.End), 80)
+				bar := buildBar(node.Span.Start.Sub(root.Span.Start), node.Span.Duration, root.Span.End.Sub(node.Span.End), d.config.TraceWidth)
 
 				// prepare duration
 				duration := autoTruncate(node.Span.Duration, 3)

@@ -30,6 +30,11 @@ type Config struct {
 	// Default: 1ns.
 	TraceResolution time.Duration
 
+	// The trace width.
+	//
+	// Default: 80.
+	TraceWidth int
+
 	// The output for events.
 	//
 	// Default: Sink("EVENT").
@@ -46,6 +51,11 @@ func (c *Config) Ensure() {
 	// set default trace resolution
 	if c.TraceResolution == 0 {
 		c.TraceResolution = time.Nanosecond
+	}
+
+	// set default trace width
+	if c.TraceWidth == 0 {
+		c.TraceWidth = 80
 	}
 
 	// set default event output

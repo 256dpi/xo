@@ -1,7 +1,10 @@
 package xo
 
 import (
+	"fmt"
+	"io"
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -23,7 +26,7 @@ func GetCaller(skip ...int) Caller {
 	}
 
 	// get callers
-	stack := make([]uintptr, 100)
+	stack := make([]uintptr, 32)
 	n := runtime.Callers(sum, stack)
 	stack = stack[:n]
 
@@ -47,5 +50,47 @@ func GetCaller(skip ...int) Caller {
 		File:  file,
 		Line:  line,
 		Stack: stack,
+	}
+}
+
+// String will format the caller as a string.
+func (c Caller) String() string {
+	return c.Short
+}
+
+// Format will format the caller depending on %s, %v or %+v.
+func (c Caller) Format(s fmt.State, verb rune) {
+	if verb == 's' {
+		_, _ = io.WriteString(s, c.Short)
+	} else if verb == 'v' {
+		if s.Flag('+') {
+			c.Dump(s)
+		} else if verb == 's' || verb == 'v' {
+			ioWriteString(s, c.Full)
+		}
+	}
+}
+
+// Dump will dump the stack to the provided writer.
+func (c Caller) Dump(out io.Writer) {
+	// get frames
+	frames := runtime.CallersFrames(c.Stack)
+
+	// iterate frames
+	var frame runtime.Frame
+	more := true
+	for more {
+		// get next frame
+		frame, more = frames.Next()
+
+		// print frame
+		ioWriteString(out, frame.Function)
+		ioWriteString(out, "\n\t")
+		ioWriteString(out, frame.File)
+		ioWriteString(out, ":")
+		ioWriteString(out, strconv.Itoa(frame.Line))
+		if more {
+			ioWriteString(out, "\n")
+		}
 	}
 }

@@ -2,8 +2,6 @@ package xo
 
 import (
 	"fmt"
-	"regexp"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -171,12 +169,6 @@ func TestSafeError(t *testing.T) {
 	assert.True(t, IsSafe(err3))
 	assert.Equal(t, "bar: foo", err3.Error())
 	assert.Equal(t, err2, AsSafe(err3))
-}
-
-func splitTrace(str string) []string {
-	str = strings.ReplaceAll(str, "\t", "  ")
-	str = regexp.MustCompile(":\\d+").ReplaceAllString(str, ":LN")
-	return strings.Split(str, "\n")
 }
 
 func BenchmarkF(b *testing.B) {

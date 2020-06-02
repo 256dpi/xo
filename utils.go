@@ -3,6 +3,7 @@ package xo
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"sort"
@@ -12,6 +13,10 @@ import (
 
 	"go.opentelemetry.io/otel/api/kv"
 )
+
+func ioWriteString(out io.Writer, str string) {
+	_, _ = io.WriteString(out, str)
+}
 
 func isBenchmark() bool {
 	// check bench flag

@@ -1,6 +1,7 @@
 package xo
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,6 +29,26 @@ func TestGetCaller(t *testing.T) {
 			Stack: caller.Stack,
 		}, caller)
 	}()
+}
+
+func TestCallerFormat(t *testing.T) {
+	caller := GetCaller(0)
+
+	str := caller.String()
+	assert.Equal(t, "xo.TestCallerFormat", str)
+
+	str = fmt.Sprintf("%v", caller)
+	assert.Equal(t, "github.com/256dpi/xo.TestCallerFormat", str)
+
+	str = fmt.Sprintf("%+v", caller)
+	assert.Equal(t, []string{
+		"github.com/256dpi/xo.TestCallerFormat",
+		"  /Users/256dpi/Development/GitHub/256dpi/xo/caller_test.go:LN",
+		"testing.tRunner",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
+		"runtime.goexit",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
+	}, splitTrace(str))
 }
 
 func BenchmarkGetCaller(b *testing.B) {

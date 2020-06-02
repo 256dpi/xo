@@ -21,7 +21,8 @@ func F(format string, args ...interface{}) error {
 	}
 }
 
-// W will wrap an error.
+// W will wrap an error. The error is not wrapped if the parent error already
+// captured the caller.
 func W(err error) error {
 	// check nil
 	if err == nil {
@@ -113,7 +114,7 @@ type SafeErr struct {
 	Err
 }
 
-// SF is a short-hand function to construct a safe error.
+// SF is a short-hand function to format a safe error.
 func SF(format string, args ...interface{}) error {
 	return &SafeErr{
 		Err: Err{

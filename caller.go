@@ -17,17 +17,11 @@ type Caller struct {
 	Stack []uintptr
 }
 
-// GetCaller returns information on the current caller.
-func GetCaller(skip ...int) Caller {
-	// sum skip
-	sum := 2
-	for _, s := range skip {
-		sum += s
-	}
-
+// GetCaller returns information on the caller.
+func GetCaller(skip int) Caller {
 	// get callers
 	stack := make([]uintptr, 32)
-	n := runtime.Callers(sum, stack)
+	n := runtime.Callers(skip+2, stack)
 	stack = stack[:n]
 
 	// get first frame

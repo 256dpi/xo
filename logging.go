@@ -14,8 +14,8 @@ import (
 var Stdout io.Writer = os.Stdout
 
 // Intercept will replace os.Stdout with a logging sink named "STDOUT". It will
-// also redirect the output of the log package. The returned function can be
-// called to restore the original state.
+// also redirect the output of the log package to a logging sink named "LOG".
+// The returned function can be called to restore the original state.
 func Intercept() func() {
 	// capture stdout
 	stdout := os.Stdout

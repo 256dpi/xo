@@ -3,45 +3,13 @@ package xo
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"strings"
 	"sync"
-	"time"
 	"unicode"
 
 	"github.com/getsentry/sentry-go"
-	"go.opentelemetry.io/otel/api/global"
-	apiTrace "go.opentelemetry.io/otel/api/trace"
 	"go.opentelemetry.io/otel/sdk/export/trace"
-	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
-
-// TODO: Add logging?
-// TODO: Add metrics?
-// TODO: Add profiling?
-
-type Config struct {
-	TraceOutput     io.Writer
-	TraceResolution time.Duration
-	EventOutput     io.Writer
-}
-
-func (c *Config) Ensure() {
-	// set default trace output
-	if c.TraceOutput == nil {
-		c.TraceOutput = Sink("TRACE")
-	}
-
-	// set default trace resolution
-	if c.TraceResolution == 0 {
-		c.TraceResolution = time.Nanosecond
-	}
-
-	// set default event output
-	if c.EventOutput == nil {
-		c.EventOutput = Sink("EVENT")
-	}
-}
 
 type Debugger struct {
 	config Config
@@ -225,57 +193,4 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		// write event
 		_, _ = buf.WriteTo(d.config.EventOutput)
 	})
-}
-
-func Install(config Config) func() {
-	// create debugger
-	debugger := NewDebugger(config)
-
-	// create provider
-	tp, err := sdkTrace.NewProvider(
-		sdkTrace.WithSyncer(debugger.SpanSyncer()),
-		sdkTrace.WithConfig(sdkTrace.Config{
-			DefaultSampler: sdkTrace.AlwaysSample(),
-		}),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	// set provider
-	global.SetTraceProvider(tp)
-
-	// initialize sentry
-	err = sentry.Init(sentry.ClientOptions{
-		Transport: debugger.SentryTransport(),
-		Integrations: func(integrations []sentry.Integration) []sentry.Integration {
-			// filter integrations
-			var list []sentry.Integration
-			for _, integration := range integrations {
-				if integration.Name() != "ContextifyFrames" {
-					list = append(list, integration)
-				}
-			}
-
-			return list
-		},
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	return func() {
-		// set noop provider
-		global.SetTraceProvider(apiTrace.NoopProvider{})
-
-		// set noop transport
-		defer func() {
-			err := sentry.Init(sentry.ClientOptions{
-				Transport: SentryTransport(func(*sentry.Event) {}),
-			})
-			if err != nil {
-				panic(err)
-			}
-		}()
-	}
 }

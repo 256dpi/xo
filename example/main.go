@@ -16,14 +16,11 @@ import (
 )
 
 func main() {
-	// run repl
-	go repl()
-
-	// intercept
-	xo.Intercept()
-
 	// install
 	xo.Install(xo.Config{})
+
+	// run repl
+	go repl()
 
 	// prepare mux
 	mux := http.NewServeMux()

@@ -48,10 +48,6 @@ func ExampleRun() {
 }
 
 func ExampleTrack() {
-	// intercept
-	reset := Intercept()
-	defer reset()
-
 	// install
 	teardown := Install(Config{
 		TraceResolution: 100 * time.Millisecond,
@@ -97,10 +93,6 @@ func ExampleTrack() {
 }
 
 func ExampleCapture() {
-	// intercept
-	reset := Intercept()
-	defer reset()
-
 	// install
 	teardown := Install(Config{})
 	defer teardown()
@@ -120,7 +112,7 @@ func ExampleCapture() {
 	// - runtime: {"go_maxprocs":8,"go_numcgocalls":1,"go_numroutines":18,"name":"go","version":"go1.14.1"}
 	// Exceptions:
 	// - some error (*xo.Err)
-	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:109
+	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:101
 	//   > main (main): _testmain.go:96
 }
 

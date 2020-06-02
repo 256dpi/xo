@@ -37,7 +37,10 @@ func TestF(t *testing.T) {
 }
 
 func TestW(t *testing.T) {
-	err := W(errors.New("foo"))
+	err := W(nil)
+	assert.NoError(t, err)
+
+	err = W(errors.New("foo"))
 	assert.Error(t, err)
 
 	str := err.Error()
@@ -89,7 +92,10 @@ func TestSuperfluousWrap(t *testing.T) {
 }
 
 func TestWF(t *testing.T) {
-	err := F("foo")
+	err := WF(nil, "foo")
+	assert.NoError(t, err)
+
+	err = F("foo")
 	err = WF(err, "bar %d", 42)
 	assert.Error(t, err)
 
@@ -179,6 +185,11 @@ func TestSF(t *testing.T) {
 		"runtime.goexit",
 		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
 	}, splitTrace(str))
+}
+
+func TestSW(t *testing.T) {
+	err := SW(nil)
+	assert.NoError(t, err)
 }
 
 func TestSafeErr(t *testing.T) {

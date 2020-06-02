@@ -23,6 +23,11 @@ func F(format string, args ...interface{}) error {
 
 // W will wrap an error.
 func W(err error) error {
+	// check nil
+	if err == nil {
+		return nil
+	}
+
 	// get caller
 	caller := GetCaller(1)
 
@@ -41,6 +46,11 @@ func W(err error) error {
 
 // WF will wrap and error with a formatted message.
 func WF(err error, format string, args ...interface{}) error {
+	// check nil
+	if err == nil {
+		return nil
+	}
+
 	return &Err{
 		Err:    err,
 		Msg:    fmt.Sprintf(format, args...),
@@ -116,6 +126,11 @@ func SF(format string, args ...interface{}) error {
 // SW wraps an error and marks it as safe. Wrapped errors are safe to be
 // presented to the client if appropriate.
 func SW(err error) error {
+	// check nil
+	if err == nil {
+		return nil
+	}
+
 	return &SafeErr{
 		Err: Err{
 			Err:    err,

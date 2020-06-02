@@ -40,5 +40,11 @@ func SetupSentry(dsn string) func() {
 
 // Capture will capture the error.
 func Capture(err error) {
+	// ensure caller
+	if _, ok := err.(*Err); !ok {
+		err = W(err)
+	}
+
+	// forward exception
 	sentry.CaptureException(err)
 }

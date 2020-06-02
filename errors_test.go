@@ -27,11 +27,11 @@ func TestF(t *testing.T) {
 	assert.Equal(t, []string{
 		"foo 42",
 		"github.com/256dpi/xo.TestF",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
+		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:11",
 		"testing.tRunner",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:992",
 		"runtime.goexit",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:1373",
 	}, splitTrace(str))
 }
 
@@ -56,17 +56,31 @@ func TestW(t *testing.T) {
 	assert.Equal(t, []string{
 		"foo",
 		"github.com/256dpi/xo.TestW",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
+		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:39",
 		"testing.tRunner",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:992",
 		"runtime.goexit",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
-		"github.com/256dpi/xo.TestW",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:1373",
+	}, splitTrace(str))
+}
+
+func TestSuperfluousWrap(t *testing.T) {
+	err := W(func() error {
+		return F("foo")
+	}())
+	assert.Error(t, err)
+
+	str := fmt.Sprintf("%+v", err)
+	assert.Equal(t, []string{
+		"foo",
+		"github.com/256dpi/xo.TestSuperfluousWrap.func1",
+		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:69",
+		"github.com/256dpi/xo.TestSuperfluousWrap",
+		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:70",
 		"testing.tRunner",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:992",
 		"runtime.goexit",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:1373",
 	}, splitTrace(str))
 }
 
@@ -91,18 +105,18 @@ func TestWF(t *testing.T) {
 	assert.Equal(t, []string{
 		"foo",
 		"github.com/256dpi/xo.TestWF",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
+		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:88",
 		"testing.tRunner",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:992",
 		"runtime.goexit",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:1373",
 		"bar 42",
 		"github.com/256dpi/xo.TestWF",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
+		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:89",
 		"testing.tRunner",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:992",
 		"runtime.goexit",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:1373",
 	}, splitTrace(str))
 }
 
@@ -123,11 +137,11 @@ func TestSF(t *testing.T) {
 	assert.Equal(t, []string{
 		"foo",
 		"github.com/256dpi/xo.TestSF",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
+		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:124",
 		"testing.tRunner",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:992",
 		"runtime.goexit",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:1373",
 	}, splitTrace(str))
 
 	/* wrapped */
@@ -148,18 +162,18 @@ func TestSF(t *testing.T) {
 	assert.Equal(t, []string{
 		"foo",
 		"github.com/256dpi/xo.TestSF",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
+		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:124",
 		"testing.tRunner",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:992",
 		"runtime.goexit",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:1373",
 		"bar",
 		"github.com/256dpi/xo.TestSF",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
+		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:149",
 		"testing.tRunner",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:992",
 		"runtime.goexit",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
+		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:1373",
 	}, splitTrace(str))
 }
 

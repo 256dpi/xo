@@ -98,7 +98,7 @@ func ExampleCapture() {
 	defer TeardownDebugger()
 
 	// capture error
-	Capture(W(F("some error")))
+	Capture(F("some error"))
 
 	// Output:
 	// ===== EVENT =====
@@ -110,8 +110,5 @@ func ExampleCapture() {
 	// Exceptions:
 	// - some error (*xo.Err)
 	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:101
-	//   > main (main): _testmain.go:86
-	// - some error (*xo.Err)
-	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:101
-	//   > main (main): _testmain.go:86
+	//   > main (main): _testmain.go:90
 }

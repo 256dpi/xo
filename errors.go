@@ -23,9 +23,19 @@ func F(format string, args ...interface{}) error {
 
 // W will wrap an error.
 func W(err error) error {
+	// get caller
+	caller := GetCaller(1)
+
+	// check if wrapping is superfluous
+	if anErr, ok := err.(*Err); ok {
+		if anErr.Caller.Includes(caller, 1) {
+			return anErr
+		}
+	}
+
 	return &Err{
 		Err:    err,
-		Caller: GetCaller(1),
+		Caller: caller,
 	}
 }
 

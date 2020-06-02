@@ -129,7 +129,7 @@ func (m *Mock) Reset() {
 // SpanSyncer will return a span syncer that collects spans.
 func (m *Mock) SpanSyncer() trace.SpanSyncer {
 	return SpanSyncer(func(span *trace.SpanData) {
-		m.Spans = append(m.Spans, traceSpanDataToMemorySpan(span))
+		m.Spans = append(m.Spans, convertSpan(span))
 	})
 }
 

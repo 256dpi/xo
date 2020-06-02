@@ -35,7 +35,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		defer d.mutex.Unlock()
 
 		// convert span
-		span := traceSpanDataToMemorySpan(data)
+		span := convertSpan(data)
 
 		// store span if not root
 		if span.Parent != "" {

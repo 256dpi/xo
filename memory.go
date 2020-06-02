@@ -132,7 +132,7 @@ func sortNodes(nodes []*MemoryNode) {
 	}
 }
 
-func traceSpanDataToMemorySpan(data *trace.SpanData) MemorySpan {
+func convertSpan(data *trace.SpanData) MemorySpan {
 	// collect events
 	var events []MemorySpanEvent
 	for _, event := range data.MessageEvents {

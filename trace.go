@@ -23,7 +23,7 @@ func (c *traceContext) Value(key interface{}) interface{} {
 	val := c.Context.Value(key)
 
 	// return tail if root is returned
-	if c.trace.root != nil && val == c.trace.root.span {
+	if val == c.trace.root.span {
 		return c.trace.Tail().span
 	}
 
@@ -39,8 +39,8 @@ func (c *traceContext) Value(key interface{}) interface{} {
 // code would not be able to find the stack and would use the root span instead.
 // This can be prevented by ensuring a branch using the Branch function.
 type Trace struct {
-	root  *Span
-	stack []*Span
+	root  Span
+	stack []Span
 }
 
 // CreateTrace returns a new trace that will use the span found in the provided
@@ -58,7 +58,7 @@ func CreateTrace(ctx context.Context, name string) (*Trace, context.Context) {
 	// create trace
 	trace := &Trace{
 		root:  span,
-		stack: make([]*Span, 0, 32),
+		stack: make([]Span, 0, 32),
 	}
 
 	// add trace
@@ -142,7 +142,7 @@ func (t *Trace) End() {
 }
 
 // Tail returns the tail or root of the span stack.
-func (t *Trace) Tail() *Span {
+func (t *Trace) Tail() Span {
 	// return last span if available
 	if len(t.stack) > 0 {
 		return t.stack[len(t.stack)-1]
@@ -152,6 +152,6 @@ func (t *Trace) Tail() *Span {
 }
 
 // Root will return the root of the span stack.
-func (t *Trace) Root() *Span {
+func (t *Trace) Root() Span {
 	return t.root
 }

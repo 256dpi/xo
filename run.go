@@ -12,7 +12,7 @@ type Context struct {
 	Caller Caller
 
 	// The span created to track execution.
-	Span *Span
+	Span Span
 }
 
 // Attach will add the provided event to the span.

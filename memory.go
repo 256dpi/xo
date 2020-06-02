@@ -139,7 +139,7 @@ func traceSpanDataToMemorySpan(data *trace.SpanData) MemorySpan {
 		events = append(events, MemorySpanEvent{
 			Name:       event.Name,
 			Time:       event.Time,
-			Attributes: otelKVToMap(event.Attributes),
+			Attributes: kvToMap(event.Attributes),
 		})
 	}
 
@@ -158,7 +158,7 @@ func traceSpanDataToMemorySpan(data *trace.SpanData) MemorySpan {
 		Start:      data.StartTime,
 		End:        data.EndTime,
 		Duration:   data.EndTime.Sub(data.StartTime),
-		Attributes: otelKVToMap(data.Attributes),
+		Attributes: kvToMap(data.Attributes),
 		Events:     events,
 	}
 }

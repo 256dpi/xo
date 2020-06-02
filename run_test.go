@@ -11,14 +11,14 @@ import (
 func TestRun(t *testing.T) {
 	err := Run(nil, func(ctx *Context) error {
 		ctx.Tag("tag", 42)
-		ctx.Log("log", "bar")
+		ctx.Log("bar")
 		return nil
 	})
 	assert.NoError(t, err)
 
 	err = Run(nil, func(ctx *Context) error {
 		ctx.Tag("tag", 42)
-		ctx.Log("log", "bar")
+		ctx.Log("bar")
 		return F("error")
 	})
 	assert.Error(t, err)
@@ -27,7 +27,7 @@ func TestRun(t *testing.T) {
 
 	err = Run(nil, func(ctx *Context) error {
 		ctx.Tag("tag", 42)
-		ctx.Log("log", "bar")
+		ctx.Log("bar")
 		panic("error")
 	})
 	assert.Error(t, err)

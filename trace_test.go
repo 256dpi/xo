@@ -10,14 +10,14 @@ import (
 func TestTrace(t *testing.T) {
 	Trap(func(mock *Mock) {
 		trace, ctx := CreateTrace(nil, "trace")
-		trace.Log("key1", "7")
+		trace.Log("7")
 		assert.NotNil(t, trace)
 		assert.Equal(t, trace, GetTrace(ctx))
 		assert.Equal(t, trace.Root().Native(), GetSpan(ctx))
 		assert.Equal(t, trace.Tail().Native(), GetSpan(ctx))
 
 		trace.Push("foo")
-		trace.Tag("key2", "7")
+		trace.Tag("key", "7")
 		assert.NotEqual(t, trace.Root().Native(), GetSpan(ctx))
 		assert.Equal(t, trace.Tail().Native(), GetSpan(ctx))
 
@@ -60,7 +60,7 @@ func TestTrace(t *testing.T) {
 				Name:     "foo",
 				Duration: 20 * time.Millisecond,
 				Attributes: map[string]interface{}{
-					"key2": "7",
+					"key": "7",
 				},
 			},
 			{
@@ -70,7 +70,7 @@ func TestTrace(t *testing.T) {
 					{
 						Name: "log",
 						Attributes: map[string]interface{}{
-							"key1": "7",
+							"message": "7",
 						},
 					},
 				},

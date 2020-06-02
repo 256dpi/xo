@@ -10,7 +10,7 @@ func Div(ctx context.Context, a, b int) (res int, err error) {
 	return res, Run(ctx, func(ctx *Context) error {
 		// tag and log
 		ctx.Tag("a", a)
-		ctx.Log("b", b)
+		ctx.Log("b: %d", b)
 
 		// check negative
 		if b < 0 {
@@ -62,7 +62,7 @@ func ExampleTrack() {
 	ctx1, span1 := Track(ctx, "One")
 	time.Sleep(100 * time.Millisecond)
 	ctx2, span2 := Track(ctx1, "Two")
-	span2.Log("hello", "world")
+	span2.Log("hello world")
 	time.Sleep(100 * time.Millisecond)
 	_, span3 := Track(ctx2, "Three")
 	span3.Tag("foo", "bar")
@@ -83,7 +83,7 @@ func ExampleTrack() {
 	// ===== TRACE =====
 	// One         ├──────────────────────────────────────────────────────────────────────────────┤   500ms
 	//   Two                       ├──────────────────────────────┤                                   200ms
-	//   :log                      •                                                                  100ms   hello:"world"
+	//   :log                      •                                                                  100ms   message:"hello world"
 	//     Three                                   ├──────────────┤                                   100ms   foo:"bar"
 	//   Four                                                      ├──────────────────────────────┤   200ms
 	//   :error                                                    •                                  300ms   error.message:"fatal" error.type:"*xo.Err"

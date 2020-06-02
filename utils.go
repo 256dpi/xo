@@ -57,7 +57,7 @@ func autoTruncate(d time.Duration, precision int) time.Duration {
 	return d.Truncate(time.Duration(math.Pow10(numDigits(int64(d)) - precision)))
 }
 
-func otelKVToMap(list []kv.KeyValue) map[string]interface{} {
+func kvToMap(list []kv.KeyValue) map[string]interface{} {
 	// convert list to map
 	var dict map[string]interface{}
 	if len(list) > 0 {
@@ -68,6 +68,16 @@ func otelKVToMap(list []kv.KeyValue) map[string]interface{} {
 	}
 
 	return dict
+}
+
+func mapToKV(dict map[string]interface{}) []kv.KeyValue {
+	// collect kv
+	var list []kv.KeyValue
+	for key, value := range dict {
+		list = append(list, kv.Infer(key, value))
+	}
+
+	return list
 }
 
 func iterateMap(dict map[string]interface{}, fn func(key string, value interface{})) {

@@ -2,6 +2,7 @@ package xo
 
 import (
 	"context"
+	"fmt"
 
 	"go.opentelemetry.io/otel/api/kv"
 	"go.opentelemetry.io/otel/api/trace"
@@ -37,14 +38,21 @@ func (s *Span) Tag(key string, value interface{}) {
 	}
 }
 
-// Log will log to the span.
-func (s *Span) Log(key string, value interface{}) {
+// Attach will add and event to the span.
+func (s *Span) Attach(event string, attributes map[string]interface{}) {
 	if s != nil && s.span != nil {
-		s.span.AddEvent(s.ctx, "log", kv.Infer(key, value))
+		s.span.AddEvent(s.ctx, event, mapToKV(attributes)...)
 	}
 }
 
-// Record will record the provided error.
+// Log will add a "log" event to the span.
+func (s *Span) Log(format string, args ...interface{}) {
+	if s != nil && s.span != nil {
+		s.span.AddEvent(s.ctx, "log", kv.Infer("message", fmt.Sprintf(format, args...)))
+	}
+}
+
+// Record will add an "error" event to the span.
 func (s *Span) Record(err error) {
 	if s != nil && s.span != nil {
 		s.span.RecordError(s.ctx, err)

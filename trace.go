@@ -1,6 +1,8 @@
 package xo
 
-import "context"
+import (
+	"context"
+)
 
 type traceContextKey struct{}
 
@@ -98,12 +100,17 @@ func (t *Trace) Tag(key string, value interface{}) {
 	t.Tail().Tag(key, value)
 }
 
-// Log adds a log to the last pushed span.
-func (t *Trace) Log(key string, value interface{}) {
-	t.Tail().Log(key, value)
+// Attach will add and event to the last pushed span.
+func (t *Trace) Attach(event string, attributes map[string]interface{}) {
+	t.Tail().Attach(event, attributes)
 }
 
-// Record adds an error to the last pushed span.
+// Log adds a "log" event to the last pushed span.
+func (t *Trace) Log(format string, args ...interface{}) {
+	t.Tail().Log(format, args...)
+}
+
+// Record adds an "error" event to the last pushed span.
 func (t *Trace) Record(err error) {
 	t.Tail().Record(err)
 }

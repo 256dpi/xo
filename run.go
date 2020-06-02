@@ -15,9 +15,14 @@ type Context struct {
 	Span *Span
 }
 
-// Log will log the provided key and value.
-func (c *Context) Log(key string, value interface{}) {
-	c.Span.Log(key, value)
+// Attach will add and event.
+func (c *Context) Attach(event string, attributes map[string]interface{}) {
+	c.Span.Attach(event, attributes)
+}
+
+// Log will add a "log" event.
+func (c *Context) Log(format string, args ...interface{}) {
+	c.Span.Log(format, args...)
 }
 
 // Tag will tag the provided key and value.

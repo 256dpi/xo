@@ -113,7 +113,7 @@ func ExampleCapture() {
 	// Exceptions:
 	// - some error (*xo.Err)
 	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:101
-	//   > main (main): _testmain.go:96
+	//   > main (main): _testmain.go:98
 }
 
 func ExampleSink() {

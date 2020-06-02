@@ -11,32 +11,29 @@ type CallerInfo struct {
 	Short string
 	File  string
 	Line  int
-}
-
-// UnknownCaller is returned if the caller is unknown.
-var UnknownCaller = CallerInfo{
-	Full:  "Unknown",
-	Short: "Unknown",
-	File:  "unknown.go",
-	Line:  1,
+	Stack []uintptr
 }
 
 // Caller returns information on the current caller.
 func Caller(skip ...int) CallerInfo {
-	// sum
-	sum := 1
+	// sum skip
+	sum := 2
 	for _, s := range skip {
 		sum += s
 	}
 
-	// get caller
-	pc, file, line, ok := runtime.Caller(sum)
-	if !ok {
-		return UnknownCaller
-	}
+	// get callers
+	stack := make([]uintptr, 100)
+	n := runtime.Callers(sum, stack)
+	stack = stack[:n]
 
-	// get name
-	name := runtime.FuncForPC(pc).Name()
+	// get first frame
+	frame, _ := runtime.CallersFrames(stack).Next()
+
+	// get name, file and line
+	name := frame.Func.Name()
+	file := frame.File
+	line := frame.Line
 
 	// get short name
 	short := name
@@ -49,5 +46,6 @@ func Caller(skip ...int) CallerInfo {
 		Short: short,
 		File:  file,
 		Line:  line,
+		Stack: stack,
 	}
 }

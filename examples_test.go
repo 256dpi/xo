@@ -52,13 +52,11 @@ func ExampleTrack() {
 	reset := Intercept()
 	defer reset()
 
-	// enable debugger
-	SetupDebugger(DebuggerConfig{
+	// install
+	teardown := Install(Config{
 		TraceResolution: 100 * time.Millisecond,
 	})
-
-	// ensure teardown
-	defer TeardownDebugger()
+	defer teardown()
 
 	// get context
 	ctx := context.Background()
@@ -103,11 +101,9 @@ func ExampleCapture() {
 	reset := Intercept()
 	defer reset()
 
-	// enable debugger
-	SetupDebugger(DebuggerConfig{})
-
-	// ensure teardown
-	defer TeardownDebugger()
+	// install
+	teardown := Install(Config{})
+	defer teardown()
 
 	// capture error
 	Capture(F("some error"))
@@ -124,7 +120,7 @@ func ExampleCapture() {
 	// - runtime: {"go_maxprocs":8,"go_numcgocalls":1,"go_numroutines":18,"name":"go","version":"go1.14.1"}
 	// Exceptions:
 	// - some error (*xo.Err)
-	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:113
+	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:109
 	//   > main (main): _testmain.go:96
 }
 

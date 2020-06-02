@@ -20,13 +20,13 @@ import (
 // TODO: Add metrics?
 // TODO: Add profiling?
 
-type DebuggerConfig struct {
+type Config struct {
 	TraceOutput     io.Writer
 	TraceResolution time.Duration
 	EventOutput     io.Writer
 }
 
-func (c *DebuggerConfig) Ensure() {
+func (c *Config) Ensure() {
 	// set default trace output
 	if c.TraceOutput == nil {
 		c.TraceOutput = Sink("TRACE")
@@ -44,12 +44,12 @@ func (c *DebuggerConfig) Ensure() {
 }
 
 type Debugger struct {
-	config DebuggerConfig
+	config Config
 	spans  map[string]MemorySpan
 	mutex  sync.Mutex
 }
 
-func NewDebugger(config DebuggerConfig) *Debugger {
+func NewDebugger(config Config) *Debugger {
 	// ensure config
 	config.Ensure()
 
@@ -227,7 +227,7 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 	})
 }
 
-func SetupDebugger(config DebuggerConfig) {
+func Install(config Config) func() {
 	// create debugger
 	debugger := NewDebugger(config)
 
@@ -263,19 +263,19 @@ func SetupDebugger(config DebuggerConfig) {
 	if err != nil {
 		panic(err)
 	}
-}
 
-func TeardownDebugger() {
-	// set noop provider
-	global.SetTraceProvider(apiTrace.NoopProvider{})
+	return func() {
+		// set noop provider
+		global.SetTraceProvider(apiTrace.NoopProvider{})
 
-	// set noop transport
-	defer func() {
-		err := sentry.Init(sentry.ClientOptions{
-			Transport: SentryTransport(func(*sentry.Event) {}),
-		})
-		if err != nil {
-			panic(err)
-		}
-	}()
+		// set noop transport
+		defer func() {
+			err := sentry.Init(sentry.ClientOptions{
+				Transport: SentryTransport(func(*sentry.Event) {}),
+			})
+			if err != nil {
+				panic(err)
+			}
+		}()
+	}
 }

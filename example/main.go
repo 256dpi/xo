@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -18,8 +19,11 @@ func main() {
 	// run repl
 	go repl()
 
-	// setup debugger
-	xo.SetupDebugger(xo.DebuggerConfig{})
+	// intercept
+	xo.Intercept()
+
+	// install
+	xo.Install(xo.Config{})
 
 	// prepare mux
 	mux := http.NewServeMux()
@@ -44,6 +48,9 @@ func main() {
 
 		// tag result
 		span.Tag("result", result)
+
+		// log result
+		log.Printf("result: %s", result)
 
 		// write result
 		_, _ = w.Write([]byte(result))

@@ -53,6 +53,30 @@ func GetCaller(skip ...int) Caller {
 	}
 }
 
+// Includes returns whether the receiver fully includes the provided caller.
+func (c Caller) Includes(cc Caller, ignore int) bool {
+	// get lengths
+	cl := len(c.Stack)
+	ccl := len(cc.Stack)
+
+	// check length
+	if cl < ccl {
+		return false
+	}
+
+	// prepare depth
+	depth := ccl - ignore
+
+	// reverse compare stacks
+	for i := 0; i < depth; i++ {
+		if c.Stack[cl-1-i] != cc.Stack[ccl-1-i] {
+			return false
+		}
+	}
+
+	return true
+}
+
 // String will format the caller as a string.
 func (c Caller) String() string {
 	return c.Short

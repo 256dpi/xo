@@ -75,8 +75,6 @@ func Run(ctx context.Context, fn func(ctx *Context) error) (err error) {
 
 		// record error
 		span.Record(err)
-
-		// TODO: Add tags and logs to error?
 	}()
 
 	// yield

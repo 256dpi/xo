@@ -72,15 +72,15 @@ func (c Caller) Format(s fmt.State, verb rune) {
 		_, _ = fmt.Fprintf(s, "%q", c.Short)
 	} else if verb == 'v' {
 		if s.Flag('+') {
-			c.Dump(s)
+			c.Print(s)
 		} else if verb == 's' || verb == 'v' {
-			ioWriteString(s, c.Full)
+			justPrint(s, c.Full)
 		}
 	}
 }
 
-// Dump will dump the stack to the provided writer.
-func (c Caller) Dump(out io.Writer) {
+// Print will print the stack to the provided writer.
+func (c Caller) Print(out io.Writer) {
 	// get frames
 	frames := runtime.CallersFrames(c.Stack)
 
@@ -92,13 +92,13 @@ func (c Caller) Dump(out io.Writer) {
 		frame, more = frames.Next()
 
 		// print frame
-		ioWriteString(out, frame.Function)
-		ioWriteString(out, "\n\t")
-		ioWriteString(out, frame.File)
-		ioWriteString(out, ":")
-		ioWriteString(out, strconv.Itoa(frame.Line))
+		justPrint(out, frame.Function)
+		justPrint(out, "\n\t")
+		justPrint(out, frame.File)
+		justPrint(out, ":")
+		justPrint(out, strconv.Itoa(frame.Line))
 		if more {
-			ioWriteString(out, "\n")
+			justPrint(out, "\n")
 		}
 	}
 }

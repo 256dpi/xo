@@ -14,8 +14,12 @@ import (
 	"go.opentelemetry.io/otel/api/kv"
 )
 
-func ioWriteString(out io.Writer, str string) {
+func justPrint(out io.Writer, str string) {
 	_, _ = io.WriteString(out, str)
+}
+
+func justFprintf(out io.Writer, format string, args ...interface{}) {
+	_, _ = fmt.Fprintf(out, format, args...)
 }
 
 func isBenchmark() bool {

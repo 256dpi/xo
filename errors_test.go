@@ -9,15 +9,19 @@ import (
 
 func TestF(t *testing.T) {
 	err := F("foo %d", 42)
+	assert.Error(t, err)
 
 	str := err.Error()
-	assert.Equal(t, `foo 42`, str)
+	assert.Equal(t, "foo 42", str)
 
 	str = fmt.Sprintf("%s", err)
-	assert.Equal(t, `foo 42`, str)
+	assert.Equal(t, "foo 42", str)
+
+	str = fmt.Sprintf("%q", err)
+	assert.Equal(t, `"foo 42"`, str)
 
 	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, `foo 42`, str)
+	assert.Equal(t, "xo.TestF: foo 42", str)
 
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
@@ -34,15 +38,19 @@ func TestF(t *testing.T) {
 func TestW(t *testing.T) {
 	err := F("foo")
 	err = W(err)
+	assert.Error(t, err)
 
 	str := err.Error()
-	assert.Equal(t, `foo`, str)
+	assert.Equal(t, "foo", str)
 
 	str = fmt.Sprintf("%s", err)
-	assert.Equal(t, `foo`, str)
+	assert.Equal(t, "foo", str)
+
+	str = fmt.Sprintf("%q", err)
+	assert.Equal(t, `"foo"`, str)
 
 	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, `foo`, str)
+	assert.Equal(t, "xo.TestW: foo", str)
 
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
@@ -65,15 +73,19 @@ func TestW(t *testing.T) {
 func TestWF(t *testing.T) {
 	err := F("foo")
 	err = WF(err, "bar %d", 42)
+	assert.Error(t, err)
 
 	str := err.Error()
-	assert.Equal(t, `bar 42: foo`, str)
+	assert.Equal(t, "bar 42: foo", str)
 
 	str = fmt.Sprintf("%s", err)
-	assert.Equal(t, `bar 42: foo`, str)
+	assert.Equal(t, "bar 42: foo", str)
+
+	str = fmt.Sprintf("%q", err)
+	assert.Equal(t, `"bar 42: foo"`, str)
 
 	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, `bar 42: foo`, str)
+	assert.Equal(t, "xo.TestWF: bar 42: foo", str)
 
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
@@ -105,11 +117,12 @@ func TestE(t *testing.T) {
 	assert.Equal(t, `foo`, str)
 
 	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, `foo`, str)
+	assert.Equal(t, `xo.E: foo`, str)
 
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
-		"foo", "github.com/256dpi/xo.E",
+		"foo",
+		"github.com/256dpi/xo.E",
 		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors.go:LN",
 		"github.com/256dpi/xo.TestE",
 		"  /Users/256dpi/Development/GitHub/256dpi/xo/errors_test.go:LN",
@@ -125,13 +138,13 @@ func TestE(t *testing.T) {
 	assert.True(t, IsSafe(err))
 
 	str = err.Error()
-	assert.Equal(t, `bar: foo`, str)
+	assert.Equal(t, "bar: foo", str)
 
 	str = fmt.Sprintf("%s", err)
-	assert.Equal(t, `bar: foo`, str)
+	assert.Equal(t, "bar: foo", str)
 
 	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, `bar: foo`, str)
+	assert.Equal(t, "xo.TestE: bar: foo", str)
 
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{

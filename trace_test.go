@@ -51,7 +51,7 @@ func TestTrace(t *testing.T) {
 						Name: "error",
 						Attributes: map[string]interface{}{
 							"error.message": "fail",
-							"error.type":    "*errors.fundamental",
+							"error.type":    "*xo.Error",
 						},
 					},
 				},

@@ -2,21 +2,93 @@ package xo
 
 import (
 	"fmt"
-	"io"
 
 	"github.com/pkg/errors"
 )
 
 // TODO: Add own implementations?
 
-// F is the function used to format errors.
-var F = errors.Errorf
+type Error struct {
+	Err    error
+	Msg    string
+	Caller Caller
+}
 
-// W is the function used to wrap errors.
-var W = errors.WithStack
+// F will format and error similar to errors.New() and fmt.Errorf().
+func F(format string, args ...interface{}) error {
+	return &Error{
+		Msg:    fmt.Sprintf(format, args...),
+		Caller: GetCaller(1),
+	}
+}
 
-// WF is the function used wrap and format errors.
-var WF = errors.Wrapf
+// W will wrap an error.
+func W(err error) error {
+	return &Error{
+		Err:    err,
+		Caller: GetCaller(1),
+	}
+}
+
+// WF will wrap and error with a formatted message.
+func WF(err error, format string, args ...interface{}) error {
+	return &Error{
+		Err:    err,
+		Msg:    fmt.Sprintf(format, args...),
+		Caller: GetCaller(1),
+	}
+}
+
+// Error will return the error as a string.
+func (e *Error) Error() string {
+	if e.Msg != "" && e.Err != nil {
+		return e.Msg + ": " + e.Err.Error()
+	} else if e.Err != nil {
+		return e.Err.Error()
+	}
+
+	return e.Msg
+}
+
+// Unwrap will return the wrapped error, if any.
+func (e *Error) Unwrap() error {
+	return e.Err
+}
+
+// Format will format the error.
+//
+//  %s   message
+//  %q   quoted message
+//  %v   caller + message
+//  %+v  parent + message + stack
+//
+func (e *Error) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 'v':
+		if s.Flag('+') {
+			if e.Err != nil {
+				justFprintf(s, "%+v\n", e.Err)
+			}
+			if e.Msg != "" {
+				justPrint(s, e.Msg)
+				justPrint(s, "\n")
+			}
+			e.Caller.Format(s, verb)
+		} else {
+			justFprintf(s, "%s: %s", e.Caller.Short, e.Error())
+		}
+	case 's':
+		justPrint(s, e.Error())
+	case 'q':
+		justFprintf(s, "%q", e.Error())
+	}
+}
+
+func (e *Error) StackTrace() []uintptr {
+	return e.Caller.Stack
+}
+
+// Safe error?
 
 // SafeError wraps an error to indicate presentation safety.
 type SafeError struct {
@@ -55,7 +127,7 @@ func (err *SafeError) Format(s fmt.State, verb rune) {
 	}
 
 	// write string
-	_, _ = io.WriteString(s, err.Error())
+	justPrint(s, err.Error())
 }
 
 // IsSafe can be used to check if an error has been wrapped using Safe. It will

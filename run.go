@@ -68,7 +68,10 @@ func Run(ctx context.Context, fn func(ctx *Context) error) (err error) {
 		}
 
 		// wrap error
-		err = WF(err, xtc.Caller.Short)
+		err = &Error{
+			Err:    err,
+			Caller: xtc.Caller,
+		}
 
 		// record error
 		span.Record(err)

@@ -15,7 +15,7 @@ func TestGetCaller(t *testing.T) {
 			Short: "xo.TestGetCaller.func1",
 			Full:  "github.com/256dpi/xo.TestGetCaller.func1",
 			File:  "/Users/256dpi/Development/GitHub/256dpi/xo/caller_test.go",
-			Line:  11,
+			Line:  12,
 			Stack: caller.Stack,
 		}, caller)
 
@@ -25,7 +25,7 @@ func TestGetCaller(t *testing.T) {
 			Short: "xo.TestGetCaller",
 			Full:  "github.com/256dpi/xo.TestGetCaller",
 			File:  "/Users/256dpi/Development/GitHub/256dpi/xo/caller_test.go",
-			Line:  30,
+			Line:  31,
 			Stack: caller.Stack,
 		}, caller)
 	}()

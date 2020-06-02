@@ -15,17 +15,17 @@ type Context struct {
 	Span *Span
 }
 
-// Attach will add and event.
-func (c *Context) Attach(event string, attributes map[string]interface{}) {
+// Attach will add the provided event to the span.
+func (c *Context) Attach(event string, attributes M) {
 	c.Span.Attach(event, attributes)
 }
 
-// Log will add a "log" event.
+// Log will attach a log event to the span.
 func (c *Context) Log(format string, args ...interface{}) {
 	c.Span.Log(format, args...)
 }
 
-// Tag will tag the provided key and value.
+// Tag will add the provided attribute to the span.
 func (c *Context) Tag(key string, value interface{}) {
 	c.Span.Tag(key, value)
 }

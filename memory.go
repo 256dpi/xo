@@ -15,7 +15,7 @@ type MemorySpanEvent struct {
 	Time time.Time
 
 	// Attached event attributes.
-	Attributes map[string]interface{}
+	Attributes M
 }
 
 type MemorySpan struct {
@@ -39,7 +39,7 @@ type MemorySpan struct {
 	Duration time.Duration
 
 	// The span attributes.
-	Attributes map[string]interface{}
+	Attributes M
 
 	// Attached span events.
 	Events []MemorySpanEvent

@@ -8,6 +8,9 @@ import (
 	"go.opentelemetry.io/otel/api/trace"
 )
 
+// M is a short-hand for a generic map.
+type M = map[string]interface{}
+
 // Span is the underlying span used for tracing.
 type Span struct {
 	ctx  context.Context
@@ -31,28 +34,28 @@ func Track(ctx context.Context, name string) (context.Context, *Span) {
 	}
 }
 
-// Tag will tag the span.
+// Tag will add the provided attribute to the span.
 func (s *Span) Tag(key string, value interface{}) {
 	if s != nil && s.span != nil {
 		s.span.SetAttribute(key, value)
 	}
 }
 
-// Attach will add and event to the span.
-func (s *Span) Attach(event string, attributes map[string]interface{}) {
+// Attach will add the provided event to the span.
+func (s *Span) Attach(event string, attributes M) {
 	if s != nil && s.span != nil {
 		s.span.AddEvent(s.ctx, event, mapToKV(attributes)...)
 	}
 }
 
-// Log will add a "log" event to the span.
+// Log will attach a log event to the span.
 func (s *Span) Log(format string, args ...interface{}) {
 	if s != nil && s.span != nil {
 		s.span.AddEvent(s.ctx, "log", kv.Infer("message", fmt.Sprintf(format, args...)))
 	}
 }
 
-// Record will add an "error" event to the span.
+// Record will attach an error event to the span.
 func (s *Span) Record(err error) {
 	if s != nil && s.span != nil {
 		s.span.RecordError(s.ctx, err)

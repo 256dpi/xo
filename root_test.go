@@ -34,7 +34,7 @@ func TestRootHandler(t *testing.T) {
 			{
 				Name:     "GET /foo/#/bar",
 				Duration: 10 * time.Millisecond,
-				Attributes: map[string]interface{}{
+				Attributes: M{
 					"http.proto": "HTTP/1.1",
 					"http.host":  "example.com",
 					"http.url":   "/foo/123/bar",

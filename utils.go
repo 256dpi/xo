@@ -57,11 +57,11 @@ func autoTruncate(d time.Duration, precision int) time.Duration {
 	return d.Truncate(time.Duration(math.Pow10(numDigits(int64(d)) - precision)))
 }
 
-func kvToMap(list []kv.KeyValue) map[string]interface{} {
+func kvToMap(list []kv.KeyValue) M {
 	// convert list to map
-	var dict map[string]interface{}
+	var dict M
 	if len(list) > 0 {
-		dict = map[string]interface{}{}
+		dict = M{}
 		for _, item := range list {
 			dict[string(item.Key)] = item.Value.AsInterface()
 		}
@@ -70,7 +70,7 @@ func kvToMap(list []kv.KeyValue) map[string]interface{} {
 	return dict
 }
 
-func mapToKV(dict map[string]interface{}) []kv.KeyValue {
+func mapToKV(dict M) []kv.KeyValue {
 	// collect kv
 	var list []kv.KeyValue
 	for key, value := range dict {
@@ -80,7 +80,7 @@ func mapToKV(dict map[string]interface{}) []kv.KeyValue {
 	return list
 }
 
-func iterateMap(dict map[string]interface{}, fn func(key string, value interface{})) {
+func iterateMap(dict M, fn func(key string, value interface{})) {
 	// collect keys
 	var keys []string
 	for key := range dict {
@@ -106,7 +106,7 @@ func mustEncode(value interface{}) string {
 	return string(buf)
 }
 
-func buildMap(dict map[string]interface{}) string {
+func buildMap(dict M) string {
 	// prepare builder
 	var builder strings.Builder
 

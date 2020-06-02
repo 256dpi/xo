@@ -49,7 +49,7 @@ func TestTrace(t *testing.T) {
 				Events: []MemorySpanEvent{
 					{
 						Name: "error",
-						Attributes: map[string]interface{}{
+						Attributes: M{
 							"error.message": "fail",
 							"error.type":    "*xo.Err",
 						},
@@ -59,7 +59,7 @@ func TestTrace(t *testing.T) {
 			{
 				Name:     "foo",
 				Duration: 20 * time.Millisecond,
-				Attributes: map[string]interface{}{
+				Attributes: M{
 					"key": "7",
 				},
 			},
@@ -69,7 +69,7 @@ func TestTrace(t *testing.T) {
 				Events: []MemorySpanEvent{
 					{
 						Name: "log",
-						Attributes: map[string]interface{}{
+						Attributes: M{
 							"message": "7",
 						},
 					},

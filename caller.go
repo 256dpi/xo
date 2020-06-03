@@ -48,6 +48,8 @@ func GetCaller(skip int) Caller {
 }
 
 // Includes returns whether the receiver fully includes the provided caller.
+// Ignore can be set to ignore n bottom frames. Two adjacent callers will have
+// the same stack except for the last frame which represents the call site.
 func (c Caller) Includes(cc Caller, ignore int) bool {
 	// get lengths
 	cl := len(c.Stack)
@@ -79,7 +81,7 @@ func (c Caller) String() string {
 // Format will format the caller.
 //
 //  %s   short name
-//  %q   quoted short name
+//  %q   "short name"
 //  %v   full name
 //  %+v  stack trace
 //
@@ -91,7 +93,7 @@ func (c Caller) Format(s fmt.State, verb rune) {
 	} else if verb == 'v' {
 		if s.Flag('+') {
 			c.Print(s)
-		} else if verb == 's' || verb == 'v' {
+		} else {
 			justPrint(s, c.Full)
 		}
 	}

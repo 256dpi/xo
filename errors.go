@@ -13,7 +13,8 @@ type Err struct {
 	Caller Caller
 }
 
-// F will format and error similar to errors.New() and fmt.Errorf().
+// F will format an error. This function can be used instead of errors.New() and
+// fmt.Errorf().
 func F(format string, args ...interface{}) error {
 	return &Err{
 		Msg:    fmt.Sprintf(format, args...),
@@ -45,7 +46,8 @@ func W(err error) error {
 	}
 }
 
-// WF will wrap and error with a formatted message.
+// WF will wrap and error with a formatted message. This function can be used
+// instead of wrapping with fmt.Errorf().
 func WF(err error, format string, args ...interface{}) error {
 	// check nil
 	if err == nil {
@@ -59,7 +61,7 @@ func WF(err error, format string, args ...interface{}) error {
 	}
 }
 
-// Error will return the error as a string.
+// Error will return the error string.
 func (e *Err) Error() string {
 	if e.Msg != "" && e.Err != nil {
 		return e.Msg + ": " + e.Err.Error()
@@ -78,9 +80,11 @@ func (e *Err) Unwrap() error {
 // Format will format the error.
 //
 //  %s   message
-//  %q   quoted message
-//  %v   caller + message
-//  %+v  parent + message + stack
+//  %q   "message"
+//  %v   caller: message
+//  %+v  err
+//       message
+//       caller
 //
 func (e *Err) Format(s fmt.State, verb rune) {
 	switch verb {
@@ -104,7 +108,7 @@ func (e *Err) Format(s fmt.State, verb rune) {
 	}
 }
 
-// StackTrace will return the stack trace (for sentry).
+// StackTrace will return the stack trace (for sentry compatibility).
 func (e *Err) StackTrace() []uintptr {
 	return e.Caller.Stack
 }

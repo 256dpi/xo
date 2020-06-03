@@ -10,57 +10,30 @@ import (
 
 // VEvent is a virtual span event.
 type VEvent struct {
-	// The event name.
-	Name string
-
-	// The event time.
-	Time time.Time
-
-	// Attached event attributes.
+	Name       string
+	Time       time.Time
 	Attributes M
 }
 
 // VSpan is a virtual span.
 type VSpan struct {
-	// The span id.
-	ID string
-
-	// The span trace id.
-	Trace string
-
-	// The parent span id.
-	Parent string
-
-	// The span name.
-	Name string
-
-	// The span start and end time.
-	Start time.Time
-	End   time.Time
-
-	// The span duration.
-	Duration time.Duration
-
-	// The span attributes.
+	ID         string
+	Trace      string
+	Parent     string
+	Name       string
+	Start      time.Time
+	End        time.Time
+	Duration   time.Duration
 	Attributes M
-
-	// Attached span events.
-	Events []VEvent
+	Events     []VEvent
 }
 
 // VNode is a virtual trace node.
 type VNode struct {
-	// The nodes span.
-	Span VSpan
-
-	// The nodes parent, if any.
-	Parent *VNode
-
-	// The node parent, if any.
+	Span     VSpan
+	Parent   *VNode
 	Children []*VNode
-
-	// The nodes depth.
-	Depth int
+	Depth    int
 }
 
 // VFrame is a virtual exception frame.

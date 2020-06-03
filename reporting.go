@@ -43,7 +43,7 @@ func SetupReporting(transport sentry.Transport) func() {
 	// create client
 	client, err := sentry.NewClient(sentry.ClientOptions{
 		Transport:    transport,
-		Integrations: FilterIntegrations("ContextifyFrames"),
+		Integrations: FilterSentryIntegrations("ContextifyFrames"),
 	})
 	if err != nil {
 		panic(err)
@@ -63,9 +63,9 @@ func SetupReporting(transport sentry.Transport) func() {
 	}
 }
 
-// FilterIntegrations will return a sentry integrations filter that will drop
-// the named integrations.
-func FilterIntegrations(drop ...string) func(i []sentry.Integration) []sentry.Integration {
+// FilterSentryIntegrations will return a sentry integrations filter that will
+// drop the named integrations.
+func FilterSentryIntegrations(drop ...string) func(i []sentry.Integration) []sentry.Integration {
 	return func(integrations []sentry.Integration) []sentry.Integration {
 		// filter integrations
 		var list []sentry.Integration

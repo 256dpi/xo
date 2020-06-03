@@ -9,7 +9,7 @@ import (
 var someError = F("some error")
 
 func TestCapture(t *testing.T) {
-	Trap(func(mock *Mock) {
+	Test(func(tester *Tester) {
 		Capture(W(someError))
 
 		assert.Equal(t, []VReport{
@@ -23,8 +23,8 @@ func TestCapture(t *testing.T) {
 							{
 								Func:   "init",
 								Module: "github.com/256dpi/xo",
-								File:   "sentry_test.go",
-								Path:   "github.com/256dpi/xo/sentry_test.go",
+								File:   "reporting_test.go",
+								Path:   "github.com/256dpi/xo/reporting_test.go",
 							},
 						},
 					},
@@ -35,31 +35,31 @@ func TestCapture(t *testing.T) {
 							{
 								Func:   "TestCapture",
 								Module: "github.com/256dpi/xo",
-								File:   "sentry_test.go",
-								Path:   "github.com/256dpi/xo/sentry_test.go",
+								File:   "reporting_test.go",
+								Path:   "github.com/256dpi/xo/reporting_test.go",
 							},
 							{
-								Func:   "Trap",
+								Func:   "Test",
 								Module: "github.com/256dpi/xo",
-								File:   "mock.go",
-								Path:   "github.com/256dpi/xo/mock.go",
+								File:   "tester.go",
+								Path:   "github.com/256dpi/xo/tester.go",
 							},
 							{
 								Func:   "TestCapture.func1",
 								Module: "github.com/256dpi/xo",
-								File:   "sentry_test.go",
-								Path:   "github.com/256dpi/xo/sentry_test.go",
+								File:   "reporting_test.go",
+								Path:   "github.com/256dpi/xo/reporting_test.go",
 							},
 						},
 					},
 				},
 			},
-		}, mock.ReducedReports())
+		}, tester.ReducedReports())
 	})
 }
 
 func TestReporter(t *testing.T) {
-	Trap(func(mock *Mock) {
+	Test(func(tester *Tester) {
 		rep := Reporter(SM{
 			"foo": "bar",
 		})
@@ -80,13 +80,13 @@ func TestReporter(t *testing.T) {
 							{
 								Func:   "init",
 								Module: "github.com/256dpi/xo",
-								File:   "sentry_test.go",
-								Path:   "github.com/256dpi/xo/sentry_test.go",
+								File:   "reporting_test.go",
+								Path:   "github.com/256dpi/xo/reporting_test.go",
 							},
 						},
 					},
 				},
 			},
-		}, mock.ReducedReports())
+		}, tester.ReducedReports())
 	})
 }

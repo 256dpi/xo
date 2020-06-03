@@ -8,7 +8,7 @@ import (
 )
 
 func TestAutoTrack(t *testing.T) {
-	Trap(func(mock *Mock) {
+	Test(func(tester *Tester) {
 		ctx, span := AutoTrack(nil)
 		assert.NotNil(t, ctx)
 		assert.NotNil(t, span)
@@ -16,12 +16,12 @@ func TestAutoTrack(t *testing.T) {
 
 		assert.Equal(t, []VSpan{
 			{Name: "xo.TestAutoTrack.func1"},
-		}, mock.ReducedSpans(0))
+		}, tester.ReducedSpans(0))
 	})
 }
 
 func TestTrack(t *testing.T) {
-	Trap(func(mock *Mock) {
+	Test(func(tester *Tester) {
 		ctx, span := Track(nil, "foo")
 		assert.NotNil(t, ctx)
 		assert.NotNil(t, span)
@@ -46,12 +46,12 @@ func TestTrack(t *testing.T) {
 			{Name: "bar"},
 			{Name: "track"},
 			{Name: "root"},
-		}, mock.ReducedSpans(0))
+		}, tester.ReducedSpans(0))
 	})
 }
 
 func TestTrackMeta(t *testing.T) {
-	Trap(func(mock *Mock) {
+	Test(func(tester *Tester) {
 		_, span := Track(nil, "foo")
 		span.Tag("foo", "bar")
 		span.Tag("rich", M{"foo": "bar"})
@@ -89,6 +89,6 @@ func TestTrackMeta(t *testing.T) {
 					},
 				},
 			},
-		}, mock.ReducedSpans(0))
+		}, tester.ReducedSpans(0))
 	})
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func TestRun(t *testing.T) {
-	Trap(func(mock *Mock) {
+	Test(func(tester *Tester) {
 		err := Run(nil, func(ctx *Context) error {
 			ctx.Tag("tag", 42)
 			ctx.Log("bar")
@@ -90,7 +90,7 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-		}, mock.ReducedSpans(0))
+		}, tester.ReducedSpans(0))
 	})
 }
 

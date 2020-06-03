@@ -10,36 +10,37 @@ import (
 	"go.opentelemetry.io/otel/sdk/export/trace"
 )
 
-// Trap will temporarily intercept and collect logging, tracing and reporting
+// Test will temporarily intercept and collect logging, tracing and reporting
 // data for testing purposes.
-func Trap(fn func(mock *Mock)) {
-	// create mock
-	mock := &Mock{
+func Test(fn func(tester *Tester)) {
+	// create tester
+	tester := &Tester{
 		CleanEvents: true,
 		Sinks:       map[string]*BufferSink{},
 	}
 
 	// setup tracing
-	teardownTracing := SetupTracing(mock.SpanSyncer())
+	teardownTracing := SetupTracing(tester.SpanSyncer())
 	defer teardownTracing()
 
 	// setup reporting
-	teardownReporting := SetupReporting(mock.SentryTransport())
+	teardownReporting := SetupReporting(tester.SentryTransport())
 	defer teardownReporting()
 
 	// swap factory
 	originalFactory := SinkFactory
-	SinkFactory = mock.SinkFactory()
+	SinkFactory = tester.SinkFactory()
 	defer func() {
 		SinkFactory = originalFactory
 	}()
 
 	// yield
-	fn(mock)
+	fn(tester)
 }
 
-// Mock is a virtual logging, tracing and reporting provider.
-type Mock struct {
+// Tester is a virtual logging, tracing and reporting provider for testing
+// purposes.
+type Tester struct {
 	// Whether events should be cleaned.
 	//
 	// Default: true.
@@ -57,12 +58,12 @@ type Mock struct {
 
 // ReducedSpans will return a copy of the span list with reduced information.
 // This representation can be used in tests for easy direct comparison.
-func (m *Mock) ReducedSpans(resolution time.Duration) []VSpan {
+func (t *Tester) ReducedSpans(resolution time.Duration) []VSpan {
 	// prepare spans
-	spans := make([]VSpan, 0, len(m.Spans))
+	spans := make([]VSpan, 0, len(t.Spans))
 
 	// cleanup and copy spans
-	for _, span := range m.Spans {
+	for _, span := range t.Spans {
 		// recalculate duration
 		span.Start = span.Start.Round(resolution)
 		span.End = span.End.Round(resolution)
@@ -101,12 +102,12 @@ func (m *Mock) ReducedSpans(resolution time.Duration) []VSpan {
 
 // ReducedReports will return a copy of the report list with reduced information.
 // This representation can be used in tests for easy direct comparison.
-func (m *Mock) ReducedReports() []VReport {
+func (t *Tester) ReducedReports() []VReport {
 	// prepare reports
-	reports := make([]VReport, 0, len(m.Reports))
+	reports := make([]VReport, 0, len(t.Reports))
 
 	// cleanup and copy reports
-	for _, report := range m.Reports {
+	for _, report := range t.Reports {
 		// cleanup report
 		report.ID = ""
 		report.Time = time.Time{}
@@ -146,31 +147,32 @@ func (m *Mock) ReducedReports() []VReport {
 	return reports
 }
 
-// Reset all mock data.
-func (m *Mock) Reset() {
-	m.Spans = nil
-	m.Reports = nil
+// Reset collected spans, reports and sinks.
+func (t *Tester) Reset() {
+	t.Spans = nil
+	t.Reports = nil
+	t.Sinks = map[string]*BufferSink{}
 }
 
 // SpanSyncer will return a span syncer that collects spans.
-func (m *Mock) SpanSyncer() trace.SpanSyncer {
+func (t *Tester) SpanSyncer() trace.SpanSyncer {
 	return SpanSyncer(func(span *trace.SpanData) {
-		m.Spans = append(m.Spans, convertSpan(span))
+		t.Spans = append(t.Spans, convertSpan(span))
 	})
 }
 
 // SentryTransport will return a sentry transport that collects events.
-func (m *Mock) SentryTransport() sentry.Transport {
+func (t *Tester) SentryTransport() sentry.Transport {
 	return SentryTransport(func(event *sentry.Event) {
-		m.Reports = append(m.Reports, convertReport(event))
+		t.Reports = append(t.Reports, convertReport(event))
 	})
 }
 
 // SinkFactory will return a sink factory that returns buffer sinks.
-func (m *Mock) SinkFactory() func(name string) io.WriteCloser {
+func (t *Tester) SinkFactory() func(name string) io.WriteCloser {
 	return func(name string) io.WriteCloser {
 		// check sinks
-		if sink, ok := m.Sinks[name]; ok {
+		if sink, ok := t.Sinks[name]; ok {
 			return sink
 		}
 
@@ -180,7 +182,7 @@ func (m *Mock) SinkFactory() func(name string) io.WriteCloser {
 		}
 
 		// store sink
-		m.Sinks[name] = buf
+		t.Sinks[name] = buf
 
 		return buf
 	}

@@ -7,7 +7,7 @@ import (
 )
 
 func TestTrace(t *testing.T) {
-	Trap(func(mock *Mock) {
+	Test(func(tester *Tester) {
 		trace, ctx := CreateTrace(nil, "trace")
 		trace.Log("7")
 		assert.NotNil(t, trace)
@@ -65,6 +65,6 @@ func TestTrace(t *testing.T) {
 					},
 				},
 			},
-		}, mock.ReducedSpans(0))
+		}, tester.ReducedSpans(0))
 	})
 }

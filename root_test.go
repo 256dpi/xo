@@ -9,7 +9,7 @@ import (
 )
 
 func TestRootHandler(t *testing.T) {
-	Trap(func(mock *Mock) {
+	Test(func(tester *Tester) {
 		handler := serve.Compose(
 			RootHandler(NumberCleaner),
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -36,6 +36,6 @@ func TestRootHandler(t *testing.T) {
 					"http.url":   "/foo/123/bar",
 				},
 			},
-		}, mock.ReducedSpans(0))
+		}, tester.ReducedSpans(0))
 	})
 }

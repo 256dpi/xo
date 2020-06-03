@@ -7,9 +7,9 @@ import (
 )
 
 func TestMockSink(t *testing.T) {
-	Trap(func(mock *Mock) {
+	Test(func(tester *Tester) {
 		sink := Sink("foo")
 		_, _ = sink.Write([]byte("Hello World!"))
-		assert.Equal(t, "Hello World!", mock.Sinks["foo"].String())
+		assert.Equal(t, "Hello World!", tester.Sinks["foo"].String())
 	})
 }

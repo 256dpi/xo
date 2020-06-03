@@ -8,5 +8,4 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.6.0
 	go.opentelemetry.io/otel v0.6.0
-	go.opentelemetry.io/otel/exporters/trace/jaeger v0.6.0
 )

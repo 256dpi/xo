@@ -12,24 +12,28 @@ import (
 	"go.opentelemetry.io/otel/sdk/export/trace"
 )
 
+// Debugger is a virtual logging, tracing and reporting provider for debugging
+// purposes.
 type Debugger struct {
 	config Config
-	spans  map[string]VSpan
 	mutex  sync.Mutex
 }
 
+// NewDebugger will create and return a new debugger.
 func NewDebugger(config Config) *Debugger {
 	// ensure config
 	config.Ensure()
 
 	return &Debugger{
 		config: config,
-		spans:  make(map[string]VSpan, 2048),
 	}
 }
 
 // SpanSyncer will return a span syncer that prints received spans.
 func (d *Debugger) SpanSyncer() trace.SpanSyncer {
+	// prepare spans
+	spans := map[string]VSpan{}
+
 	return SpanSyncer(func(data *trace.SpanData) {
 		// acquire mutex
 		d.mutex.Lock()
@@ -40,17 +44,17 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 
 		// store span if not root
 		if span.Parent != "" {
-			d.spans[span.ID] = span
+			spans[span.ID] = span
 			return
 		}
 
 		// collect spans
 		table := make(map[string]VSpan)
 		list := make([]VSpan, 0, 512)
-		for id, s := range d.spans {
+		for id, s := range spans {
 			if s.Trace == span.Trace {
 				list = append(list, s)
-				delete(d.spans, id)
+				delete(spans, id)
 				table[s.ID] = s
 			}
 		}

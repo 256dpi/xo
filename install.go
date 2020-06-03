@@ -46,6 +46,9 @@ type Config struct {
 	// Whether to omit event context data.
 	NoEventContext bool
 
+	// Whether to omit file paths from event stack traces.
+	NoEventPaths bool
+
 	// Whether to omit line numbers from event stack traces.
 	NoEventLineNumbers bool
 }

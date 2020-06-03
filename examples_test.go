@@ -50,7 +50,7 @@ func ExampleRun() {
 func ExampleTrack() {
 	// install
 	teardown := Install(Config{
-		TraceResolution: 100 * time.Millisecond,
+		TraceResolution:   100 * time.Millisecond,
 		NoTraceAttributes: true,
 	})
 	defer teardown()
@@ -96,8 +96,8 @@ func ExampleTrack() {
 func ExampleCapture() {
 	// install
 	teardown := Install(Config{
-		NoEventContext:     true,
-		NoEventLineNumbers: true,
+		NoEventContext: true,
+		NoEventPaths:   true,
 	})
 	defer teardown()
 
@@ -112,8 +112,8 @@ func ExampleCapture() {
 	// Level: error
 	// Exceptions:
 	// - some error (*xo.Err)
-	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go
-	//   > main (main): _testmain.go
+	//   > ExampleCapture (github.com/256dpi/xo)
+	//   > main (main)
 }
 
 func ExampleSink() {

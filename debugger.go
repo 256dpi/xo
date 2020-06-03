@@ -194,11 +194,20 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 			_, _ = fmt.Fprintf(&buf, "- %s (%s)\n", exc.Value, exc.Type)
 			if exc.Stacktrace != nil {
 				for _, frame := range exc.Stacktrace.Frames {
+					// check path
+					if d.config.NoEventPaths {
+						justFprintf(&buf, "  > %s (%s)\n", frame.Function, frame.Module)
+						continue
+					}
+
+					// prepare line
 					var line = ""
 					if !d.config.NoEventLineNumbers {
 						line = ":" + strconv.Itoa(frame.Lineno)
 					}
-					_, _ = fmt.Fprintf(&buf, "  > %s (%s): %s%s\n", frame.Function, frame.Module, frame.AbsPath, line)
+
+					// print frame
+					justFprintf(&buf, "  > %s (%s): %s%s\n", frame.Function, frame.Module, frame.AbsPath, line)
 				}
 			}
 		}

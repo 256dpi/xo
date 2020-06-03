@@ -3,6 +3,7 @@ package xo
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 	"unicode"
@@ -185,7 +186,11 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 			_, _ = fmt.Fprintf(&buf, "- %s (%s)\n", exc.Value, exc.Type)
 			if exc.Stacktrace != nil {
 				for _, frame := range exc.Stacktrace.Frames {
-					_, _ = fmt.Fprintf(&buf, "  > %s (%s): %s:%d\n", frame.Function, frame.Module, frame.AbsPath, frame.Lineno)
+					var line = ""
+					if !d.config.NoLineNumbers {
+						line = ":" + strconv.Itoa(frame.Lineno)
+					}
+					_, _ = fmt.Fprintf(&buf, "  > %s (%s): %s%s\n", frame.Function, frame.Module, frame.AbsPath, line)
 				}
 			}
 		}

@@ -94,7 +94,9 @@ func ExampleTrack() {
 
 func ExampleCapture() {
 	// install
-	teardown := Install(Config{})
+	teardown := Install(Config{
+		NoLineNumbers: true,
+	})
 	defer teardown()
 
 	// capture error
@@ -112,8 +114,8 @@ func ExampleCapture() {
 	// - runtime: {"go_maxprocs":8,"go_numcgocalls":1,"go_numroutines":18,"name":"go","version":"go1.14.1"}
 	// Exceptions:
 	// - some error (*xo.Err)
-	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go:101
-	//   > main (main): _testmain.go:98
+	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go
+	//   > main (main): _testmain.go
 }
 
 func ExampleSink() {

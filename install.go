@@ -39,6 +39,9 @@ type Config struct {
 	//
 	// Default: Sink("EVENT").
 	EventOutput io.Writer
+
+	// Whether to remove line numbers from stack traces.
+	NoLineNumbers bool
 }
 
 // Ensure will ensure defaults.

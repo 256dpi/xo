@@ -6,7 +6,6 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"go.opentelemetry.io/otel/api/global"
-	apiTrace "go.opentelemetry.io/otel/api/trace"
 	"go.opentelemetry.io/otel/sdk/export/trace"
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
@@ -30,12 +29,13 @@ func Trap(fn func(mock *Mock)) {
 		panic(err)
 	}
 
-	// set provider
+	// swap provider
+	originalProvider := global.TraceProvider()
 	global.SetTraceProvider(provider)
-	defer global.SetTraceProvider(apiTrace.NoopProvider{})
+	defer global.SetTraceProvider(originalProvider)
 
-	// initialize sentry
-	err = sentry.Init(sentry.ClientOptions{
+	// create client
+	client, err := sentry.NewClient(sentry.ClientOptions{
 		Transport: mock.SentryTransport(),
 		Integrations: func(integrations []sentry.Integration) []sentry.Integration {
 			// filter integrations
@@ -53,15 +53,11 @@ func Trap(fn func(mock *Mock)) {
 		panic(err)
 	}
 
-	// set noop transport
-	defer func() {
-		err = sentry.Init(sentry.ClientOptions{
-			Transport: SentryTransport(func(*sentry.Event) {}),
-		})
-		if err != nil {
-			panic(err)
-		}
-	}()
+	// swap client
+	hub := sentry.CurrentHub()
+	originalClient := hub.Client()
+	hub.BindClient(client)
+	defer hub.BindClient(originalClient)
 
 	// yield
 	fn(mock)
@@ -163,7 +159,7 @@ func (m *Mock) SentryTransport() sentry.Transport {
 				event.Tags = nil
 			}
 
-			// rewrite line numbers
+			// unset line numbers
 			for i := range event.Exception {
 				if event.Exception[i].Stacktrace != nil {
 					st := event.Exception[i].Stacktrace

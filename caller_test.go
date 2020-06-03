@@ -75,7 +75,7 @@ func TestCallerFormat(t *testing.T) {
 		"  testing/testing.go:LN",
 		"runtime.goexit",
 		"  runtime/asm_amd64.s:LN",
-	}, splitTrace(str))
+	}, splitStackTrace(str))
 }
 
 func BenchmarkGetCaller(b *testing.B) {

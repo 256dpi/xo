@@ -33,7 +33,7 @@ func TestF(t *testing.T) {
 		"  testing/testing.go:LN",
 		"runtime.goexit",
 		"  runtime/asm_amd64.s:LN",
-	}, splitTrace(str))
+	}, splitStackTrace(str))
 }
 
 func TestW(t *testing.T) {
@@ -64,7 +64,7 @@ func TestW(t *testing.T) {
 		"  testing/testing.go:LN",
 		"runtime.goexit",
 		"  runtime/asm_amd64.s:LN",
-	}, splitTrace(str))
+	}, splitStackTrace(str))
 }
 
 func TestSuperfluousWrap(t *testing.T) {
@@ -88,7 +88,7 @@ func TestSuperfluousWrap(t *testing.T) {
 		"  testing/testing.go:LN",
 		"runtime.goexit",
 		"  runtime/asm_amd64.s:LN",
-	}, splitTrace(str))
+	}, splitStackTrace(str))
 }
 
 func TestWF(t *testing.T) {
@@ -127,7 +127,7 @@ func TestWF(t *testing.T) {
 		"  testing/testing.go:LN",
 		"runtime.goexit",
 		"  runtime/asm_amd64.s:LN",
-	}, splitTrace(str))
+	}, splitStackTrace(str))
 }
 
 func TestSF(t *testing.T) {
@@ -152,7 +152,7 @@ func TestSF(t *testing.T) {
 		"  testing/testing.go:LN",
 		"runtime.goexit",
 		"  runtime/asm_amd64.s:LN",
-	}, splitTrace(str))
+	}, splitStackTrace(str))
 
 	/* wrapped */
 
@@ -184,7 +184,7 @@ func TestSF(t *testing.T) {
 		"  testing/testing.go:LN",
 		"runtime.goexit",
 		"  runtime/asm_amd64.s:LN",
-	}, splitTrace(str))
+	}, splitStackTrace(str))
 }
 
 func TestSW(t *testing.T) {

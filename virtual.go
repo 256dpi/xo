@@ -63,7 +63,8 @@ type VReport struct {
 	Exceptions []VException
 }
 
-func convertSpan(data *trace.SpanData) VSpan {
+// ConverSpan will convert a raw span to a virtual span.
+func ConvertSpan(data *trace.SpanData) VSpan {
 	// collect events
 	var events []VEvent
 	for _, event := range data.MessageEvents {
@@ -94,7 +95,8 @@ func convertSpan(data *trace.SpanData) VSpan {
 	}
 }
 
-func convertReport(event *sentry.Event) VReport {
+// ConvertReport will convert a raw event to virtual report.
+func ConvertReport(event *sentry.Event) VReport {
 	// prepare report
 	report := VReport{
 		ID:    string(event.EventID),
@@ -141,7 +143,8 @@ func convertReport(event *sentry.Event) VReport {
 	return report
 }
 
-func buildTraces(list []VSpan) []*VNode {
+// BuildTraces will assemble traces from a list of spans.
+func BuildTraces(list []VSpan) []*VNode {
 	// prepare nodes
 	var roots []*VNode
 	nodes := map[string]*VNode{}
@@ -172,7 +175,7 @@ func buildTraces(list []VSpan) []*VNode {
 	}
 
 	// sort traces
-	sortNodes(roots)
+	SortNodes(roots)
 
 	// set depth
 	for _, node := range nodes {
@@ -186,7 +189,8 @@ func buildTraces(list []VSpan) []*VNode {
 	return roots
 }
 
-func walkTrace(node *VNode, fn func(node *VNode) bool) bool {
+// WalkTrace will walk the specified trace.
+func WalkTrace(node *VNode, fn func(node *VNode) bool) bool {
 	// yield node
 	if !fn(node) {
 		return false
@@ -194,7 +198,7 @@ func walkTrace(node *VNode, fn func(node *VNode) bool) bool {
 
 	// yield children
 	for _, child := range node.Children {
-		if !walkTrace(child, fn) {
+		if !WalkTrace(child, fn) {
 			return false
 		}
 	}
@@ -202,7 +206,8 @@ func walkTrace(node *VNode, fn func(node *VNode) bool) bool {
 	return true
 }
 
-func sortNodes(nodes []*VNode) {
+// SortNodes will sort the specified nodes.
+func SortNodes(nodes []*VNode) {
 	// sort children
 	sort.Slice(nodes, func(i, j int) bool {
 		return nodes[i].Span.Start.Before(nodes[j].Span.Start)
@@ -210,6 +215,6 @@ func sortNodes(nodes []*VNode) {
 
 	// sort children
 	for _, node := range nodes {
-		sortNodes(node.Children)
+		SortNodes(node.Children)
 	}
 }

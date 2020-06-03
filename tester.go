@@ -157,14 +157,14 @@ func (t *Tester) Reset() {
 // SpanSyncer will return a span syncer that collects spans.
 func (t *Tester) SpanSyncer() trace.SpanSyncer {
 	return SpanSyncer(func(span *trace.SpanData) {
-		t.Spans = append(t.Spans, convertSpan(span))
+		t.Spans = append(t.Spans, ConvertSpan(span))
 	})
 }
 
 // SentryTransport will return a sentry transport that collects events.
 func (t *Tester) SentryTransport() sentry.Transport {
 	return SentryTransport(func(event *sentry.Event) {
-		t.Reports = append(t.Reports, convertReport(event))
+		t.Reports = append(t.Reports, ConvertReport(event))
 	})
 }
 

@@ -138,7 +138,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		defer d.mutex.Unlock()
 
 		// convert span
-		span := convertSpan(data)
+		span := ConvertSpan(data)
 
 		// store span if not root
 		if span.Parent != "" {
@@ -173,12 +173,12 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		}
 
 		// build traces
-		roots := buildTraces(list)
+		roots := BuildTraces(list)
 
 		// calculate longest tag
 		var longest int
 		for _, root := range roots {
-			walkTrace(root, func(node *VNode) bool {
+			WalkTrace(root, func(node *VNode) bool {
 				// check span name
 				length := node.Depth*2 + len(node.Span.Name)
 				if length > longest {
@@ -205,7 +205,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 
 		// print roots
 		for _, root := range roots {
-			walkTrace(root, func(node *VNode) bool {
+			WalkTrace(root, func(node *VNode) bool {
 				// prepare name
 				name := strings.Repeat(" ", node.Depth*2) + node.Span.Name
 
@@ -270,7 +270,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 func (d *Debugger) SentryTransport() sentry.Transport {
 	return SentryTransport(func(event *sentry.Event) {
 		// convert report
-		report := convertReport(event)
+		report := ConvertReport(event)
 
 		// reverse stack traces
 		for _, exc := range report.Exceptions {

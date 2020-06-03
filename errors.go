@@ -156,3 +156,39 @@ func AsSafe(err error) *SafeErr {
 	errors.As(err, &safeErr)
 	return safeErr
 }
+
+// RootErr represents the root of an error chain. It cannot directly be used as
+// an error value. Instead, the caller uses Wrap() to get a new wrapped error or
+// Self() to get the root error itself.
+type RootErr struct {
+	err error
+}
+
+// R formats and returns a new root error.
+func R(format string, args ...interface{}) RootErr {
+	return RootErr{
+		err: &Err{
+			Err:    nil,
+			Msg:    fmt.Sprintf(format, args...),
+			Caller: GetCaller(1),
+		},
+	}
+}
+
+// Self will return the root error itself.
+func (s *RootErr) Self() error {
+	return s.err
+}
+
+// Wrap wraps and returns an instance of the root error.
+func (s *RootErr) Wrap() error {
+	return &Err{
+		Err:    s.err,
+		Caller: GetCaller(1),
+	}
+}
+
+// Is returns whether the provided errors root is the receiver.
+func (s *RootErr) Is(err error) bool {
+	return errors.Is(err, s.err)
+}

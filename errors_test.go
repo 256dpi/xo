@@ -67,24 +67,22 @@ func TestW(t *testing.T) {
 		"runtime.goexit",
 		"  runtime/asm_amd64.s:LN",
 	}, splitStackTrace(str))
-}
 
-func TestSuperfluousWrap(t *testing.T) {
-	err := W(func() error {
+	err = W(func() error {
 		return W(func() error {
 			return W(F("foo"))
 		}())
 	}())
 	assert.Error(t, err)
 
-	str := fmt.Sprintf("%+v", err)
+	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"github.com/256dpi/xo.TestSuperfluousWrap.func1.1",
+		"github.com/256dpi/xo.TestW.func1.1",
 		"  github.com/256dpi/xo/errors_test.go:LN",
-		"github.com/256dpi/xo.TestSuperfluousWrap.func1",
+		"github.com/256dpi/xo.TestW.func1",
 		"  github.com/256dpi/xo/errors_test.go:LN",
-		"github.com/256dpi/xo.TestSuperfluousWrap",
+		"github.com/256dpi/xo.TestW",
 		"  github.com/256dpi/xo/errors_test.go:LN",
 		"testing.tRunner",
 		"  testing/testing.go:LN",
@@ -189,11 +187,6 @@ func TestSF(t *testing.T) {
 	}, splitStackTrace(str))
 }
 
-func TestSW(t *testing.T) {
-	err := SW(nil)
-	assert.NoError(t, err)
-}
-
 func TestSafeErr(t *testing.T) {
 	err1 := F("foo")
 	assert.False(t, IsSafe(err1))
@@ -209,6 +202,46 @@ func TestSafeErr(t *testing.T) {
 	assert.True(t, IsSafe(err3))
 	assert.Equal(t, "bar: foo", err3.Error())
 	assert.Equal(t, err2, AsSafe(err3))
+}
+
+var errFoo = R("foo")
+
+func TestRootErr(t *testing.T) {
+	err := errFoo.Wrap()
+	assert.Error(t, err)
+	assert.True(t, errFoo.Is(err))
+	assert.True(t, errFoo.Is(errFoo.Self()))
+	assert.NotEqual(t, err, errFoo.Self())
+
+	str := err.Error()
+	assert.Equal(t, "foo", str)
+
+	str = fmt.Sprintf("%s", err)
+	assert.Equal(t, "foo", str)
+
+	str = fmt.Sprintf("%v", err)
+	assert.Equal(t, "xo.TestRootErr: foo", str)
+
+	str = fmt.Sprintf("%+v", err)
+	assert.Equal(t, []string{
+		"foo",
+		"github.com/256dpi/xo.init",
+		"  github.com/256dpi/xo/errors_test.go:LN",
+		"runtime.doInit",
+		"  runtime/proc.go:LN",
+		"runtime.doInit",
+		"  runtime/proc.go:LN",
+		"runtime.main",
+		"  runtime/proc.go:LN",
+		"runtime.goexit",
+		"  runtime/asm_amd64.s:LN",
+		"github.com/256dpi/xo.TestRootErr",
+		"  github.com/256dpi/xo/errors_test.go:LN",
+		"testing.tRunner",
+		"  testing/testing.go:LN",
+		"runtime.goexit",
+		"  runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
 }
 
 func BenchmarkF(b *testing.B) {

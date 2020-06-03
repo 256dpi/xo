@@ -1,7 +1,9 @@
 package xo
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"time"
 
 	"github.com/getsentry/sentry-go"
@@ -16,6 +18,7 @@ func Trap(fn func(mock *Mock)) {
 	// create mock
 	mock := &Mock{
 		CleanEvents: true,
+		Sinks:       map[string]*BufferSink{},
 	}
 
 	// create provider
@@ -49,6 +52,13 @@ func Trap(fn func(mock *Mock)) {
 	hub.BindClient(client)
 	defer hub.BindClient(originalClient)
 
+	// swap factory
+	originalFactory := SinkFactory
+	SinkFactory = mock.SinkFactory()
+	defer func() {
+		SinkFactory = originalFactory
+	}()
+
 	// yield
 	fn(mock)
 }
@@ -65,6 +75,8 @@ type Mock struct {
 
 	// The collected events.
 	Events []sentry.Event
+
+	Sinks map[string]*BufferSink
 }
 
 // ReducedSpans will return a copy of the span list with reduced information.
@@ -166,6 +178,26 @@ func (m *Mock) SentryTransport() sentry.Transport {
 	})
 }
 
+// SinkFactory will return a sink factory that returns buffer sinks.
+func (m *Mock) SinkFactory() func(name string) io.WriteCloser {
+	return func(name string) io.WriteCloser {
+		// check sinks
+		if sink, ok := m.Sinks[name]; ok {
+			return sink
+		}
+
+		// create buffer
+		buf := &BufferSink{
+			Buffer: new(bytes.Buffer),
+		}
+
+		// store sink
+		m.Sinks[name] = buf
+
+		return buf
+	}
+}
+
 // SpanSyncer is a functional span exporter.
 type SpanSyncer func(*trace.SpanData)
 
@@ -188,4 +220,17 @@ func (t SentryTransport) SendEvent(event *sentry.Event) {
 // Flush implements the sentry.Transport interface.
 func (t SentryTransport) Flush(time.Duration) bool {
 	return true
+}
+
+// BufferSink wraps a bytes buffer.
+type BufferSink struct {
+	*bytes.Buffer
+}
+
+// Close implements the io.Closer interface.
+func (s *BufferSink) Close() error {
+	// unset
+	s.Buffer = nil
+
+	return nil
 }

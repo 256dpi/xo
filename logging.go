@@ -13,6 +13,17 @@ import (
 // Stdout is the original stdout.
 var Stdout io.Writer = os.Stdout
 
+// SinkFactory is the factory used by Sink() to create sinks.
+var SinkFactory = func(name string) io.WriteCloser {
+	// create pipe
+	reader, writer := io.Pipe()
+
+	// forward
+	go Forward(name, reader)
+
+	return writer
+}
+
 // Intercept will replace os.Stdout with a logging sink named "STDOUT". It will
 // also redirect the output of the log package to a logging sink named "LOG".
 // The returned function can be called to restore the original state.
@@ -53,13 +64,7 @@ func Intercept() func() {
 
 // Sink will return a new named logging sink.
 func Sink(name string) io.WriteCloser {
-	// create pipe
-	reader, writer := io.Pipe()
-
-	// forward
-	go Forward(name, reader)
-
-	return writer
+	return SinkFactory(name)
 }
 
 // Forward will read log lines from the reader and write them to Stdout.

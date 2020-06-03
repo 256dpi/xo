@@ -3,7 +3,6 @@ package xo
 import (
 	"testing"
 
-	"github.com/getsentry/sentry-go"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,57 +12,49 @@ func TestCapture(t *testing.T) {
 	Trap(func(mock *Mock) {
 		Capture(W(someError))
 
-		assert.Equal(t, []sentry.Event{
+		assert.Equal(t, []MemoryReport{
 			{
 				Level: "error",
-				Exception: []sentry.Exception{
+				Exceptions: []MemoryException{
 					{
 						Type:  "*xo.Err",
 						Value: "some error",
-						Stacktrace: &sentry.Stacktrace{
-							Frames: []sentry.Frame{
-								{
-									Function: "init",
-									Module:   "github.com/256dpi/xo",
-									Filename: "sentry_test.go",
-									AbsPath:  "github.com/256dpi/xo/sentry_test.go",
-									InApp:    true,
-								},
+						Frames: []MemoryFrame{
+							{
+								Func:   "init",
+								Module: "github.com/256dpi/xo",
+								File:   "sentry_test.go",
+								Path:   "github.com/256dpi/xo/sentry_test.go",
 							},
 						},
 					},
 					{
 						Type:  "*xo.Err",
 						Value: "some error",
-						Stacktrace: &sentry.Stacktrace{
-							Frames: []sentry.Frame{
-								{
-									Function: "TestCapture",
-									Module:   "github.com/256dpi/xo",
-									Filename: "sentry_test.go",
-									AbsPath:  "github.com/256dpi/xo/sentry_test.go",
-									InApp:    true,
-								},
-								{
-									Function: "Trap",
-									Module:   "github.com/256dpi/xo",
-									Filename: "mock.go",
-									AbsPath:  "github.com/256dpi/xo/mock.go",
-									InApp:    true,
-								},
-								{
-									Function: "TestCapture.func1",
-									Module:   "github.com/256dpi/xo",
-									Filename: "sentry_test.go",
-									AbsPath:  "github.com/256dpi/xo/sentry_test.go",
-									InApp:    true,
-								},
+						Frames: []MemoryFrame{
+							{
+								Func:   "TestCapture",
+								Module: "github.com/256dpi/xo",
+								File:   "sentry_test.go",
+								Path:   "github.com/256dpi/xo/sentry_test.go",
+							},
+							{
+								Func:   "Trap",
+								Module: "github.com/256dpi/xo",
+								File:   "mock.go",
+								Path:   "github.com/256dpi/xo/mock.go",
+							},
+							{
+								Func:   "TestCapture.func1",
+								Module: "github.com/256dpi/xo",
+								File:   "sentry_test.go",
+								Path:   "github.com/256dpi/xo/sentry_test.go",
 							},
 						},
 					},
 				},
 			},
-		}, mock.Events)
+		}, mock.ReducedReports())
 	})
 }
 
@@ -75,30 +66,27 @@ func TestReporter(t *testing.T) {
 
 		rep(someError)
 
-		assert.Equal(t, []sentry.Event{
+		assert.Equal(t, []MemoryReport{
 			{
 				Level: "error",
 				Tags: SM{
 					"foo": "bar",
 				},
-				Exception: []sentry.Exception{
+				Exceptions: []MemoryException{
 					{
 						Type:  "*xo.Err",
 						Value: "some error",
-						Stacktrace: &sentry.Stacktrace{
-							Frames: []sentry.Frame{
-								{
-									Function: "init",
-									Module:   "github.com/256dpi/xo",
-									Filename: "sentry_test.go",
-									AbsPath:  "github.com/256dpi/xo/sentry_test.go",
-									InApp:    true,
-								},
+						Frames: []MemoryFrame{
+							{
+								Func:   "init",
+								Module: "github.com/256dpi/xo",
+								File:   "sentry_test.go",
+								Path:   "github.com/256dpi/xo/sentry_test.go",
 							},
 						},
 					},
 				},
 			},
-		}, mock.Events)
+		}, mock.ReducedReports())
 	})
 }

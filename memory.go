@@ -4,6 +4,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/getsentry/sentry-go"
 	"go.opentelemetry.io/otel/sdk/export/trace"
 )
 
@@ -57,6 +58,77 @@ type MemoryNode struct {
 
 	// The nodes depth.
 	Depth int
+}
+
+type MemoryFrame struct {
+	Func   string
+	Module string
+	File   string
+	Path   string
+	Line   int
+}
+
+type MemoryException struct {
+	Type   string
+	Value  string
+	Module string
+	Frames []MemoryFrame
+}
+
+type MemoryReport struct {
+	ID         string
+	Level      string
+	Time       time.Time
+	Context    M
+	Tags       SM
+	Exceptions []MemoryException
+}
+
+func convertReport(event *sentry.Event) MemoryReport {
+	// prepare report
+	report := MemoryReport{
+		ID:    string(event.EventID),
+		Level: string(event.Level),
+		Time:  event.Timestamp,
+	}
+
+	// add context
+	if len(event.Contexts) > 0 {
+		report.Context = event.Contexts
+	}
+
+	// add tags
+	if len(event.Tags) > 0 {
+		report.Tags = event.Tags
+	}
+
+	// add exceptions
+	for _, exc := range event.Exception {
+		// prepare exception
+		exception := MemoryException{
+			Type:   exc.Type,
+			Value:  exc.Value,
+			Module: exc.Module,
+		}
+
+		// add frames
+		if exc.Stacktrace != nil {
+			for _, frame := range exc.Stacktrace.Frames {
+				exception.Frames = append(exception.Frames, MemoryFrame{
+					Func:   frame.Function,
+					Module: frame.Module,
+					File:   frame.Filename,
+					Path:   frame.AbsPath,
+					Line:   frame.Lineno,
+				})
+			}
+		}
+
+		// add exception
+		report.Exceptions = append(report.Exceptions, exception)
+	}
+
+	return report
 }
 
 func buildTraces(list []MemorySpan) []*MemoryNode {

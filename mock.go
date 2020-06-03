@@ -73,25 +73,24 @@ type Mock struct {
 	// The collected spans.
 	Spans []MemorySpan
 
-	// The collected events.
-	Events []sentry.Event
+	// The collected reports.
+	Reports []MemoryReport
 
+	// The collected sinks.
 	Sinks map[string]*BufferSink
 }
 
 // ReducedSpans will return a copy of the span list with reduced information.
 // This representation can be used in tests for easy direct comparison.
 func (m *Mock) ReducedSpans(resolution time.Duration) []MemorySpan {
-	// prepare list
-	list := make([]MemorySpan, 0, len(m.Spans))
+	// prepare spans
+	spans := make([]MemorySpan, 0, len(m.Spans))
 
 	// cleanup and copy spans
 	for _, span := range m.Spans {
-		// truncate timestamps
+		// recalculate duration
 		span.Start = span.Start.Round(resolution)
 		span.End = span.End.Round(resolution)
-
-		// recalculate duration
 		duration := span.End.Sub(span.Start)
 		if resolution == 0 {
 			duration = 0
@@ -116,16 +115,63 @@ func (m *Mock) ReducedSpans(resolution time.Duration) []MemorySpan {
 		span.Events = events
 
 		// add span
-		list = append(list, span)
+		spans = append(spans, span)
 	}
 
-	return list
+	return spans
+}
+
+// ReducedReports will return a copy of the report list with reduced information.
+// This representation can be used in tests for easy direct comparison.
+func (m *Mock) ReducedReports() []MemoryReport {
+	// prepare reports
+	reports := make([]MemoryReport, 0, len(m.Reports))
+
+	// cleanup and copy reports
+	for _, report := range m.Reports {
+		// cleanup report
+		report.ID = ""
+		report.Time = time.Time{}
+
+		// cleanup context
+		delete(report.Context, "device")
+		delete(report.Context, "os")
+		delete(report.Context, "runtime")
+		if len(report.Context) == 0 {
+			report.Context = nil
+		}
+
+		// copy exceptions
+		exceptions := make([]MemoryException, 0, len(report.Exceptions))
+		for _, exc := range report.Exceptions {
+			// copy frames
+			frames := make([]MemoryFrame, 0, len(exc.Frames))
+			for _, frame := range exc.Frames {
+				frame.Line = 0
+				frames = append(frames, frame)
+			}
+
+			// set frames
+			exc.Frames = frames
+
+			// add exception
+			exceptions = append(exceptions, exc)
+		}
+
+		// set exceptions
+		report.Exceptions = exceptions
+
+		// add report
+		reports = append(reports, report)
+	}
+
+	return reports
 }
 
 // Reset all mock data.
 func (m *Mock) Reset() {
 	m.Spans = nil
-	m.Events = nil
+	m.Reports = nil
 }
 
 // SpanSyncer will return a span syncer that collects spans.
@@ -138,46 +184,7 @@ func (m *Mock) SpanSyncer() trace.SpanSyncer {
 // SentryTransport will return a sentry transport that collects events.
 func (m *Mock) SentryTransport() sentry.Transport {
 	return SentryTransport(func(event *sentry.Event) {
-		// clean if requested
-		if m.CleanEvents {
-			// unset meta data
-			event.Timestamp = time.Time{}
-			event.EventID = ""
-			event.Platform = ""
-			event.ServerName = ""
-			event.Sdk = sentry.SdkInfo{}
-
-			// cleanup contexts
-			delete(event.Contexts, "device")
-			delete(event.Contexts, "os")
-			delete(event.Contexts, "runtime")
-			if len(event.Contexts) == 0 {
-				event.Contexts = nil
-			}
-
-			// cleanup extra
-			if len(event.Extra) == 0 {
-				event.Extra = nil
-			}
-
-			// cleanup tags
-			if len(event.Tags) == 0 {
-				event.Tags = nil
-			}
-
-			// unset line numbers
-			for i := range event.Exception {
-				if event.Exception[i].Stacktrace != nil {
-					st := event.Exception[i].Stacktrace
-					for j := range st.Frames {
-						st.Frames[j].Lineno = 0
-					}
-				}
-			}
-		}
-
-		// add event
-		m.Events = append(m.Events, *event)
+		m.Reports = append(m.Reports, convertReport(event))
 	})
 }
 

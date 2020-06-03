@@ -6,7 +6,6 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"go.opentelemetry.io/otel/api/global"
-	apiTrace "go.opentelemetry.io/otel/api/trace"
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
@@ -85,7 +84,7 @@ func Install(config Config) func() {
 	debugger := NewDebugger(config)
 
 	// create provider
-	tp, err := sdkTrace.NewProvider(
+	provider, err := sdkTrace.NewProvider(
 		sdkTrace.WithSyncer(debugger.SpanSyncer()),
 		sdkTrace.WithConfig(sdkTrace.Config{
 			DefaultSampler: sdkTrace.AlwaysSample(),
@@ -95,41 +94,30 @@ func Install(config Config) func() {
 		panic(err)
 	}
 
-	// set provider
-	global.SetTraceProvider(tp)
+	// wap provider
+	originalProvider := global.TraceProvider()
+	global.SetTraceProvider(provider)
 
-	// initialize sentry
-	err = sentry.Init(sentry.ClientOptions{
-		Transport: debugger.SentryTransport(),
-		Integrations: func(integrations []sentry.Integration) []sentry.Integration {
-			// filter integrations
-			var list []sentry.Integration
-			for _, integration := range integrations {
-				if integration.Name() != "ContextifyFrames" {
-					list = append(list, integration)
-				}
-			}
-
-			return list
-		},
+	// create client
+	client, err := sentry.NewClient(sentry.ClientOptions{
+		Transport:    debugger.SentryTransport(),
+		Integrations: FilterIntegrations("ContextifyFrames"),
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	return func() {
-		// set noop transport
-		defer func() {
-			err := sentry.Init(sentry.ClientOptions{
-				Transport: SentryTransport(func(*sentry.Event) {}),
-			})
-			if err != nil {
-				panic(err)
-			}
-		}()
+	// swap client
+	hub := sentry.CurrentHub()
+	originalClient := hub.Client()
+	hub.BindClient(client)
 
-		// set noop provider
-		global.SetTraceProvider(apiTrace.NoopProvider{})
+	return func() {
+		// set original client
+		hub.BindClient(originalClient)
+
+		// set original provider
+		global.SetTraceProvider(originalProvider)
 
 		// reset intercept
 		if interceptReset != nil {

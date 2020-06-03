@@ -167,13 +167,13 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 // SentryTransport will return a sentry transport that print received events.
 func (d *Debugger) SentryTransport() sentry.Transport {
 	return SentryTransport(func(event *sentry.Event) {
+		// convert report
+		report := convertReport(event)
+
 		// reverse stack traces
-		for i := range event.Exception {
-			if event.Exception[i].Stacktrace != nil {
-				st := event.Exception[i].Stacktrace
-				for i, j := 0, len(st.Frames)-1; i < j; i, j = i+1, j-1 {
-					st.Frames[i], st.Frames[j] = st.Frames[j], st.Frames[i]
-				}
+		for _, exc := range report.Exceptions {
+			for i, j := 0, len(exc.Frames)-1; i < j; i, j = i+1, j-1 {
+				exc.Frames[i], exc.Frames[j] = exc.Frames[j], exc.Frames[i]
 			}
 		}
 
@@ -181,37 +181,38 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		var buf bytes.Buffer
 
 		// print info
-		check(fmt.Fprintf(&buf, "Level: %s\n", event.Level))
+		check(fmt.Fprintf(&buf, "Level: %s\n", report.Level))
 
 		// print context
 		if !d.config.NoEventContext {
 			check(fmt.Fprintf(&buf, "Context:\n"))
-			iterateMap(event.Contexts, func(key string, value interface{}) {
+			iterateMap(report.Context, func(key string, value interface{}) {
 				check(fmt.Fprintf(&buf, "- %s: %v\n", key, convertValue(value)))
 			})
 		}
 
 		// print exceptions
 		check(fmt.Fprintf(&buf, "Exceptions:\n"))
-		for _, exc := range event.Exception {
+		for _, exc := range report.Exceptions {
+			// print error
 			check(fmt.Fprintf(&buf, "- %s (%s)\n", exc.Value, exc.Type))
-			if exc.Stacktrace != nil {
-				for _, frame := range exc.Stacktrace.Frames {
-					// check path
-					if d.config.NoEventPaths {
-						check(fmt.Fprintf(&buf, "  > %s (%s)\n", frame.Function, frame.Module))
-						continue
-					}
 
-					// prepare line
-					var line = ""
-					if !d.config.NoEventLineNumbers {
-						line = ":" + strconv.Itoa(frame.Lineno)
-					}
-
-					// print frame
-					check(fmt.Fprintf(&buf, "  > %s (%s): %s%s\n", frame.Function, frame.Module, frame.AbsPath, line))
+			// print frames
+			for _, frame := range exc.Frames {
+				// check path
+				if d.config.NoEventPaths {
+					check(fmt.Fprintf(&buf, "  > %s (%s)\n", frame.Func, frame.Module))
+					continue
 				}
+
+				// prepare line
+				var line = ""
+				if !d.config.NoEventLineNumbers {
+					line = ":" + strconv.Itoa(frame.Line)
+				}
+
+				// print frame
+				check(fmt.Fprintf(&buf, "  > %s (%s): %s%s\n", frame.Func, frame.Module, frame.Path, line))
 			}
 		}
 

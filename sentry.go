@@ -6,6 +6,17 @@ import (
 	"github.com/getsentry/sentry-go"
 )
 
+// Capture will capture the error.
+func Capture(err error) {
+	// ensure caller
+	if _, ok := err.(*Err); !ok {
+		err = W(err)
+	}
+
+	// forward exception
+	sentry.CaptureException(err)
+}
+
 // SetupSentry will setup error reporting using sentry. To simplify testing, the
 // "ContextifyFrames" integration is removed.
 func SetupSentry(dsn string) func() {
@@ -43,15 +54,4 @@ func FilterIntegrations(drop ...string) func(i []sentry.Integration) []sentry.In
 
 		return list
 	}
-}
-
-// Capture will capture the error.
-func Capture(err error) {
-	// ensure caller
-	if _, ok := err.(*Err); !ok {
-		err = W(err)
-	}
-
-	// forward exception
-	sentry.CaptureException(err)
 }

@@ -204,14 +204,14 @@ func TestSafeErr(t *testing.T) {
 	assert.Equal(t, err2, AsSafe(err3))
 }
 
-var errFoo = R("foo")
+var baseFoo = BF("foo")
 
-func TestRootErr(t *testing.T) {
-	err := errFoo.Wrap()
+func TestBF(t *testing.T) {
+	err := baseFoo.Wrap()
 	assert.Error(t, err)
-	assert.True(t, errFoo.Is(err))
-	assert.True(t, errFoo.Is(errFoo.Self()))
-	assert.NotEqual(t, err, errFoo.Self())
+	assert.True(t, baseFoo.Is(err))
+	assert.True(t, baseFoo.Is(baseFoo.Self()))
+	assert.NotEqual(t, err, baseFoo.Self())
 
 	str := err.Error()
 	assert.Equal(t, "foo", str)
@@ -220,7 +220,7 @@ func TestRootErr(t *testing.T) {
 	assert.Equal(t, "foo", str)
 
 	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, "xo.TestRootErr: foo", str)
+	assert.Equal(t, "xo.TestBF: foo", str)
 
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
@@ -235,7 +235,47 @@ func TestRootErr(t *testing.T) {
 		"  runtime/proc.go:LN",
 		"runtime.goexit",
 		"  runtime/asm_amd64.s:LN",
-		"github.com/256dpi/xo.TestRootErr",
+		"github.com/256dpi/xo.TestBF",
+		"  github.com/256dpi/xo/errors_test.go:LN",
+		"testing.tRunner",
+		"  testing/testing.go:LN",
+		"runtime.goexit",
+		"  runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
+}
+
+var baseBar = BW(errors.New("bar"))
+
+func TestBW(t *testing.T) {
+	err := baseBar.Wrap()
+	assert.Error(t, err)
+	assert.True(t, baseBar.Is(err))
+	assert.True(t, baseBar.Is(baseBar.Self()))
+	assert.NotEqual(t, err, baseBar.Self())
+
+	str := err.Error()
+	assert.Equal(t, "bar", str)
+
+	str = fmt.Sprintf("%s", err)
+	assert.Equal(t, "bar", str)
+
+	str = fmt.Sprintf("%v", err)
+	assert.Equal(t, "xo.TestBW: bar", str)
+
+	str = fmt.Sprintf("%+v", err)
+	assert.Equal(t, []string{
+		"bar",
+		"github.com/256dpi/xo.init",
+		"  github.com/256dpi/xo/errors_test.go:LN",
+		"runtime.doInit",
+		"  runtime/proc.go:LN",
+		"runtime.doInit",
+		"  runtime/proc.go:LN",
+		"runtime.main",
+		"  runtime/proc.go:LN",
+		"runtime.goexit",
+		"  runtime/asm_amd64.s:LN",
+		"github.com/256dpi/xo.TestBW",
 		"  github.com/256dpi/xo/errors_test.go:LN",
 		"testing.tRunner",
 		"  testing/testing.go:LN",

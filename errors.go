@@ -157,16 +157,16 @@ func AsSafe(err error) *SafeErr {
 	return safeErr
 }
 
-// RootErr represents the root of an error chain. It cannot directly be used as
+// BaseErr represents the base of an error chain. It cannot directly be used as
 // an error value. Instead, the caller uses Wrap() to get a new wrapped error or
-// Self() to get the root error itself.
-type RootErr struct {
+// Self() to get the identity error.
+type BaseErr struct {
 	err error
 }
 
-// R formats and returns a new root error.
-func R(format string, args ...interface{}) RootErr {
-	return RootErr{
+// BF formats and returns a new base error.
+func BF(format string, args ...interface{}) BaseErr {
+	return BaseErr{
 		err: &Err{
 			Err:    nil,
 			Msg:    fmt.Sprintf(format, args...),
@@ -175,20 +175,30 @@ func R(format string, args ...interface{}) RootErr {
 	}
 }
 
-// Self will return the root error itself.
-func (s *RootErr) Self() error {
-	return s.err
+// BW wraps and returns a new base error.
+func BW(err error) BaseErr {
+	return BaseErr{
+		err: &Err{
+			Err:    err,
+			Caller: GetCaller(1),
+		},
+	}
 }
 
-// Wrap wraps and returns an instance of the root error.
-func (s *RootErr) Wrap() error {
+// Self will return the identity error.
+func (b *BaseErr) Self() error {
+	return b.err
+}
+
+// Wrap wraps and returns an error value.
+func (b *BaseErr) Wrap() error {
 	return &Err{
-		Err:    s.err,
+		Err:    b.err,
 		Caller: GetCaller(1),
 	}
 }
 
-// Is returns whether the provided errors root is the receiver.
-func (s *RootErr) Is(err error) bool {
-	return errors.Is(err, s.err)
+// Is returns whether the provided error is a descendant.
+func (b *BaseErr) Is(err error) bool {
+	return errors.Is(err, b.err)
 }

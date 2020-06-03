@@ -2,7 +2,6 @@ package xo
 
 import (
 	"testing"
-	"time"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/stretchr/testify/assert"
@@ -12,8 +11,7 @@ var someError = F("some error")
 
 func TestSentry(t *testing.T) {
 	Trap(func(mock *Mock) {
-		sentry.CaptureException(W(someError))
-		sentry.Flush(time.Second)
+		Capture(W(someError))
 
 		assert.Equal(t, []sentry.Event{
 			{

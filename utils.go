@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"os"
 	"sort"
 	"strings"
 	"time"
@@ -22,17 +21,6 @@ func check(_ int, err error) {
 	if err != nil {
 		log.Printf("%v", W(err))
 	}
-}
-
-func isBenchmark() bool {
-	// check bench flag
-	for _, arg := range os.Args {
-		if strings.Contains(arg, "test.bench") {
-			return true
-		}
-	}
-
-	return false
 }
 
 func isNumber(s string) bool {
@@ -55,7 +43,7 @@ func numDigits(i int64) int {
 	return count
 }
 
-func autoTruncate(d time.Duration, precision int) time.Duration {
+func rescale(d time.Duration, precision int) time.Duration {
 	return d.Truncate(time.Duration(math.Pow10(numDigits(int64(d)) - precision)))
 }
 

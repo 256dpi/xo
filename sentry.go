@@ -9,11 +9,6 @@ import (
 // SetupSentry will setup error reporting using sentry. To simplify testing, the
 // "ContextifyFrames" integration is removed.
 func SetupSentry(dsn string) func() {
-	// skip if benchmark
-	if isBenchmark() {
-		return func() {}
-	}
-
 	// initialize sentry
 	err := sentry.Init(sentry.ClientOptions{
 		Dsn:          dsn,

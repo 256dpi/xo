@@ -110,8 +110,8 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 				// prepare bar
 				bar := buildBar(node.Span.Start.Sub(root.Span.Start), node.Span.Duration, root.Span.End.Sub(node.Span.End), d.config.TraceWidth)
 
-				// prepare duration
-				duration := autoTruncate(node.Span.Duration, 3)
+				// rescale duration
+				duration := rescale(node.Span.Duration, 3)
 
 				// prepare attributes
 				var attributes string
@@ -135,8 +135,8 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 					// prepare dot
 					dot := buildDot(event.Time.Sub(root.Span.Start), root.Span.End.Sub(event.Time), 80)
 
-					// prepare timing
-					timing := autoTruncate(event.Time.Sub(root.Span.Start), 3)
+					// rescale timing
+					timing := rescale(event.Time.Sub(root.Span.Start), 3)
 
 					// prepare attributes
 					var attributes string

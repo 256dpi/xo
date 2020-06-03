@@ -6,18 +6,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBuildMap(t *testing.T) {
-	str := buildMap(nil)
+func TestBuildMeta(t *testing.T) {
+	str := buildMeta(nil)
 	assert.Equal(t, "", str)
 
-	str = buildMap(M{
+	str = buildMeta(M{
 		"a": 2,
 		"b": "foo",
-		"c": M{
-			"d": "bar",
+		"c": true,
+		"d": M{
+			"foo": "bar",
 		},
 	})
-	assert.Equal(t, `a:2 b:"foo" c:map[d:bar]`, str)
+	assert.Equal(t, `a:2 b:foo c:true d:{"foo":"bar"}`, str)
 }
 
 func TestBuildBar(t *testing.T) {

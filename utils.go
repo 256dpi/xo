@@ -109,7 +109,7 @@ func iterateMap(dict M, fn func(key string, value interface{})) {
 	}
 }
 
-func buildMap(dict M) string {
+func buildMeta(dict M) string {
 	// check length
 	if len(dict) == 0 {
 		return ""
@@ -120,14 +120,13 @@ func buildMap(dict M) string {
 
 	// add all key values
 	iterateMap(dict, func(key string, value interface{}) {
+		// convert value
+		value = convertValue(value)
+
+		// write value
 		builder.WriteString(key)
 		builder.WriteRune(':')
-		switch value.(type) {
-		case string:
-			builder.WriteString(fmt.Sprintf("%q", value))
-		default:
-			builder.WriteString(fmt.Sprintf("%v", value))
-		}
+		builder.WriteString(fmt.Sprint(value))
 		builder.WriteRune(' ')
 	})
 

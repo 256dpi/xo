@@ -218,7 +218,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 				// prepare attributes
 				var attributes string
 				if !d.config.NoTraceAttributes {
-					attributes = buildMap(node.Span.Attributes)
+					attributes = buildMeta(node.Span.Attributes)
 				}
 
 				// build span
@@ -243,7 +243,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 					// prepare attributes
 					var attributes string
 					if !d.config.NoTraceAttributes {
-						attributes = buildMap(event.Attributes)
+						attributes = buildMeta(event.Attributes)
 					}
 
 					// build span

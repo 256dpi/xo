@@ -50,3 +50,46 @@ func TestTrack(t *testing.T) {
 		}, mock.ReducedSpans(10*time.Millisecond))
 	})
 }
+
+func TestTrackMeta(t *testing.T) {
+	Trap(func(mock *Mock) {
+		_, span := Track(nil, "foo")
+		span.Tag("foo", "bar")
+		span.Tag("rich", M{"foo": "bar"})
+		span.Attach("foo", M{"bar": "baz"})
+		span.Record(F("some error"))
+		span.Log("some message: %d", 42)
+		span.End()
+
+		assert.Equal(t, []MemorySpan{
+			{
+				Name: "foo",
+				Attributes: M{
+					"foo":  "bar",
+					"rich": `{"foo":"bar"}`,
+				},
+				Events: []MemorySpanEvent{
+					{
+						Name: "foo",
+						Attributes: M{
+							"bar": "baz",
+						},
+					},
+					{
+						Name: "error",
+						Attributes: M{
+							"error.message": "some error",
+							"error.type":    "*xo.Err",
+						},
+					},
+					{
+						Name: "log",
+						Attributes: M{
+							"message": "some message: 42",
+						},
+					},
+				},
+			},
+		}, mock.ReducedSpans(10*time.Millisecond))
+	})
+}

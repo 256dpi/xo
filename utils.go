@@ -74,10 +74,27 @@ func mapToKV(dict M) []kv.KeyValue {
 	// collect kv
 	var list []kv.KeyValue
 	for key, value := range dict {
-		list = append(list, kv.Infer(key, value))
+		list = append(list, kv.Infer(key, convertValue(value)))
 	}
 
 	return list
+}
+
+func convertValue(value interface{}) interface{} {
+	// check primitive
+	switch value.(type) {
+	case bool, int, int8, int16, int32, int64, uint, uint8, uint16, uint32,
+		uint64, float32, float64, string, fmt.Stringer:
+		return value
+	}
+
+	// encode value
+	buf, err := json.Marshal(value)
+	if err != nil {
+		panic(err)
+	}
+
+	return string(buf)
 }
 
 func iterateMap(dict M, fn func(key string, value interface{})) {
@@ -94,16 +111,6 @@ func iterateMap(dict M, fn func(key string, value interface{})) {
 	for _, key := range keys {
 		fn(key, dict[key])
 	}
-}
-
-func mustEncode(value interface{}) string {
-	// encode value
-	buf, err := json.Marshal(value)
-	if err != nil {
-		panic(err)
-	}
-
-	return string(buf)
 }
 
 func buildMap(dict M) string {

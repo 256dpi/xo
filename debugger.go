@@ -176,7 +176,7 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		// print context
 		_, _ = fmt.Fprintf(&buf, "Context:\n")
 		iterateMap(event.Contexts, func(key string, value interface{}) {
-			_, _ = fmt.Fprintf(&buf, "- %s: %v\n", key, mustEncode(value))
+			_, _ = fmt.Fprintf(&buf, "- %s: %v\n", key, convertValue(value))
 		})
 
 		// print exceptions

@@ -49,7 +49,7 @@ func (s Span) Rename(name string) {
 // Tag will add the provided attribute to the span.
 func (s Span) Tag(key string, value interface{}) {
 	if s.span != nil {
-		s.span.SetAttribute(key, value)
+		s.span.SetAttribute(key, convertValue(value))
 	}
 }
 

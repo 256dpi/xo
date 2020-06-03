@@ -3,14 +3,112 @@ package xo
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 	"unicode"
 
 	"github.com/getsentry/sentry-go"
 	"go.opentelemetry.io/otel/sdk/export/trace"
 )
+
+// Config is used to configure xo.
+type Config struct {
+	// Whether to omit interception.
+	//
+	// Default: false.
+	NoIntercept bool
+
+	// The output for traces.
+	//
+	// Default: Sink("TRACE").
+	TraceOutput io.Writer
+
+	// The trace resolution.
+	//
+	// Default: 1ns.
+	TraceResolution time.Duration
+
+	// The trace width.
+	//
+	// Default: 80.
+	TraceWidth int
+
+	// Whether to omit trace attributes.
+	NoTraceAttributes bool
+
+	// The output for events.
+	//
+	// Default: Sink("EVENT").
+	EventOutput io.Writer
+
+	// Whether to omit event context data.
+	NoEventContext bool
+
+	// Whether to omit file paths from event stack traces.
+	NoEventPaths bool
+
+	// Whether to omit line numbers from event stack traces.
+	NoEventLineNumbers bool
+}
+
+// Ensure will ensure defaults.
+func (c *Config) Ensure() {
+	// set default trace output
+	if c.TraceOutput == nil {
+		c.TraceOutput = Sink("TRACE")
+	}
+
+	// set default trace resolution
+	if c.TraceResolution == 0 {
+		c.TraceResolution = time.Nanosecond
+	}
+
+	// set default trace width
+	if c.TraceWidth == 0 {
+		c.TraceWidth = 80
+	}
+
+	// set default event output
+	if c.EventOutput == nil {
+		c.EventOutput = Sink("EVENT")
+	}
+}
+
+// Debug will install logging, reporting and tracing components for debugging
+// purposes. The returned function may be called to teardown all installed
+// components.
+func Debug(config Config) func() {
+	// intercept
+	var undoIntercept func()
+	if !config.NoIntercept {
+		undoIntercept = Intercept()
+	}
+
+	// create debugger
+	debugger := NewDebugger(config)
+
+	// setup tracing
+	teardownTracing := SetupTracing(debugger.SpanSyncer())
+
+	// setup reporting
+	teardownReporting := SetupReporting(debugger.SentryTransport())
+
+	return func() {
+		// reset reporting
+		teardownReporting()
+
+		// set original provider
+		teardownTracing()
+
+		// reset intercept
+		if undoIntercept != nil {
+			undoIntercept()
+		}
+	}
+}
 
 // Debugger is a virtual logging, tracing and reporting provider for debugging
 // purposes.

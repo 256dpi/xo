@@ -17,7 +17,7 @@ import (
 
 func main() {
 	// install
-	xo.Install(xo.Config{})
+	xo.Debug(xo.Config{})
 
 	// run repl
 	go repl()

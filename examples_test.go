@@ -49,7 +49,7 @@ func ExampleRun() {
 
 func ExampleTrack() {
 	// install
-	teardown := Install(Config{
+	teardown := Debug(Config{
 		TraceResolution:   100 * time.Millisecond,
 		NoTraceAttributes: true,
 	})
@@ -95,7 +95,7 @@ func ExampleTrack() {
 
 func ExampleCapture() {
 	// install
-	teardown := Install(Config{
+	teardown := Debug(Config{
 		NoEventContext:     true,
 		NoEventLineNumbers: true,
 	})

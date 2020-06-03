@@ -37,7 +37,8 @@ func Reporter(tags SM) func(error) {
 	}
 }
 
-// SetupReporting will setup error reporting using sentry.
+// SetupReporting will setup error reporting using sentry. The returned
+// function may be called to teardown the component.
 func SetupReporting(transport sentry.Transport) func() {
 	// create client
 	client, err := sentry.NewClient(sentry.ClientOptions{

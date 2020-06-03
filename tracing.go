@@ -9,7 +9,8 @@ import (
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
-// SetupTracing will setup tracing using the provided span syncer.
+// SetupTracing will setup tracing using the provided span syncer. The returned
+// function may be called to teardown the component.
 func SetupTracing(syncer export.SpanSyncer) func() {
 	// create provider
 	provider, err := sdkTrace.NewProvider(

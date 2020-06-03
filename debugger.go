@@ -14,7 +14,7 @@ import (
 
 type Debugger struct {
 	config Config
-	spans  map[string]MemorySpan
+	spans  map[string]VSpan
 	mutex  sync.Mutex
 }
 
@@ -24,7 +24,7 @@ func NewDebugger(config Config) *Debugger {
 
 	return &Debugger{
 		config: config,
-		spans:  make(map[string]MemorySpan, 2048),
+		spans:  make(map[string]VSpan, 2048),
 	}
 }
 
@@ -45,8 +45,8 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		}
 
 		// collect spans
-		table := make(map[string]MemorySpan)
-		list := make([]MemorySpan, 0, 512)
+		table := make(map[string]VSpan)
+		list := make([]VSpan, 0, 512)
 		for id, s := range d.spans {
 			if s.Trace == span.Trace {
 				list = append(list, s)
@@ -76,7 +76,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		// calculate longest tag
 		var longest int
 		for _, root := range roots {
-			walkTrace(root, func(node *MemoryNode) bool {
+			walkTrace(root, func(node *VNode) bool {
 				// check span name
 				length := node.Depth*2 + len(node.Span.Name)
 				if length > longest {
@@ -103,7 +103,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 
 		// print roots
 		for _, root := range roots {
-			walkTrace(root, func(node *MemoryNode) bool {
+			walkTrace(root, func(node *VNode) bool {
 				// prepare name
 				name := strings.Repeat(" ", node.Depth*2) + node.Span.Name
 

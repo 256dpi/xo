@@ -14,7 +14,7 @@ func TestAutoTrack(t *testing.T) {
 		assert.NotNil(t, span)
 		span.End()
 
-		assert.Equal(t, []MemorySpan{
+		assert.Equal(t, []VSpan{
 			{Name: "xo.TestAutoTrack.func1"},
 		}, mock.ReducedSpans(0))
 	})
@@ -41,7 +41,7 @@ func TestTrack(t *testing.T) {
 
 		root.End()
 
-		assert.Equal(t, []MemorySpan{
+		assert.Equal(t, []VSpan{
 			{Name: "foo"},
 			{Name: "bar"},
 			{Name: "track"},
@@ -60,14 +60,14 @@ func TestTrackMeta(t *testing.T) {
 		span.Log("some message: %d", 42)
 		span.End()
 
-		assert.Equal(t, []MemorySpan{
+		assert.Equal(t, []VSpan{
 			{
 				Name: "foo",
 				Attributes: M{
 					"foo":  "bar",
 					"rich": `{"foo":"bar"}`,
 				},
-				Events: []MemoryEvent{
+				Events: []VEvent{
 					{
 						Name: "foo",
 						Attributes: M{

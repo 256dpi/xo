@@ -35,13 +35,13 @@ func TestRun(t *testing.T) {
 		assert.Equal(t, "PANIC: error", err.Error())
 		assert.Equal(t, "xo.TestRun.func1: PANIC: error", fmt.Sprintf("%v", err))
 
-		assert.Equal(t, []MemorySpan{
+		assert.Equal(t, []VSpan{
 			{
 				Name: "xo.TestRun.func1",
 				Attributes: M{
 					"tag": int64(42),
 				},
-				Events: []MemoryEvent{
+				Events: []VEvent{
 					{
 						Name: "log",
 						Attributes: M{
@@ -53,7 +53,7 @@ func TestRun(t *testing.T) {
 			{
 				Name:       "xo.TestRun.func1",
 				Attributes: M{"tag": int64(42)},
-				Events: []MemoryEvent{
+				Events: []VEvent{
 					{
 						Name: "log",
 						Attributes: M{
@@ -74,7 +74,7 @@ func TestRun(t *testing.T) {
 				Attributes: M{
 					"tag": int64(42),
 				},
-				Events: []MemoryEvent{
+				Events: []VEvent{
 					{
 						Name: "log",
 						Attributes: M{

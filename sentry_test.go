@@ -12,14 +12,14 @@ func TestCapture(t *testing.T) {
 	Trap(func(mock *Mock) {
 		Capture(W(someError))
 
-		assert.Equal(t, []MemoryReport{
+		assert.Equal(t, []VReport{
 			{
 				Level: "error",
-				Exceptions: []MemoryException{
+				Exceptions: []VException{
 					{
 						Type:  "*xo.Err",
 						Value: "some error",
-						Frames: []MemoryFrame{
+						Frames: []VFrame{
 							{
 								Func:   "init",
 								Module: "github.com/256dpi/xo",
@@ -31,7 +31,7 @@ func TestCapture(t *testing.T) {
 					{
 						Type:  "*xo.Err",
 						Value: "some error",
-						Frames: []MemoryFrame{
+						Frames: []VFrame{
 							{
 								Func:   "TestCapture",
 								Module: "github.com/256dpi/xo",
@@ -66,17 +66,17 @@ func TestReporter(t *testing.T) {
 
 		rep(someError)
 
-		assert.Equal(t, []MemoryReport{
+		assert.Equal(t, []VReport{
 			{
 				Level: "error",
 				Tags: SM{
 					"foo": "bar",
 				},
-				Exceptions: []MemoryException{
+				Exceptions: []VException{
 					{
 						Type:  "*xo.Err",
 						Value: "some error",
-						Frames: []MemoryFrame{
+						Frames: []VFrame{
 							{
 								Func:   "init",
 								Module: "github.com/256dpi/xo",

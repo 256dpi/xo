@@ -35,10 +35,10 @@ func TestTrace(t *testing.T) {
 
 		trace.End()
 
-		assert.Equal(t, []MemorySpan{
+		assert.Equal(t, []VSpan{
 			{
 				Name: "bar",
-				Events: []MemoryEvent{
+				Events: []VEvent{
 					{
 						Name: "error",
 						Attributes: M{
@@ -56,7 +56,7 @@ func TestTrace(t *testing.T) {
 			},
 			{
 				Name: "trace",
-				Events: []MemoryEvent{
+				Events: []VEvent{
 					{
 						Name: "log",
 						Attributes: M{

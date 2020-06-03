@@ -24,7 +24,7 @@ func TestRootHandler(t *testing.T) {
 		assert.Equal(t, http.StatusOK, res.Code)
 		assert.Equal(t, "", res.Body.String())
 
-		assert.Equal(t, []MemorySpan{
+		assert.Equal(t, []VSpan{
 			{
 				Name: "foo",
 			},

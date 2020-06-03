@@ -8,7 +8,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/export/trace"
 )
 
-type MemoryEvent struct {
+// VEvent is a virtual span event.
+type VEvent struct {
 	// The event name.
 	Name string
 
@@ -19,7 +20,8 @@ type MemoryEvent struct {
 	Attributes M
 }
 
-type MemorySpan struct {
+// VSpan is a virtual span.
+type VSpan struct {
 	// The span id.
 	ID string
 
@@ -43,24 +45,26 @@ type MemorySpan struct {
 	Attributes M
 
 	// Attached span events.
-	Events []MemoryEvent
+	Events []VEvent
 }
 
-type MemoryNode struct {
+// VNode is a virtual trace node.
+type VNode struct {
 	// The nodes span.
-	Span MemorySpan
+	Span VSpan
 
 	// The nodes parent, if any.
-	Parent *MemoryNode
+	Parent *VNode
 
 	// The node parent, if any.
-	Children []*MemoryNode
+	Children []*VNode
 
 	// The nodes depth.
 	Depth int
 }
 
-type MemoryFrame struct {
+// VFrame is a virtual exception frame.
+type VFrame struct {
 	Func   string
 	Module string
 	File   string
@@ -68,27 +72,29 @@ type MemoryFrame struct {
 	Line   int
 }
 
-type MemoryException struct {
+// VException is a virtual report exception.
+type VException struct {
 	Type   string
 	Value  string
 	Module string
-	Frames []MemoryFrame
+	Frames []VFrame
 }
 
-type MemoryReport struct {
+// VReport is a virtual report.
+type VReport struct {
 	ID         string
 	Level      string
 	Time       time.Time
 	Context    M
 	Tags       SM
-	Exceptions []MemoryException
+	Exceptions []VException
 }
 
-func convertSpan(data *trace.SpanData) MemorySpan {
+func convertSpan(data *trace.SpanData) VSpan {
 	// collect events
-	var events []MemoryEvent
+	var events []VEvent
 	for _, event := range data.MessageEvents {
-		events = append(events, MemoryEvent{
+		events = append(events, VEvent{
 			Name:       event.Name,
 			Time:       event.Time,
 			Attributes: kvToMap(event.Attributes),
@@ -102,7 +108,7 @@ func convertSpan(data *trace.SpanData) MemorySpan {
 	}
 
 	// add span
-	return MemorySpan{
+	return VSpan{
 		ID:         data.SpanContext.SpanID.String(),
 		Trace:      data.SpanContext.TraceID.String(),
 		Parent:     parent,
@@ -115,9 +121,9 @@ func convertSpan(data *trace.SpanData) MemorySpan {
 	}
 }
 
-func convertReport(event *sentry.Event) MemoryReport {
+func convertReport(event *sentry.Event) VReport {
 	// prepare report
-	report := MemoryReport{
+	report := VReport{
 		ID:    string(event.EventID),
 		Level: string(event.Level),
 		Time:  event.Timestamp,
@@ -136,7 +142,7 @@ func convertReport(event *sentry.Event) MemoryReport {
 	// add exceptions
 	for _, exc := range event.Exception {
 		// prepare exception
-		exception := MemoryException{
+		exception := VException{
 			Type:   exc.Type,
 			Value:  exc.Value,
 			Module: exc.Module,
@@ -145,7 +151,7 @@ func convertReport(event *sentry.Event) MemoryReport {
 		// add frames
 		if exc.Stacktrace != nil {
 			for _, frame := range exc.Stacktrace.Frames {
-				exception.Frames = append(exception.Frames, MemoryFrame{
+				exception.Frames = append(exception.Frames, VFrame{
 					Func:   frame.Function,
 					Module: frame.Module,
 					File:   frame.Filename,
@@ -162,13 +168,13 @@ func convertReport(event *sentry.Event) MemoryReport {
 	return report
 }
 
-func buildTraces(list []MemorySpan) []*MemoryNode {
+func buildTraces(list []VSpan) []*VNode {
 	// prepare nodes
-	var roots []*MemoryNode
-	nodes := map[string]*MemoryNode{}
+	var roots []*VNode
+	nodes := map[string]*VNode{}
 	for _, span := range list {
 		// create node
-		node := &MemoryNode{
+		node := &VNode{
 			Span: span,
 		}
 
@@ -207,7 +213,7 @@ func buildTraces(list []MemorySpan) []*MemoryNode {
 	return roots
 }
 
-func walkTrace(node *MemoryNode, fn func(node *MemoryNode) bool) bool {
+func walkTrace(node *VNode, fn func(node *VNode) bool) bool {
 	// yield node
 	if !fn(node) {
 		return false
@@ -223,7 +229,7 @@ func walkTrace(node *MemoryNode, fn func(node *MemoryNode) bool) bool {
 	return true
 }
 
-func sortNodes(nodes []*MemoryNode) {
+func sortNodes(nodes []*VNode) {
 	// sort children
 	sort.Slice(nodes, func(i, j int) bool {
 		return nodes[i].Span.Start.Before(nodes[j].Span.Start)

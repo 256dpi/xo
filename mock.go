@@ -71,10 +71,10 @@ type Mock struct {
 	CleanEvents bool
 
 	// The collected spans.
-	Spans []MemorySpan
+	Spans []VSpan
 
 	// The collected reports.
-	Reports []MemoryReport
+	Reports []VReport
 
 	// The collected sinks.
 	Sinks map[string]*BufferSink
@@ -82,9 +82,9 @@ type Mock struct {
 
 // ReducedSpans will return a copy of the span list with reduced information.
 // This representation can be used in tests for easy direct comparison.
-func (m *Mock) ReducedSpans(resolution time.Duration) []MemorySpan {
+func (m *Mock) ReducedSpans(resolution time.Duration) []VSpan {
 	// prepare spans
-	spans := make([]MemorySpan, 0, len(m.Spans))
+	spans := make([]VSpan, 0, len(m.Spans))
 
 	// cleanup and copy spans
 	for _, span := range m.Spans {
@@ -107,7 +107,7 @@ func (m *Mock) ReducedSpans(resolution time.Duration) []MemorySpan {
 		// copy events
 		if len(span.Events) > 0 {
 			// prepare events
-			events := make([]MemoryEvent, 0, len(span.Events))
+			events := make([]VEvent, 0, len(span.Events))
 			for _, event := range span.Events {
 				event.Time = time.Time{}
 				events = append(events, event)
@@ -126,9 +126,9 @@ func (m *Mock) ReducedSpans(resolution time.Duration) []MemorySpan {
 
 // ReducedReports will return a copy of the report list with reduced information.
 // This representation can be used in tests for easy direct comparison.
-func (m *Mock) ReducedReports() []MemoryReport {
+func (m *Mock) ReducedReports() []VReport {
 	// prepare reports
-	reports := make([]MemoryReport, 0, len(m.Reports))
+	reports := make([]VReport, 0, len(m.Reports))
 
 	// cleanup and copy reports
 	for _, report := range m.Reports {
@@ -145,10 +145,10 @@ func (m *Mock) ReducedReports() []MemoryReport {
 		}
 
 		// copy exceptions
-		exceptions := make([]MemoryException, 0, len(report.Exceptions))
+		exceptions := make([]VException, 0, len(report.Exceptions))
 		for _, exc := range report.Exceptions {
 			// copy frames
-			frames := make([]MemoryFrame, 0, len(exc.Frames))
+			frames := make([]VFrame, 0, len(exc.Frames))
 			for _, frame := range exc.Frames {
 				frame.Line = 0
 				frames = append(frames, frame)

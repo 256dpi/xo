@@ -41,7 +41,7 @@ func TestRun(t *testing.T) {
 				Attributes: M{
 					"tag": int64(42),
 				},
-				Events: []MemorySpanEvent{
+				Events: []MemoryEvent{
 					{
 						Name: "log",
 						Attributes: M{
@@ -53,7 +53,7 @@ func TestRun(t *testing.T) {
 			{
 				Name:       "xo.TestRun.func1",
 				Attributes: M{"tag": int64(42)},
-				Events: []MemorySpanEvent{
+				Events: []MemoryEvent{
 					{
 						Name: "log",
 						Attributes: M{
@@ -74,7 +74,7 @@ func TestRun(t *testing.T) {
 				Attributes: M{
 					"tag": int64(42),
 				},
-				Events: []MemorySpanEvent{
+				Events: []MemoryEvent{
 					{
 						Name: "log",
 						Attributes: M{

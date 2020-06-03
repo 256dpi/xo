@@ -8,7 +8,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/export/trace"
 )
 
-type MemorySpanEvent struct {
+type MemoryEvent struct {
 	// The event name.
 	Name string
 
@@ -43,7 +43,7 @@ type MemorySpan struct {
 	Attributes M
 
 	// Attached span events.
-	Events []MemorySpanEvent
+	Events []MemoryEvent
 }
 
 type MemoryNode struct {
@@ -206,9 +206,9 @@ func sortNodes(nodes []*MemoryNode) {
 
 func convertSpan(data *trace.SpanData) MemorySpan {
 	// collect events
-	var events []MemorySpanEvent
+	var events []MemoryEvent
 	for _, event := range data.MessageEvents {
-		events = append(events, MemorySpanEvent{
+		events = append(events, MemoryEvent{
 			Name:       event.Name,
 			Time:       event.Time,
 			Attributes: kvToMap(event.Attributes),

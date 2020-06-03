@@ -67,7 +67,7 @@ func TestTrackMeta(t *testing.T) {
 					"foo":  "bar",
 					"rich": `{"foo":"bar"}`,
 				},
-				Events: []MemorySpanEvent{
+				Events: []MemoryEvent{
 					{
 						Name: "foo",
 						Attributes: M{

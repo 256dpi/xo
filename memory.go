@@ -84,6 +84,37 @@ type MemoryReport struct {
 	Exceptions []MemoryException
 }
 
+func convertSpan(data *trace.SpanData) MemorySpan {
+	// collect events
+	var events []MemoryEvent
+	for _, event := range data.MessageEvents {
+		events = append(events, MemoryEvent{
+			Name:       event.Name,
+			Time:       event.Time,
+			Attributes: kvToMap(event.Attributes),
+		})
+	}
+
+	// get parent
+	parent := data.ParentSpanID.String()
+	if !data.ParentSpanID.IsValid() || data.HasRemoteParent {
+		parent = ""
+	}
+
+	// add span
+	return MemorySpan{
+		ID:         data.SpanContext.SpanID.String(),
+		Trace:      data.SpanContext.TraceID.String(),
+		Parent:     parent,
+		Name:       data.Name,
+		Start:      data.StartTime,
+		End:        data.EndTime,
+		Duration:   data.EndTime.Sub(data.StartTime),
+		Attributes: kvToMap(data.Attributes),
+		Events:     events,
+	}
+}
+
 func convertReport(event *sentry.Event) MemoryReport {
 	// prepare report
 	report := MemoryReport{
@@ -201,36 +232,5 @@ func sortNodes(nodes []*MemoryNode) {
 	// sort children
 	for _, node := range nodes {
 		sortNodes(node.Children)
-	}
-}
-
-func convertSpan(data *trace.SpanData) MemorySpan {
-	// collect events
-	var events []MemoryEvent
-	for _, event := range data.MessageEvents {
-		events = append(events, MemoryEvent{
-			Name:       event.Name,
-			Time:       event.Time,
-			Attributes: kvToMap(event.Attributes),
-		})
-	}
-
-	// get parent
-	parent := data.ParentSpanID.String()
-	if !data.ParentSpanID.IsValid() || data.HasRemoteParent {
-		parent = ""
-	}
-
-	// add span
-	return MemorySpan{
-		ID:         data.SpanContext.SpanID.String(),
-		Trace:      data.SpanContext.TraceID.String(),
-		Parent:     parent,
-		Name:       data.Name,
-		Start:      data.StartTime,
-		End:        data.EndTime,
-		Duration:   data.EndTime.Sub(data.StartTime),
-		Attributes: kvToMap(data.Attributes),
-		Events:     events,
 	}
 }

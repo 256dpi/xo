@@ -13,6 +13,12 @@ import (
 	"go.opentelemetry.io/otel/api/kv"
 )
 
+// M is a short-hand for a generic map.
+type M = map[string]interface{}
+
+// SM is a short-hand for a string map.
+type SM = map[string]string
+
 func raise(err error) {
 	log.Printf("%v", W(err))
 }

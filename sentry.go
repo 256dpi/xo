@@ -6,9 +6,6 @@ import (
 	"github.com/getsentry/sentry-go"
 )
 
-// SM is a short-hand for a string map.
-type SM = map[string]string
-
 // Capture will capture the error.
 func Capture(err error) {
 	// ensure caller

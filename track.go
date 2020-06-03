@@ -8,9 +8,6 @@ import (
 	"go.opentelemetry.io/otel/api/trace"
 )
 
-// M is a short-hand for a generic map.
-type M = map[string]interface{}
-
 // Span is the underlying span used for tracing.
 type Span struct {
 	ctx  context.Context

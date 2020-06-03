@@ -110,6 +110,11 @@ func iterateMap(dict M, fn func(key string, value interface{})) {
 }
 
 func buildMap(dict M) string {
+	// check length
+	if len(dict) == 0 {
+		return ""
+	}
+
 	// prepare builder
 	var builder strings.Builder
 
@@ -126,10 +131,18 @@ func buildMap(dict M) string {
 		builder.WriteRune(' ')
 	})
 
-	return builder.String()
+	// get string
+	str := builder.String()
+
+	return str[:len(str)-1]
 }
 
 func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) string {
+	// check width
+	if width == 0 {
+		return ""
+	}
+
 	// calculate total and step
 	total := beforeLength + spanLength + afterLength
 	step := total / time.Duration(width)
@@ -169,6 +182,11 @@ func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) st
 }
 
 func buildDot(beforeLength, afterLength time.Duration, width int) string {
+	// check width
+	if width == 0 {
+		return ""
+	}
+
 	// calculate total and step
 	total := beforeLength + afterLength
 	step := total / time.Duration(width)

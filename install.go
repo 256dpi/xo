@@ -10,9 +10,6 @@ import (
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
-// TODO: Add metrics?
-// TODO: Add profiling?
-
 // Config is used to configure xo.
 type Config struct {
 	// Whether to omit interception.

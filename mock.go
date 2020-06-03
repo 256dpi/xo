@@ -10,6 +10,8 @@ import (
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
+// Trap will temporarily intercept and collect logging, tracing and reporting
+// data for testing purposes.
 func Trap(fn func(mock *Mock)) {
 	// create mock
 	mock := &Mock{
@@ -51,6 +53,7 @@ func Trap(fn func(mock *Mock)) {
 	fn(mock)
 }
 
+// Mock is a virtual logging, tracing and reporting provider.
 type Mock struct {
 	// Whether events should be cleaned.
 	//

@@ -96,8 +96,8 @@ func ExampleTrack() {
 func ExampleCapture() {
 	// install
 	teardown := Install(Config{
-		NoEventContext: true,
-		NoEventPaths:   true,
+		NoEventContext:     true,
+		NoEventLineNumbers: true,
 	})
 	defer teardown()
 
@@ -112,8 +112,8 @@ func ExampleCapture() {
 	// Level: error
 	// Exceptions:
 	// - some error (*xo.Err)
-	//   > ExampleCapture (github.com/256dpi/xo)
-	//   > main (main)
+	//   > ExampleCapture (github.com/256dpi/xo): github.com/256dpi/xo/examples_test.go
+	//   > main (main): _testmain.go
 }
 
 func ExampleSink() {

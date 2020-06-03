@@ -8,7 +8,7 @@ before_install:
 install:
   - go get -t ./...
 script:
-  - go test -coverprofile=xo.coverprofile
+  - go test -trimpath -coverprofile=xo.coverprofile
   - $HOME/gopath/bin/goveralls -coverprofile=xo.coverprofile -service=travis-ci
 matrix:
   allow_failures:

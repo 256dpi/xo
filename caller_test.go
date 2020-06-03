@@ -14,7 +14,7 @@ func TestGetCaller(t *testing.T) {
 		assert.Equal(t, Caller{
 			Short: "xo.TestGetCaller.func1",
 			Full:  "github.com/256dpi/xo.TestGetCaller.func1",
-			File:  "/Users/256dpi/Development/GitHub/256dpi/xo/caller_test.go",
+			File:  "github.com/256dpi/xo/caller_test.go",
 			Line:  12,
 			Stack: caller.Stack,
 		}, caller)
@@ -24,7 +24,7 @@ func TestGetCaller(t *testing.T) {
 		assert.Equal(t, Caller{
 			Short: "xo.TestGetCaller",
 			Full:  "github.com/256dpi/xo.TestGetCaller",
-			File:  "/Users/256dpi/Development/GitHub/256dpi/xo/caller_test.go",
+			File:  "github.com/256dpi/xo/caller_test.go",
 			Line:  31,
 			Stack: caller.Stack,
 		}, caller)
@@ -70,11 +70,11 @@ func TestCallerFormat(t *testing.T) {
 	str = fmt.Sprintf("%+v", caller)
 	assert.Equal(t, []string{
 		"github.com/256dpi/xo.TestCallerFormat",
-		"  /Users/256dpi/Development/GitHub/256dpi/xo/caller_test.go:LN",
+		"  github.com/256dpi/xo/caller_test.go:LN",
 		"testing.tRunner",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/testing/testing.go:LN",
+		"  testing/testing.go:LN",
 		"runtime.goexit",
-		"  /usr/local/Cellar/go/1.14.1/libexec/src/runtime/asm_amd64.s:LN",
+		"  runtime/asm_amd64.s:LN",
 	}, splitTrace(str))
 }
 

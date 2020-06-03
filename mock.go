@@ -13,8 +13,6 @@ import (
 func Trap(fn func(mock *Mock)) {
 	// create mock
 	mock := &Mock{
-		Spans:       make([]MemorySpan, 0, 2048),
-		Events:      make([]sentry.Event, 0, 2048),
 		CleanEvents: true,
 	}
 
@@ -36,18 +34,8 @@ func Trap(fn func(mock *Mock)) {
 
 	// create client
 	client, err := sentry.NewClient(sentry.ClientOptions{
-		Transport: mock.SentryTransport(),
-		Integrations: func(integrations []sentry.Integration) []sentry.Integration {
-			// filter integrations
-			var list []sentry.Integration
-			for _, integration := range integrations {
-				if integration.Name() != "ContextifyFrames" {
-					list = append(list, integration)
-				}
-			}
-
-			return list
-		},
+		Transport:    mock.SentryTransport(),
+		Integrations: FilterIntegrations("ContextifyFrames"),
 	})
 	if err != nil {
 		panic(err)

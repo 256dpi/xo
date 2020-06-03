@@ -18,14 +18,11 @@ func TestGetSpan(t *testing.T) {
 	assert.Nil(t, span)
 
 	ctx, root := StartSpan(nil, "root")
-
 	span = GetSpan(ctx)
 	assert.Equal(t, root, span)
 
 	ctx, sub := StartSpan(ctx, "sub")
-
 	span = GetSpan(ctx)
 	assert.Equal(t, sub, span)
-
 	assert.Equal(t, root.SpanContext().TraceID, sub.SpanContext().TraceID)
 }

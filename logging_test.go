@@ -1,6 +1,7 @@
 package xo
 
 import (
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,7 +10,7 @@ import (
 func TestSink(t *testing.T) {
 	lines := captureLines(func() {
 		sink := Sink("FOO")
-		justPrint(sink, "Hello\nWorld!\n")
+		check(io.WriteString(sink, "Hello\nWorld!\n"))
 	})
 	assert.Equal(t, []string{
 		"===== FOO =====",

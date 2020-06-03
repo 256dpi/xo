@@ -87,14 +87,14 @@ func (c Caller) String() string {
 //
 func (c Caller) Format(s fmt.State, verb rune) {
 	if verb == 's' {
-		_, _ = io.WriteString(s, c.Short)
+		check(io.WriteString(s, c.Short))
 	} else if verb == 'q' {
-		_, _ = fmt.Fprintf(s, "%q", c.Short)
+		check(fmt.Fprintf(s, "%q", c.Short))
 	} else if verb == 'v' {
 		if s.Flag('+') {
 			c.Print(s)
 		} else {
-			justPrint(s, c.Full)
+			check(io.WriteString(s, c.Full))
 		}
 	}
 }
@@ -112,13 +112,13 @@ func (c Caller) Print(out io.Writer) {
 		frame, more = frames.Next()
 
 		// print frame
-		justPrint(out, frame.Function)
-		justPrint(out, "\n\t")
-		justPrint(out, frame.File)
-		justPrint(out, ":")
-		justPrint(out, strconv.Itoa(frame.Line))
+		check(io.WriteString(out, frame.Function))
+		check(io.WriteString(out, "\n\t"))
+		check(io.WriteString(out, frame.File))
+		check(io.WriteString(out, ":"))
+		check(io.WriteString(out, strconv.Itoa(frame.Line)))
 		if more {
-			justPrint(out, "\n")
+			check(io.WriteString(out, "\n"))
 		}
 	}
 }

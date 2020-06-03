@@ -2,6 +2,7 @@ package xo
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/pkg/errors"
 )
@@ -91,20 +92,20 @@ func (e *Err) Format(s fmt.State, verb rune) {
 	case 'v':
 		if s.Flag('+') {
 			if e.Err != nil {
-				justFprintf(s, "%+v\n", e.Err)
+				check(fmt.Fprintf(s, "%+v\n", e.Err))
 			}
 			if e.Msg != "" {
-				justPrint(s, e.Msg)
-				justPrint(s, "\n")
+				check(io.WriteString(s, e.Msg))
+				check(io.WriteString(s, "\n"))
 			}
 			e.Caller.Format(s, verb)
 		} else {
-			justFprintf(s, "%s: %s", e.Caller.Short, e.Error())
+			check(fmt.Fprintf(s, "%s: %s", e.Caller.Short, e.Error()))
 		}
 	case 's':
-		justPrint(s, e.Error())
+		check(io.WriteString(s, e.Error()))
 	case 'q':
-		justFprintf(s, "%q", e.Error())
+		check(fmt.Fprintf(s, "%q", e.Error()))
 	}
 }
 

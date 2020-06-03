@@ -123,8 +123,8 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 				str := strings.TrimRightFunc(fmt.Sprintf(format, name, bar, duration.String(), attributes), unicode.IsSpace)
 
 				// print span
-				_, _ = buf.WriteString(str)
-				_, _ = buf.WriteRune('\n')
+				check(buf.WriteString(str))
+				check(buf.WriteRune('\n'))
 
 				// print events
 				for _, event := range node.Span.Events {
@@ -148,8 +148,8 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 					str := strings.TrimRightFunc(fmt.Sprintf(format, name, dot, timing.String(), attributes), unicode.IsSpace)
 
 					// print span
-					_, _ = buf.WriteString(str)
-					_, _ = buf.WriteRune('\n')
+					check(buf.WriteString(str))
+					check(buf.WriteRune('\n'))
 				}
 
 				return true
@@ -157,7 +157,10 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		}
 
 		// write trace
-		_, _ = buf.WriteTo(d.config.TraceOutput)
+		_, err := buf.WriteTo(d.config.TraceOutput)
+		if err != nil {
+			raise(err)
+		}
 	})
 }
 
@@ -178,25 +181,25 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		var buf bytes.Buffer
 
 		// print info
-		_, _ = fmt.Fprintf(&buf, "Level: %s\n", event.Level)
+		check(fmt.Fprintf(&buf, "Level: %s\n", event.Level))
 
 		// print context
 		if !d.config.NoEventContext {
-			_, _ = fmt.Fprintf(&buf, "Context:\n")
+			check(fmt.Fprintf(&buf, "Context:\n"))
 			iterateMap(event.Contexts, func(key string, value interface{}) {
-				_, _ = fmt.Fprintf(&buf, "- %s: %v\n", key, convertValue(value))
+				check(fmt.Fprintf(&buf, "- %s: %v\n", key, convertValue(value)))
 			})
 		}
 
 		// print exceptions
-		_, _ = fmt.Fprintf(&buf, "Exceptions:\n")
+		check(fmt.Fprintf(&buf, "Exceptions:\n"))
 		for _, exc := range event.Exception {
-			_, _ = fmt.Fprintf(&buf, "- %s (%s)\n", exc.Value, exc.Type)
+			check(fmt.Fprintf(&buf, "- %s (%s)\n", exc.Value, exc.Type))
 			if exc.Stacktrace != nil {
 				for _, frame := range exc.Stacktrace.Frames {
 					// check path
 					if d.config.NoEventPaths {
-						justFprintf(&buf, "  > %s (%s)\n", frame.Function, frame.Module)
+						check(fmt.Fprintf(&buf, "  > %s (%s)\n", frame.Function, frame.Module))
 						continue
 					}
 
@@ -207,12 +210,15 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 					}
 
 					// print frame
-					justFprintf(&buf, "  > %s (%s): %s%s\n", frame.Function, frame.Module, frame.AbsPath, line)
+					check(fmt.Fprintf(&buf, "  > %s (%s): %s%s\n", frame.Function, frame.Module, frame.AbsPath, line))
 				}
 			}
 		}
 
 		// write event
-		_, _ = buf.WriteTo(d.config.EventOutput)
+		_, err := buf.WriteTo(d.config.EventOutput)
+		if err != nil {
+			raise(err)
+		}
 	})
 }

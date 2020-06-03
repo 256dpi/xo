@@ -3,7 +3,7 @@ package xo
 import (
 	"encoding/json"
 	"fmt"
-	"io"
+	"log"
 	"math"
 	"os"
 	"sort"
@@ -14,12 +14,14 @@ import (
 	"go.opentelemetry.io/otel/api/kv"
 )
 
-func justPrint(out io.Writer, str string) {
-	_, _ = io.WriteString(out, str)
+func raise(err error) {
+	log.Printf("%v", W(err))
 }
 
-func justFprintf(out io.Writer, format string, args ...interface{}) {
-	_, _ = fmt.Fprintf(out, format, args...)
+func check(_ int, err error) {
+	if err != nil {
+		log.Printf("%v", W(err))
+	}
 }
 
 func isBenchmark() bool {

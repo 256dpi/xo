@@ -83,16 +83,16 @@ func Forward(name string, reader io.Reader) {
 			output.Reset()
 
 			// write header
-			output.WriteString(fmt.Sprintf("===== %s =====\n", name))
+			check(output.WriteString(fmt.Sprintf("===== %s =====\n", name)))
 
 			// write first lone
-			output.WriteString(line)
+			check(output.WriteString(line))
 
 			// add lines
 			for {
 				select {
 				case line = <-queue:
-					output.WriteString(line)
+					check(output.WriteString(line))
 					continue
 				case <-time.After(time.Millisecond):
 				}
@@ -101,7 +101,7 @@ func Forward(name string, reader io.Reader) {
 			}
 
 			// write out
-			_, _ = Stdout.Write(output.Bytes())
+			check(Stdout.Write(output.Bytes()))
 		}
 	}()
 

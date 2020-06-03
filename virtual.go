@@ -63,7 +63,7 @@ type VReport struct {
 	Exceptions []VException
 }
 
-// ConverSpan will convert a raw span to a virtual span.
+// ConvertSpan will convert a raw span to a virtual span.
 func ConvertSpan(data *trace.SpanData) VSpan {
 	// collect events
 	var events []VEvent

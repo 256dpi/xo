@@ -3,6 +3,8 @@ package xo
 import (
 	"errors"
 	"fmt"
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -238,4 +240,10 @@ func BenchmarkWF(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_ = WF(err, "foo %d", 42)
 	}
+}
+
+func splitStackTrace(str string) []string {
+	str = strings.ReplaceAll(str, "\t", "  ")
+	str = regexp.MustCompile(":\\d+").ReplaceAllString(str, ":LN")
+	return strings.Split(str, "\n")
 }

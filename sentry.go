@@ -6,6 +6,9 @@ import (
 	"github.com/getsentry/sentry-go"
 )
 
+// SM is a short-hand for a string map.
+type SM = map[string]string
+
 // Capture will capture the error.
 func Capture(err error) {
 	// ensure caller
@@ -15,6 +18,26 @@ func Capture(err error) {
 
 	// forward exception
 	sentry.CaptureException(err)
+}
+
+// Reporter will return a capture function that adds the provided tags.
+func Reporter(tags SM) func(error) {
+	// prepare scope
+	scope := sentry.NewScope()
+	scope.SetTags(tags)
+
+	return func(err error) {
+		// ensure caller
+		if _, ok := err.(*Err); !ok {
+			err = W(err)
+		}
+
+		// get client
+		client := sentry.CurrentHub().Client()
+
+		// forward exception
+		client.CaptureException(err, nil, scope)
+	}
 }
 
 // SetupSentry will setup error reporting using sentry. To simplify testing, the

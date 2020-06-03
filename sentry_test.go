@@ -9,7 +9,7 @@ import (
 
 var someError = F("some error")
 
-func TestSentry(t *testing.T) {
+func TestCapture(t *testing.T) {
 	Trap(func(mock *Mock) {
 		Capture(W(someError))
 
@@ -38,7 +38,7 @@ func TestSentry(t *testing.T) {
 						Stacktrace: &sentry.Stacktrace{
 							Frames: []sentry.Frame{
 								{
-									Function: "TestSentry",
+									Function: "TestCapture",
 									Module:   "github.com/256dpi/xo",
 									Filename: "sentry_test.go",
 									AbsPath:  "github.com/256dpi/xo/sentry_test.go",
@@ -52,7 +52,43 @@ func TestSentry(t *testing.T) {
 									InApp:    true,
 								},
 								{
-									Function: "TestSentry.func1",
+									Function: "TestCapture.func1",
+									Module:   "github.com/256dpi/xo",
+									Filename: "sentry_test.go",
+									AbsPath:  "github.com/256dpi/xo/sentry_test.go",
+									InApp:    true,
+								},
+							},
+						},
+					},
+				},
+			},
+		}, mock.Events)
+	})
+}
+
+func TestReporter(t *testing.T) {
+	Trap(func(mock *Mock) {
+		rep := Reporter(SM{
+			"foo": "bar",
+		})
+
+		rep(someError)
+
+		assert.Equal(t, []sentry.Event{
+			{
+				Level: "error",
+				Tags: SM{
+					"foo": "bar",
+				},
+				Exception: []sentry.Exception{
+					{
+						Type:  "*xo.Err",
+						Value: "some error",
+						Stacktrace: &sentry.Stacktrace{
+							Frames: []sentry.Frame{
+								{
+									Function: "init",
 									Module:   "github.com/256dpi/xo",
 									Filename: "sentry_test.go",
 									AbsPath:  "github.com/256dpi/xo/sentry_test.go",

@@ -3,7 +3,6 @@ package xo
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +16,7 @@ func TestAutoTrack(t *testing.T) {
 
 		assert.Equal(t, []MemorySpan{
 			{Name: "xo.TestAutoTrack.func1"},
-		}, mock.ReducedSpans(10*time.Millisecond))
+		}, mock.ReducedSpans(0))
 	})
 }
 
@@ -47,7 +46,7 @@ func TestTrack(t *testing.T) {
 			{Name: "bar"},
 			{Name: "track"},
 			{Name: "root"},
-		}, mock.ReducedSpans(10*time.Millisecond))
+		}, mock.ReducedSpans(0))
 	})
 }
 
@@ -90,6 +89,6 @@ func TestTrackMeta(t *testing.T) {
 					},
 				},
 			},
-		}, mock.ReducedSpans(10*time.Millisecond))
+		}, mock.ReducedSpans(0))
 	})
 }

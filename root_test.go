@@ -3,7 +3,6 @@ package xo
 import (
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/256dpi/serve"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +16,6 @@ func TestRootHandler(t *testing.T) {
 				_, span := Track(r.Context(), "foo")
 				defer span.End()
 
-				time.Sleep(10 * time.Millisecond)
 				w.WriteHeader(http.StatusOK)
 			}),
 		)
@@ -28,18 +26,16 @@ func TestRootHandler(t *testing.T) {
 
 		assert.Equal(t, []MemorySpan{
 			{
-				Name:     "foo",
-				Duration: 10 * time.Millisecond,
+				Name: "foo",
 			},
 			{
-				Name:     "GET /foo/#/bar",
-				Duration: 10 * time.Millisecond,
+				Name: "GET /foo/#/bar",
 				Attributes: M{
 					"http.proto": "HTTP/1.1",
 					"http.host":  "example.com",
 					"http.url":   "/foo/123/bar",
 				},
 			},
-		}, mock.ReducedSpans(10*time.Millisecond))
+		}, mock.ReducedSpans(0))
 	})
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -91,7 +90,7 @@ func TestRun(t *testing.T) {
 					},
 				},
 			},
-		}, mock.ReducedSpans(10*time.Millisecond))
+		}, mock.ReducedSpans(0))
 	})
 }
 

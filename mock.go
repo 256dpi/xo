@@ -93,6 +93,9 @@ func (m *Mock) ReducedSpans(resolution time.Duration) []MemorySpan {
 
 		// recalculate duration
 		duration := span.End.Sub(span.Start)
+		if resolution == 0 {
+			duration = 0
+		}
 
 		// cleanup span
 		span.ID = ""

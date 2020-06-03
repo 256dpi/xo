@@ -2,7 +2,6 @@ package xo
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -26,26 +25,19 @@ func TestTrace(t *testing.T) {
 		assert.NotEqual(t, trace.Root().Native(), GetSpan(ctx))
 		assert.Equal(t, trace.Tail().Native(), GetSpan(ctx))
 
-		time.Sleep(10 * time.Millisecond)
-
 		trace.Pop()
 		assert.NotEqual(t, trace.Root().Native(), GetSpan(ctx))
 		assert.Equal(t, trace.Tail().Native(), GetSpan(ctx))
-
-		time.Sleep(10 * time.Millisecond)
 
 		trace.Pop()
 		assert.Equal(t, trace.Root().Native(), GetSpan(ctx))
 		assert.Equal(t, trace.Tail().Native(), GetSpan(ctx))
 
-		time.Sleep(10 * time.Millisecond)
-
 		trace.End()
 
 		assert.Equal(t, []MemorySpan{
 			{
-				Name:     "bar",
-				Duration: 10 * time.Millisecond,
+				Name: "bar",
 				Events: []MemorySpanEvent{
 					{
 						Name: "error",
@@ -57,15 +49,13 @@ func TestTrace(t *testing.T) {
 				},
 			},
 			{
-				Name:     "foo",
-				Duration: 20 * time.Millisecond,
+				Name: "foo",
 				Attributes: M{
 					"key": "7",
 				},
 			},
 			{
-				Name:     "trace",
-				Duration: 30 * time.Millisecond,
+				Name: "trace",
 				Events: []MemorySpanEvent{
 					{
 						Name: "log",
@@ -75,6 +65,6 @@ func TestTrace(t *testing.T) {
 					},
 				},
 			},
-		}, mock.ReducedSpans(10*time.Millisecond))
+		}, mock.ReducedSpans(0))
 	})
 }

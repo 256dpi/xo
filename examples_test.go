@@ -95,7 +95,8 @@ func ExampleTrack() {
 func ExampleCapture() {
 	// install
 	teardown := Install(Config{
-		NoLineNumbers: true,
+		NoEventContext:     true,
+		NoEventLineNumbers: true,
 	})
 	defer teardown()
 
@@ -108,10 +109,6 @@ func ExampleCapture() {
 	// Output:
 	// ===== EVENT =====
 	// Level: error
-	// Context:
-	// - device: {"arch":"amd64","num_cpu":8}
-	// - os: {"name":"darwin"}
-	// - runtime: {"go_maxprocs":8,"go_numcgocalls":1,"go_numroutines":18,"name":"go","version":"go1.14.1"}
 	// Exceptions:
 	// - some error (*xo.Err)
 	//   > ExampleCapture (github.com/256dpi/xo): /Users/256dpi/Development/GitHub/256dpi/xo/examples_test.go

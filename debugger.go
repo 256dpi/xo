@@ -175,10 +175,12 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		_, _ = fmt.Fprintf(&buf, "Level: %s\n", event.Level)
 
 		// print context
-		_, _ = fmt.Fprintf(&buf, "Context:\n")
-		iterateMap(event.Contexts, func(key string, value interface{}) {
-			_, _ = fmt.Fprintf(&buf, "- %s: %v\n", key, convertValue(value))
-		})
+		if !d.config.NoEventContext {
+			_, _ = fmt.Fprintf(&buf, "Context:\n")
+			iterateMap(event.Contexts, func(key string, value interface{}) {
+				_, _ = fmt.Fprintf(&buf, "- %s: %v\n", key, convertValue(value))
+			})
+		}
 
 		// print exceptions
 		_, _ = fmt.Fprintf(&buf, "Exceptions:\n")
@@ -187,7 +189,7 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 			if exc.Stacktrace != nil {
 				for _, frame := range exc.Stacktrace.Frames {
 					var line = ""
-					if !d.config.NoLineNumbers {
+					if !d.config.NoEventLineNumbers {
 						line = ":" + strconv.Itoa(frame.Lineno)
 					}
 					_, _ = fmt.Fprintf(&buf, "  > %s (%s): %s%s\n", frame.Function, frame.Module, frame.AbsPath, line)

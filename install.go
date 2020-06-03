@@ -15,7 +15,7 @@ import (
 
 // Config is used to configure xo.
 type Config struct {
-	// Whether to prevent interception.
+	// Whether to omit interception.
 	//
 	// Default: false.
 	NoIntercept bool
@@ -40,8 +40,11 @@ type Config struct {
 	// Default: Sink("EVENT").
 	EventOutput io.Writer
 
-	// Whether to remove line numbers from stack traces.
-	NoLineNumbers bool
+	// Whether to omit event context data.
+	NoEventContext bool
+
+	// Whether to omit line numbers from event stack traces.
+	NoEventLineNumbers bool
 }
 
 // Ensure will ensure defaults.

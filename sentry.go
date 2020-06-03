@@ -37,20 +37,28 @@ func Reporter(tags SM) func(error) {
 	}
 }
 
-// SetupSentry will setup error reporting using sentry. To simplify testing, the
-// "ContextifyFrames" integration is removed.
-func SetupSentry(dsn string) func() {
-	// initialize sentry
-	err := sentry.Init(sentry.ClientOptions{
-		Dsn:          dsn,
+// SetupReporting will setup error reporting using sentry.
+func SetupReporting(transport sentry.Transport) func() {
+	// create client
+	client, err := sentry.NewClient(sentry.ClientOptions{
+		Transport:    transport,
 		Integrations: FilterIntegrations("ContextifyFrames"),
 	})
 	if err != nil {
 		panic(err)
 	}
 
+	// swap client
+	hub := sentry.CurrentHub()
+	originalClient := hub.Client()
+	hub.BindClient(client)
+
 	return func() {
+		// flush
 		sentry.Flush(2 * time.Second)
+
+		// set original client
+		hub.BindClient(originalClient)
 	}
 }
 

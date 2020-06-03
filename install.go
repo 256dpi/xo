@@ -3,10 +3,6 @@ package xo
 import (
 	"io"
 	"time"
-
-	"github.com/getsentry/sentry-go"
-	"go.opentelemetry.io/otel/api/global"
-	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
 // Config is used to configure xo.
@@ -72,56 +68,34 @@ func (c *Config) Ensure() {
 	}
 }
 
-// Install will install logging, reporting and tracing components.
+// Install will install logging, reporting and tracing components. The returned
+// function may be called to teardown all installed components.
 func Install(config Config) func() {
 	// intercept
-	var interceptReset func()
+	var undoIntercept func()
 	if !config.NoIntercept {
-		interceptReset = Intercept()
+		undoIntercept = Intercept()
 	}
 
 	// create debugger
 	debugger := NewDebugger(config)
 
 	// create provider
-	provider, err := sdkTrace.NewProvider(
-		sdkTrace.WithSyncer(debugger.SpanSyncer()),
-		sdkTrace.WithConfig(sdkTrace.Config{
-			DefaultSampler: sdkTrace.AlwaysSample(),
-		}),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	// wap provider
-	originalProvider := global.TraceProvider()
-	global.SetTraceProvider(provider)
+	resetTracing := SetupTracing(debugger.SpanSyncer())
 
 	// create client
-	client, err := sentry.NewClient(sentry.ClientOptions{
-		Transport:    debugger.SentryTransport(),
-		Integrations: FilterIntegrations("ContextifyFrames"),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	// swap client
-	hub := sentry.CurrentHub()
-	originalClient := hub.Client()
-	hub.BindClient(client)
+	resetReporting := SetupReporting(debugger.SentryTransport())
 
 	return func() {
-		// set original client
-		hub.BindClient(originalClient)
+		// reset reporting
+		resetReporting()
 
 		// set original provider
-		global.SetTraceProvider(originalProvider)
+		resetTracing()
 
 		// reset intercept
-		if interceptReset != nil {
-			interceptReset()
+		if undoIntercept != nil {
+			undoIntercept()
 		}
 	}
 }

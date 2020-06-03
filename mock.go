@@ -7,9 +7,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	"go.opentelemetry.io/otel/api/global"
 	"go.opentelemetry.io/otel/sdk/export/trace"
-	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
 // Trap will temporarily intercept and collect logging, tracing and reporting
@@ -21,36 +19,13 @@ func Trap(fn func(mock *Mock)) {
 		Sinks:       map[string]*BufferSink{},
 	}
 
-	// create provider
-	provider, err := sdkTrace.NewProvider(
-		sdkTrace.WithSyncer(mock.SpanSyncer()),
-		sdkTrace.WithConfig(sdkTrace.Config{
-			DefaultSampler: sdkTrace.AlwaysSample(),
-		}),
-	)
-	if err != nil {
-		panic(err)
-	}
+	// setup tracing
+	teardownTracing := SetupTracing(mock.SpanSyncer())
+	defer teardownTracing()
 
-	// swap provider
-	originalProvider := global.TraceProvider()
-	global.SetTraceProvider(provider)
-	defer global.SetTraceProvider(originalProvider)
-
-	// create client
-	client, err := sentry.NewClient(sentry.ClientOptions{
-		Transport:    mock.SentryTransport(),
-		Integrations: FilterIntegrations("ContextifyFrames"),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	// swap client
-	hub := sentry.CurrentHub()
-	originalClient := hub.Client()
-	hub.BindClient(client)
-	defer hub.BindClient(originalClient)
+	// setup reporting
+	teardownReporting := SetupReporting(mock.SentryTransport())
+	defer teardownReporting()
 
 	// swap factory
 	originalFactory := SinkFactory

@@ -1,10 +1,9 @@
 package xo
 
 import (
+	"errors"
 	"fmt"
 	"io"
-
-	"github.com/pkg/errors"
 )
 
 // Err is the error returned by F(), W() and WF().

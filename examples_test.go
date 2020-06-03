@@ -51,6 +51,7 @@ func ExampleTrack() {
 	// install
 	teardown := Install(Config{
 		TraceResolution: 100 * time.Millisecond,
+		NoTraceAttributes: true,
 	})
 	defer teardown()
 
@@ -85,11 +86,11 @@ func ExampleTrack() {
 	// ===== TRACE =====
 	// One         ├──────────────────────────────────────────────────────────────────────────────┤   500ms
 	//   Two                       ├──────────────────────────────┤                                   200ms
-	//   :log                      •                                                                  100ms   message:"hello world"
-	//     Three                                   ├──────────────┤                                   100ms   foo:"bar"
+	//   :log                      •                                                                  100ms
+	//     Three                                   ├──────────────┤                                   100ms
 	//   Four                                                      ├──────────────────────────────┤   200ms
-	//   :error                                                    •                                  300ms   error.message:"fatal" error.type:"*xo.Err"
-	//     Five                                                                    ├──────────────┤   100ms   baz:42
+	//   :error                                                    •                                  300ms
+	//     Five                                                                    ├──────────────┤   100ms
 }
 
 func ExampleCapture() {

@@ -114,7 +114,10 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 				duration := autoTruncate(node.Span.Duration, 3)
 
 				// prepare attributes
-				attributes := buildMap(node.Span.Attributes)
+				var attributes string
+				if !d.config.NoTraceAttributes {
+					attributes = buildMap(node.Span.Attributes)
+				}
 
 				// build span
 				str := strings.TrimRightFunc(fmt.Sprintf(format, name, bar, duration.String(), attributes), unicode.IsSpace)
@@ -136,7 +139,10 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 					timing := autoTruncate(event.Time.Sub(root.Span.Start), 3)
 
 					// prepare attributes
-					attributes := buildMap(event.Attributes)
+					var attributes string
+					if !d.config.NoTraceAttributes {
+						attributes = buildMap(event.Attributes)
+					}
 
 					// build span
 					str := strings.TrimRightFunc(fmt.Sprintf(format, name, dot, timing.String(), attributes), unicode.IsSpace)

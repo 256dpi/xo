@@ -35,6 +35,9 @@ type Config struct {
 	// Default: 80.
 	TraceWidth int
 
+	// Whether to omit trace attributes.
+	NoTraceAttributes bool
+
 	// The output for events.
 	//
 	// Default: Sink("EVENT").

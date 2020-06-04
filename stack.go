@@ -1,12 +1,12 @@
 package xo
 
-type cause struct {
+type abort struct {
 	err error
 }
 
 // Abort will abort with the supplied error.
 func Abort(err error) {
-	panic(cause{&Err{
+	panic(abort{&Err{
 		Err:    err,
 		Caller: GetCaller(1),
 	}})
@@ -15,7 +15,7 @@ func Abort(err error) {
 // AbortIf will only abort with the supplied error if present.
 func AbortIf(err error) {
 	if err != nil {
-		panic(cause{&Err{
+		panic(abort{&Err{
 			Err:    err,
 			Caller: GetCaller(1),
 		}})
@@ -30,7 +30,7 @@ func AbortIf(err error) {
 // Resume will discard that panic and continue execution.
 func Resume(fn func(error)) {
 	val := recover()
-	if cause, ok := val.(cause); ok {
+	if cause, ok := val.(abort); ok {
 		fn(cause.err)
 		return
 	} else if val != nil {

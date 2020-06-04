@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.opentelemetry.io/otel/api/trace"
 )
 
 func TestStartSpan(t *testing.T) {
@@ -27,7 +28,8 @@ func TestGetSpan(t *testing.T) {
 		assert.Nil(t, span)
 
 		span = GetSpan(context.Background())
-		assert.Nil(t, span)
+		assert.NotNil(t, span)
+		assert.EqualValues(t, trace.NoopSpan{}, span)
 
 		ctx, root := StartSpan(nil, "root")
 		span = GetSpan(ctx)

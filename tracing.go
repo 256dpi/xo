@@ -60,8 +60,6 @@ func GetSpan(ctx context.Context) trace.Span {
 	span := trace.SpanFromContext(ctx)
 	if span == nil {
 		return nil
-	} else if _, ok := span.(trace.NoopSpan); ok {
-		return nil
 	}
 
 	return span

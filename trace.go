@@ -85,37 +85,31 @@ func GetTrace(ctx context.Context) *Trace {
 
 // Push will add a new span to the trace.
 func (t *Trace) Push(name string) {
-	// get parent
-	parent := t.Tail()
-
-	// create child
-	_, child := Track(parent.ctx, name)
-
-	// push child
+	_, child := Track(t.Tail().ctx, name)
 	t.stack = append(t.stack, child)
 }
 
-// Rename will set a new name on the tail.
+// Rename will set a new name on the tail span.
 func (t *Trace) Rename(name string) {
 	t.Tail().Rename(name)
 }
 
-// Tag will add the provided attribute to the tail.
+// Tag will add the provided attribute to the tail span.
 func (t *Trace) Tag(key string, value interface{}) {
 	t.Tail().Tag(key, value)
 }
 
-// Attach will add the provided event to the tail.
+// Attach will add the provided event to the tail span.
 func (t *Trace) Attach(event string, attributes M) {
 	t.Tail().Attach(event, attributes)
 }
 
-// Log will attach a log event to the tail.
+// Log will attach a log event to the tail span.
 func (t *Trace) Log(format string, args ...interface{}) {
 	t.Tail().Log(format, args...)
 }
 
-// Record will attach an error event to the tail.
+// Record will attach an error event to the tail span.
 func (t *Trace) Record(err error) {
 	t.Tail().Record(err)
 }
@@ -128,7 +122,7 @@ func (t *Trace) Pop() {
 		return
 	}
 
-	// finish last span
+	// end last span
 	t.stack[len(t.stack)-1].End()
 
 	// resize stack

@@ -19,17 +19,16 @@ func SmartTrace(ctx context.Context) (context.Context, Span) {
 	return Trace(ctx, GetCaller(1).Short)
 }
 
-// Trace is used to mark and annotate a function call. It will automatically
-// wrap the context with a child from the span history found in the provided
-// context. If no span history was found it will start a new span.
+// Trace is used to trace a function call. It will start a new span based on the
+// history in the provided context. It will return a new span and context that
+// contains the created spans native span.
 func Trace(ctx context.Context, name string) (context.Context, Span) {
 	ctx, span := StartSpan(ctx, name)
 	return ctx, NewSpan(ctx, span)
 }
 
 // NewSpan will create and return a new span from the provided context and
-// native span. The context should already carry the span as if created with
-// StartSpan().
+// native span. The context should already carry the native span.
 func NewSpan(ctx context.Context, span trace.Span) Span {
 	return Span{
 		ctx:  ctx,

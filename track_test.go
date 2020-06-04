@@ -50,6 +50,13 @@ func TestTrack(t *testing.T) {
 	})
 }
 
+func TestNewSpan(t *testing.T) {
+	ctx, span := StartSpan(nil, "foo")
+	newSpan := NewSpan(ctx, span)
+	assert.Equal(t, ctx, newSpan.Context())
+	assert.Equal(t, span, newSpan.Native())
+}
+
 func TestTrackMeta(t *testing.T) {
 	Test(func(tester *Tester) {
 		_, span := Track(nil, "foo")

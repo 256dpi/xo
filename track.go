@@ -27,10 +27,15 @@ func AutoTrack(ctx context.Context) (context.Context, Span) {
 // the span from the context it will create a child from the traces tail.
 // If not it considers the span history to have diverged from the trace.
 func Track(ctx context.Context, name string) (context.Context, Span) {
-	// start span
 	ctx, span := StartSpan(ctx, name)
+	return ctx, NewSpan(ctx, span)
+}
 
-	return ctx, Span{
+// NewSpan will create and return a new span from the provided context and
+// native span. The context should already carry the span as if created with
+// StartSpan().
+func NewSpan(ctx context.Context, span trace.Span) Span {
+	return Span{
 		ctx:  ctx,
 		span: span,
 	}
@@ -76,6 +81,11 @@ func (s Span) End() {
 	if s.span != nil {
 		s.span.End()
 	}
+}
+
+// Context will return the context carrying the native span.
+func (s Span) Context() context.Context {
+	return s.ctx
 }
 
 // Native will return the underlying native span.

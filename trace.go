@@ -38,44 +38,32 @@ func NewSpan(ctx context.Context, span trace.Span) Span {
 
 // Rename will set a new name on the span.
 func (s Span) Rename(name string) {
-	if s.span != nil {
-		s.span.SetName(name)
-	}
+	s.span.SetName(name)
 }
 
 // Tag will add the provided attribute to the span.
 func (s Span) Tag(key string, value interface{}) {
-	if s.span != nil {
-		s.span.SetAttribute(key, convertValue(value))
-	}
+	s.span.SetAttribute(key, convertValue(value))
 }
 
 // Attach will add the provided event to the span.
 func (s Span) Attach(event string, attributes M) {
-	if s.span != nil {
-		s.span.AddEvent(s.ctx, event, mapToKV(attributes)...)
-	}
+	s.span.AddEvent(s.ctx, event, mapToKV(attributes)...)
 }
 
 // Log will attach a log event to the span.
 func (s Span) Log(format string, args ...interface{}) {
-	if s.span != nil {
-		s.span.AddEvent(s.ctx, "log", kv.Infer("message", fmt.Sprintf(format, args...)))
-	}
+	s.span.AddEvent(s.ctx, "log", kv.Infer("message", fmt.Sprintf(format, args...)))
 }
 
 // Record will attach an error event to the span.
 func (s Span) Record(err error) {
-	if s.span != nil {
-		s.span.RecordError(s.ctx, err)
-	}
+	s.span.RecordError(s.ctx, err)
 }
 
 // End will end the span.
 func (s Span) End() {
-	if s.span != nil {
-		s.span.End()
-	}
+	s.span.End()
 }
 
 // Context will return the context carrying the native span.

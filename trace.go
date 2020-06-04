@@ -83,6 +83,11 @@ func GetTrace(ctx context.Context) *Trace {
 	return trace
 }
 
+// SmartPush will call Push() with callers short name.
+func (t *Trace) SmartPush() {
+	t.Push(GetCaller(1).Short)
+}
+
 // Push will add a new span to the trace.
 func (t *Trace) Push(name string) {
 	_, child := Track(t.Tail().ctx, name)

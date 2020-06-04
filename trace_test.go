@@ -20,7 +20,7 @@ func TestTrace(t *testing.T) {
 		assert.NotEqual(t, trace.Root().Native(), GetSpan(ctx))
 		assert.Equal(t, trace.Tail().Native(), GetSpan(ctx))
 
-		trace.Push("bar")
+		trace.SmartPush()
 		trace.Record(F("fail"))
 		assert.NotEqual(t, trace.Root().Native(), GetSpan(ctx))
 		assert.Equal(t, trace.Tail().Native(), GetSpan(ctx))
@@ -37,7 +37,7 @@ func TestTrace(t *testing.T) {
 
 		assert.Equal(t, []VSpan{
 			{
-				Name: "bar",
+				Name: "xo.TestTrace.func1",
 				Events: []VEvent{
 					{
 						Name: "error",

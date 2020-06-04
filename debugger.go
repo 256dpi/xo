@@ -91,17 +91,17 @@ func Debug(config Config) func() {
 	debugger := NewDebugger(config)
 
 	// setup tracing
-	teardownTracing := SetupTracing(debugger.SpanSyncer())
+	revertTracing := SetupTracing(debugger.SpanSyncer())
 
 	// setup reporting
-	teardownReporting := SetupReporting(debugger.SentryTransport())
+	revertReporting := SetupReporting(debugger.SentryTransport())
 
 	return func() {
-		// reset reporting
-		teardownReporting()
+		// revert reporting
+		revertReporting()
 
-		// set original provider
-		teardownTracing()
+		// revert tracing
+		revertTracing()
 
 		// reset intercept
 		if undoIntercept != nil {

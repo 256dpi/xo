@@ -10,7 +10,7 @@ import (
 )
 
 // SetupTracing will setup tracing using the provided span syncer. The returned
-// function may be called to teardown the component.
+// function may be called to revert the previously configured provider.
 func SetupTracing(syncer export.SpanSyncer) func() {
 	// create provider
 	provider, err := sdkTrace.NewProvider(

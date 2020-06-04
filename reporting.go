@@ -38,7 +38,7 @@ func Reporter(tags SM) func(error) {
 }
 
 // SetupReporting will setup error reporting using sentry. The returned
-// function may be called to teardown the component.
+// function may be called to revert the previously configured client.
 func SetupReporting(transport sentry.Transport) func() {
 	// create client
 	client, err := sentry.NewClient(sentry.ClientOptions{
@@ -55,8 +55,8 @@ func SetupReporting(transport sentry.Transport) func() {
 	hub.BindClient(client)
 
 	return func() {
-		// flush
-		sentry.Flush(2 * time.Second)
+		// flush client asynchronously
+		go client.Flush(10 * time.Second)
 
 		// set original client
 		hub.BindClient(originalClient)

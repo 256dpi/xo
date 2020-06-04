@@ -22,10 +22,6 @@ func SmartTrack(ctx context.Context) (context.Context, Span) {
 // Track is used to mark and annotate a function call. It will automatically
 // wrap the context with a child from the span history found in the provided
 // context. If no span history was found it will start a new span.
-//
-// If the function finds a trace in the context and its root span matches
-// the span from the context it will create a child from the traces tail.
-// If not it considers the span history to have diverged from the trace.
 func Track(ctx context.Context, name string) (context.Context, Span) {
 	ctx, span := StartSpan(ctx, name)
 	return ctx, NewSpan(ctx, span)

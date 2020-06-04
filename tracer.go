@@ -4,126 +4,126 @@ import (
 	"context"
 )
 
-type traceContextKey struct{}
+type tracerContextKey struct{}
 
-var traceKey = traceContextKey{}
+var tracerKey = tracerContextKey{}
 
-type traceContext struct {
+type tracerContext struct {
 	context.Context
-	trace *Trace
+	tracer *Tracer
 }
 
-func (c *traceContext) Value(key interface{}) interface{} {
+func (c *tracerContext) Value(key interface{}) interface{} {
 	// check key
-	if key == traceKey {
-		return c.trace
+	if key == tracerKey {
+		return c.tracer
 	}
 
 	// get value
 	val := c.Context.Value(key)
 
 	// return tail if root is returned
-	if val == c.trace.root.span {
-		return c.trace.Tail().span
+	if val == c.tracer.root.span {
+		return c.tracer.Tail().span
 	}
 
 	return val
 }
 
-// Trace implements a span stack that can be used with fat contexts. Rather than
+// Tracer manages a span stack that can be used with fat contexts. Rather than
 // branching of the context for every function call, a span is pushed onto the
-// stack to track execution.
+// tracers stack to track execution.
 //
 // Code that uses Track or native opentelemetry APIs will automatically discover
 // the stack and branch of its tail if no previous branch has been detected.
-type Trace struct {
+type Tracer struct {
 	root  Span
 	stack []Span
 }
 
-// NewTrace returns a new trace that will use the provided span as its root.
-// The returned context is the provided context wrapped with the trace. The
-// provide context should already contain provided spans native span.
-func NewTrace(ctx context.Context, span Span) (*Trace, context.Context) {
+// NewTracer returns a new tracer that will use the provided span as its root.
+// The returned context is the provided context wrapped with the tracer. The
+// provide context should already contain the provided spans native span.
+func NewTracer(ctx context.Context, span Span) (*Tracer, context.Context) {
 	// check context
 	if ctx == nil {
 		ctx = context.Background()
 	}
 
-	// create trace
-	trace := &Trace{
+	// create tracer
+	tracer := &Tracer{
 		root:  span,
 		stack: make([]Span, 0, 32),
 	}
 
-	// add trace
-	ctx = &traceContext{
+	// add tracer
+	ctx = &tracerContext{
 		Context: ctx,
-		trace:   trace,
+		tracer:  tracer,
 	}
 
-	return trace, ctx
+	return tracer, ctx
 }
 
-// CreateTrace returns a new trace that will use the span found in the provided
+// CreateTracer returns a new tracer that will use the span found in the provided
 // context as its root or start a new one. The returned context is the provided
-// context wrapped with the new span and trace.
-func CreateTrace(ctx context.Context, name string) (*Trace, context.Context) {
-	return NewTrace(Track(ctx, name))
+// context wrapped with the new span and tracer.
+func CreateTracer(ctx context.Context, name string) (*Tracer, context.Context) {
+	return NewTracer(Track(ctx, name))
 }
 
-// GetTrace will return the trace from the context or nil if absent.
-func GetTrace(ctx context.Context) *Trace {
+// GetTracer will return the tracer from the context or nil if absent.
+func GetTracer(ctx context.Context) *Tracer {
 	// check context
 	if ctx == nil {
 		return nil
 	}
 
-	// get trace
-	trace, _ := ctx.Value(traceKey).(*Trace)
+	// get tracer
+	tracer, _ := ctx.Value(tracerKey).(*Tracer)
 
-	return trace
+	return tracer
 }
 
 // SmartPush will call Push() with callers short name.
-func (t *Trace) SmartPush() {
+func (t *Tracer) SmartPush() {
 	t.Push(GetCaller(1).Short)
 }
 
-// Push will add a new span to the trace.
-func (t *Trace) Push(name string) {
+// Push will add a new span onto the stack.
+func (t *Tracer) Push(name string) {
 	_, child := Track(t.Tail().ctx, name)
 	t.stack = append(t.stack, child)
 }
 
 // Rename will set a new name on the tail span.
-func (t *Trace) Rename(name string) {
+func (t *Tracer) Rename(name string) {
 	t.Tail().Rename(name)
 }
 
 // Tag will add the provided attribute to the tail span.
-func (t *Trace) Tag(key string, value interface{}) {
+func (t *Tracer) Tag(key string, value interface{}) {
 	t.Tail().Tag(key, value)
 }
 
 // Attach will add the provided event to the tail span.
-func (t *Trace) Attach(event string, attributes M) {
+func (t *Tracer) Attach(event string, attributes M) {
 	t.Tail().Attach(event, attributes)
 }
 
 // Log will attach a log event to the tail span.
-func (t *Trace) Log(format string, args ...interface{}) {
+func (t *Tracer) Log(format string, args ...interface{}) {
 	t.Tail().Log(format, args...)
 }
 
 // Record will attach an error event to the tail span.
-func (t *Trace) Record(err error) {
+func (t *Tracer) Record(err error) {
 	t.Tail().Record(err)
 }
 
 // Pop ends and removes the last pushed span. This call is usually deferred
 // right after a push.
-func (t *Trace) Pop() {
+func (t *Tracer) Pop() {
 	// check list
 	if len(t.stack) == 0 {
 		return
@@ -137,7 +137,7 @@ func (t *Trace) Pop() {
 }
 
 // End will end all stacked spans and the root span.
-func (t *Trace) End() {
+func (t *Tracer) End() {
 	// end stacked spans
 	for _, span := range t.stack {
 		span.End()
@@ -148,7 +148,7 @@ func (t *Trace) End() {
 }
 
 // Tail returns the tail or root of the span stack.
-func (t *Trace) Tail() Span {
+func (t *Tracer) Tail() Span {
 	// return last span if available
 	if len(t.stack) > 0 {
 		return t.stack[len(t.stack)-1]
@@ -158,6 +158,6 @@ func (t *Trace) Tail() Span {
 }
 
 // Root will return the root of the span stack.
-func (t *Trace) Root() Span {
+func (t *Tracer) Root() Span {
 	return t.root
 }

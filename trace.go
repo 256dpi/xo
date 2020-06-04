@@ -34,26 +34,21 @@ func (c *traceContext) Value(key interface{}) interface{} {
 // branching of the context for every function call, a span is pushed onto the
 // stack to track execution.
 //
-// Code that uses Track will automatically discover the stack and branch of its
-// tail if no previous branch has been detected. Other opentracing compatible
-// code would not be able to find the stack and would use the root span instead.
-// This can be prevented by ensuring a branch using the Branch function.
+// Code that uses Track or native opentelemetry APIs will automatically discover
+// the stack and branch of its tail if no previous branch has been detected.
 type Trace struct {
 	root  Span
 	stack []Span
 }
 
-// CreateTrace returns a new trace that will use the span found in the provided
-// context as its root or start a new one. The returned context is the provided
-// context wrapped with the new span and trace.
-func CreateTrace(ctx context.Context, name string) (*Trace, context.Context) {
+// NewTrace returns a new trace that will use the provided span as its root.
+// The returned context is the provided context wrapped with the trace. The
+// provide context should already contain provided spans native span.
+func NewTrace(ctx context.Context, span Span) (*Trace, context.Context) {
 	// check context
 	if ctx == nil {
 		ctx = context.Background()
 	}
-
-	// get span
-	ctx, span := Track(ctx, name)
 
 	// create trace
 	trace := &Trace{
@@ -68,6 +63,13 @@ func CreateTrace(ctx context.Context, name string) (*Trace, context.Context) {
 	}
 
 	return trace, ctx
+}
+
+// CreateTrace returns a new trace that will use the span found in the provided
+// context as its root or start a new one. The returned context is the provided
+// context wrapped with the new span and trace.
+func CreateTrace(ctx context.Context, name string) (*Trace, context.Context) {
+	return NewTrace(Track(ctx, name))
 }
 
 // GetTrace will return the trace from the context or nil if absent.

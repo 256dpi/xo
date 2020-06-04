@@ -27,8 +27,8 @@ func main() {
 
 	// register
 	mux.HandleFunc("/calc", func(w http.ResponseWriter, r *http.Request) {
-		// track
-		ctx, span := xo.Track(r.Context(), "Index")
+		// trace
+		ctx, span := xo.Trace(r.Context(), "Index")
 		defer span.End()
 
 		// get params

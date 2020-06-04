@@ -32,9 +32,9 @@ func (c *tracerContext) Value(key interface{}) interface{} {
 
 // Tracer manages a span stack that can be used with fat contexts. Rather than
 // branching of the context for every function call, a span is pushed onto the
-// tracers stack to track execution.
+// tracers stack to trace execution.
 //
-// Code that uses Track or native opentelemetry APIs will automatically discover
+// Code that uses Trace or native opentelemetry APIs will automatically discover
 // the stack and branch of its tail if no previous branch has been detected.
 type Tracer struct {
 	root  Span
@@ -69,7 +69,7 @@ func NewTracer(ctx context.Context, span Span) (*Tracer, context.Context) {
 // context as its root or start a new one. The returned context is the provided
 // context wrapped with the new span and tracer.
 func CreateTracer(ctx context.Context, name string) (*Tracer, context.Context) {
-	return NewTracer(Track(ctx, name))
+	return NewTracer(Trace(ctx, name))
 }
 
 // GetTracer will return the tracer from the context or nil if absent.
@@ -92,7 +92,7 @@ func (t *Tracer) SmartPush() {
 
 // Push will add a new span onto the stack.
 func (t *Tracer) Push(name string) {
-	_, child := Track(t.Tail().ctx, name)
+	_, child := Trace(t.Tail().ctx, name)
 	t.stack = append(t.stack, child)
 }
 

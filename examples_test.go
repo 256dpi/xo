@@ -47,7 +47,7 @@ func ExampleRun() {
 	// div: 0, xo.Div: PANIC: runtime error: integer divide by zero
 }
 
-func ExampleTrack() {
+func ExampleTrace() {
 	// install
 	teardown := Debug(Config{
 		TraceResolution:   100 * time.Millisecond,
@@ -58,21 +58,21 @@ func ExampleTrack() {
 	// get context
 	ctx := context.Background()
 
-	// track
-	ctx1, span1 := Track(ctx, "One")
+	// trace
+	ctx1, span1 := Trace(ctx, "One")
 	time.Sleep(100 * time.Millisecond)
-	ctx2, span2 := Track(ctx1, "Two")
+	ctx2, span2 := Trace(ctx1, "Two")
 	span2.Log("hello world")
 	time.Sleep(100 * time.Millisecond)
-	_, span3 := Track(ctx2, "Three")
+	_, span3 := Trace(ctx2, "Three")
 	span3.Tag("foo", "bar")
 	time.Sleep(100 * time.Millisecond)
 	span3.End()
 	span2.End()
-	ctx4, span4 := Track(ctx1, "Four")
+	ctx4, span4 := Trace(ctx1, "Four")
 	span4.Record(F("fatal"))
 	time.Sleep(100 * time.Millisecond)
-	_, span5 := Track(ctx4, "Five")
+	_, span5 := Trace(ctx4, "Five")
 	span5.Tag("baz", 42)
 	time.Sleep(100 * time.Millisecond)
 	span5.End()

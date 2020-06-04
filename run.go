@@ -35,7 +35,7 @@ func (c *Context) Tag(key string, value interface{}) {
 	c.Span.Tag(key, value)
 }
 
-// Run will run the provided function and automatically handle tracking, error
+// Run will run the provided function and automatically handle tracing, error
 // handling and panic recovering.
 func Run(ctx context.Context, fn func(ctx *Context) error) (err error) {
 	// ensure context
@@ -46,8 +46,8 @@ func Run(ctx context.Context, fn func(ctx *Context) error) (err error) {
 	// get caller
 	caller := GetCaller(1)
 
-	// track
-	ctx, span := Track(ctx, caller.Short)
+	// trace
+	ctx, span := Trace(ctx, caller.Short)
 	defer span.End()
 
 	// wrap

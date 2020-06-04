@@ -7,34 +7,34 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSmartTrack(t *testing.T) {
+func TestSmartTrace(t *testing.T) {
 	Test(func(tester *Tester) {
-		ctx, span := SmartTrack(nil)
+		ctx, span := SmartTrace(nil)
 		assert.NotNil(t, ctx)
 		assert.NotNil(t, span)
 		span.End()
 
 		assert.Equal(t, []VSpan{
-			{Name: "xo.TestSmartTrack.func1"},
+			{Name: "xo.TestSmartTrace.func1"},
 		}, tester.ReducedSpans(0))
 	})
 }
 
-func TestTrack(t *testing.T) {
+func TestTrace(t *testing.T) {
 	Test(func(tester *Tester) {
-		ctx, span := Track(nil, "foo")
+		ctx, span := Trace(nil, "foo")
 		assert.NotNil(t, ctx)
 		assert.NotNil(t, span)
 		span.End()
 
-		ctx, span = Track(context.Background(), "bar")
+		ctx, span = Trace(context.Background(), "bar")
 		assert.NotNil(t, ctx)
 		assert.NotNil(t, span)
 		span.End()
 
 		ctx, root := StartSpan(context.Background(), "root")
 
-		ctx, span = Track(ctx, "track")
+		ctx, span = Trace(ctx, "trace")
 		assert.NotNil(t, ctx)
 		assert.NotNil(t, span)
 		span.End()
@@ -44,7 +44,7 @@ func TestTrack(t *testing.T) {
 		assert.Equal(t, []VSpan{
 			{Name: "foo"},
 			{Name: "bar"},
-			{Name: "track"},
+			{Name: "trace"},
 			{Name: "root"},
 		}, tester.ReducedSpans(0))
 	})
@@ -57,9 +57,9 @@ func TestNewSpan(t *testing.T) {
 	assert.Equal(t, span, newSpan.Native())
 }
 
-func TestTrackMeta(t *testing.T) {
+func TestTraceMeta(t *testing.T) {
 	Test(func(tester *Tester) {
-		_, span := Track(nil, "foo")
+		_, span := Trace(nil, "foo")
 		span.Tag("foo", "bar")
 		span.Tag("rich", M{"foo": "bar"})
 		span.Attach("foo", M{"bar": "baz"})

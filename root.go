@@ -24,7 +24,7 @@ func RootHandler(cleaners ...func([]string) []string) func(http.Handler) http.Ha
 			name := fmt.Sprintf("%s %s", r.Method, path)
 
 			// create span from request
-			ctx, span := Track(r.Context(), name)
+			ctx, span := Trace(r.Context(), name)
 			span.Tag("http.proto", r.Proto)
 			span.Tag("http.host", r.Host)
 			span.Tag("http.url", r.URL.String())

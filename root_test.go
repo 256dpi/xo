@@ -13,7 +13,7 @@ func TestRootHandler(t *testing.T) {
 		handler := serve.Compose(
 			RootHandler(NumberCleaner),
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, span := Track(r.Context(), "foo")
+				_, span := Trace(r.Context(), "foo")
 				defer span.End()
 
 				w.WriteHeader(http.StatusOK)

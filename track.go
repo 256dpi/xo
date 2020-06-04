@@ -14,8 +14,8 @@ type Span struct {
 	span trace.Span
 }
 
-// AutoTrack calls Track with the callers short name.
-func AutoTrack(ctx context.Context) (context.Context, Span) {
+// SmartTrack calls Track with the callers short name.
+func SmartTrack(ctx context.Context) (context.Context, Span) {
 	return Track(ctx, GetCaller(1).Short)
 }
 

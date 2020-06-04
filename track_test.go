@@ -7,15 +7,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAutoTrack(t *testing.T) {
+func TestSmartTrack(t *testing.T) {
 	Test(func(tester *Tester) {
-		ctx, span := AutoTrack(nil)
+		ctx, span := SmartTrack(nil)
 		assert.NotNil(t, ctx)
 		assert.NotNil(t, span)
 		span.End()
 
 		assert.Equal(t, []VSpan{
-			{Name: "xo.TestAutoTrack.func1"},
+			{Name: "xo.TestSmartTrack.func1"},
 		}, tester.ReducedSpans(0))
 	})
 }

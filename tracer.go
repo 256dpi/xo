@@ -41,10 +41,10 @@ type Tracer struct {
 	stack []Span
 }
 
-// NewTracer returns a new tracer that will use the provided span as its root.
-// The returned context is the provided context wrapped with the tracer. The
-// provide context should already contain the provided spans native span.
-func NewTracer(ctx context.Context, span Span) (*Tracer, context.Context) {
+// NewTracer returns a new tracer that will use the native span found in the
+// context as its root. The returned context is the provided context wrapped
+// with the tracer.
+func NewTracer(ctx context.Context) (*Tracer, context.Context) {
 	// check context
 	if ctx == nil {
 		ctx = context.Background()
@@ -52,7 +52,7 @@ func NewTracer(ctx context.Context, span Span) (*Tracer, context.Context) {
 
 	// create tracer
 	tracer := &Tracer{
-		root:  span,
+		root:  NewSpan(ctx, GetSpan(ctx)),
 		stack: make([]Span, 0, 32),
 	}
 
@@ -66,10 +66,11 @@ func NewTracer(ctx context.Context, span Span) (*Tracer, context.Context) {
 }
 
 // CreateTracer returns a new tracer that will use the span found in the provided
-// context as its root or start a new one. The returned context is the provided
-// context wrapped with the new span and tracer.
+// context to start a new one with the provided name. The returned context is the
+// provided context wrapped with the new native span and tracer.
 func CreateTracer(ctx context.Context, name string) (*Tracer, context.Context) {
-	return NewTracer(Trace(ctx, name))
+	ctx, _ = Trace(ctx, name)
+	return NewTracer(ctx)
 }
 
 // GetTracer will return the tracer from the context or nil if absent.

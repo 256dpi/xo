@@ -40,7 +40,10 @@ func Resume(fn func(error)) {
 
 // Panic will panic with the provided error.
 func Panic(err error) {
-	panic(W(err))
+	panic(&Err{
+		Err:    err,
+		Caller: GetCaller(1),
+	})
 }
 
 // Recover will recover any panic and call fn if an errors has been recovered.

@@ -2,6 +2,7 @@ package xo
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,7 +21,31 @@ func TestAbort(t *testing.T) {
 	}()
 
 	assert.True(t, errors.Is(res, errFoo))
-	assert.Equal(t, "foo", res.Error())
+
+	str := res.Error()
+	assert.Equal(t, "foo", str)
+
+	str = fmt.Sprintf("%s", res)
+	assert.Equal(t, "foo", str)
+
+	str = fmt.Sprintf("%q", res)
+	assert.Equal(t, `"foo"`, str)
+
+	str = fmt.Sprintf("%v", res)
+	assert.Equal(t, "xo.TestAbort.func1: foo", str)
+
+	str = fmt.Sprintf("%+v", res)
+	assert.Equal(t, []string{
+		"foo",
+		"github.com/256dpi/xo.TestAbort.func1",
+		"  github.com/256dpi/xo/stack_test.go:LN",
+		"github.com/256dpi/xo.TestAbort",
+		"  github.com/256dpi/xo/stack_test.go:LN",
+		"testing.tRunner",
+		"  testing/testing.go:LN",
+		"runtime.goexit",
+		"  runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
 }
 
 func TestAbortIfNil(t *testing.T) {
@@ -60,7 +85,46 @@ func TestPanic(t *testing.T) {
 	}()
 
 	assert.True(t, errors.Is(res, errFoo))
-	assert.Equal(t, "PANIC: foo", res.Error())
+
+	str := res.Error()
+	assert.Equal(t, "PANIC: foo", str)
+
+	str = fmt.Sprintf("%s", res)
+	assert.Equal(t, "PANIC: foo", str)
+
+	str = fmt.Sprintf("%q", res)
+	assert.Equal(t, `"PANIC: foo"`, str)
+
+	str = fmt.Sprintf("%v", res)
+	assert.Equal(t, "xo.Recover: PANIC: foo", str)
+
+	str = fmt.Sprintf("%+v", res)
+	assert.Equal(t, []string{
+		"foo",
+		"github.com/256dpi/xo.TestPanic.func1",
+		"  github.com/256dpi/xo/stack_test.go:LN",
+		"github.com/256dpi/xo.TestPanic",
+		"  github.com/256dpi/xo/stack_test.go:LN",
+		"testing.tRunner",
+		"  testing/testing.go:LN",
+		"runtime.goexit",
+		"  runtime/asm_amd64.s:LN",
+		"PANIC",
+		"github.com/256dpi/xo.Recover",
+		"  github.com/256dpi/xo/stack.go:LN",
+		"runtime.gopanic",
+		"  runtime/panic.go:LN",
+		"github.com/256dpi/xo.Panic",
+		"  github.com/256dpi/xo/stack.go:LN",
+		"github.com/256dpi/xo.TestPanic.func1",
+		"  github.com/256dpi/xo/stack_test.go:LN",
+		"github.com/256dpi/xo.TestPanic",
+		"  github.com/256dpi/xo/stack_test.go:LN",
+		"testing.tRunner",
+		"  testing/testing.go:LN",
+		"runtime.goexit",
+		"  runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
 }
 
 func BenchmarkAbortResume(b *testing.B) {

@@ -29,12 +29,12 @@ func TestF(t *testing.T) {
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo 42",
-		"github.com/256dpi/xo.TestF",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"testing.tRunner",
-		"  testing/testing.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.TestF",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -60,12 +60,12 @@ func TestW(t *testing.T) {
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"github.com/256dpi/xo.TestW",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"testing.tRunner",
-		"  testing/testing.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.TestW",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
 	}, splitStackTrace(str))
 
 	err = W(func() error {
@@ -78,16 +78,16 @@ func TestW(t *testing.T) {
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"github.com/256dpi/xo.TestW.func1.1",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"github.com/256dpi/xo.TestW.func1",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"github.com/256dpi/xo.TestW",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"testing.tRunner",
-		"  testing/testing.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.TestW.func1.1",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> github.com/256dpi/xo.TestW.func1",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> github.com/256dpi/xo.TestW",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -114,19 +114,19 @@ func TestWF(t *testing.T) {
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"github.com/256dpi/xo.TestWF",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"testing.tRunner",
-		"  testing/testing.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.TestWF",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
 		"bar 42",
-		"github.com/256dpi/xo.TestWF",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"testing.tRunner",
-		"  testing/testing.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.TestWF",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -146,12 +146,12 @@ func TestSF(t *testing.T) {
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"github.com/256dpi/xo.TestSF",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"testing.tRunner",
-		"  testing/testing.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.TestSF",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
 	}, splitStackTrace(str))
 
 	/* wrapped */
@@ -171,19 +171,19 @@ func TestSF(t *testing.T) {
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"github.com/256dpi/xo.TestSF",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"testing.tRunner",
-		"  testing/testing.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.TestSF",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
 		"bar",
-		"github.com/256dpi/xo.TestSF",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"testing.tRunner",
-		"  testing/testing.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.TestSF",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -225,22 +225,22 @@ func TestBF(t *testing.T) {
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"github.com/256dpi/xo.init",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"runtime.doInit",
-		"  runtime/proc.go:LN",
-		"runtime.doInit",
-		"  runtime/proc.go:LN",
-		"runtime.main",
-		"  runtime/proc.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
-		"github.com/256dpi/xo.TestBF",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"testing.tRunner",
-		"  testing/testing.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.init",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> runtime.doInit",
+		">   runtime/proc.go:LN",
+		"> runtime.doInit",
+		">   runtime/proc.go:LN",
+		"> runtime.main",
+		">   runtime/proc.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.TestBF",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -265,22 +265,22 @@ func TestBW(t *testing.T) {
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"bar",
-		"github.com/256dpi/xo.init",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"runtime.doInit",
-		"  runtime/proc.go:LN",
-		"runtime.doInit",
-		"  runtime/proc.go:LN",
-		"runtime.main",
-		"  runtime/proc.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
-		"github.com/256dpi/xo.TestBW",
-		"  github.com/256dpi/xo/errors_test.go:LN",
-		"testing.tRunner",
-		"  testing/testing.go:LN",
-		"runtime.goexit",
-		"  runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.init",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> runtime.doInit",
+		">   runtime/proc.go:LN",
+		"> runtime.doInit",
+		">   runtime/proc.go:LN",
+		"> runtime.main",
+		">   runtime/proc.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+		"> github.com/256dpi/xo.TestBW",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
 	}, splitStackTrace(str))
 }
 

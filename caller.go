@@ -112,8 +112,9 @@ func (c Caller) Print(out io.Writer) {
 		frame, more = frames.Next()
 
 		// print frame
+		check(io.WriteString(out, "> "))
 		check(io.WriteString(out, frame.Function))
-		check(io.WriteString(out, "\n\t"))
+		check(io.WriteString(out, "\n> \t"))
 		check(io.WriteString(out, frame.File))
 		check(io.WriteString(out, ":"))
 		check(io.WriteString(out, strconv.Itoa(frame.Line)))

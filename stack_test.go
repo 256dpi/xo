@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var errAbortTest = errors.New("foo")
+var errFoo = errors.New("foo")
 
 func TestAbort(t *testing.T) {
 	var res error
@@ -16,10 +16,11 @@ func TestAbort(t *testing.T) {
 			res = err
 		})
 
-		Abort(errAbortTest)
+		Abort(errFoo)
 	}()
 
-	assert.True(t, errors.Is(res, errAbortTest))
+	assert.True(t, errors.Is(res, errFoo))
+	assert.Equal(t, "foo", res.Error())
 }
 
 func TestAbortIfNil(t *testing.T) {
@@ -35,17 +36,31 @@ func TestAbortIfNil(t *testing.T) {
 	assert.False(t, res)
 }
 
-func TestPanic(t *testing.T) {
+func TestResumePanic(t *testing.T) {
 	var res error
 	assert.Panics(t, func() {
 		defer Resume(func(err error) {
 			res = err
 		})
 
-		panic(errAbortTest)
+		panic(errFoo)
 	})
 
 	assert.Nil(t, res)
+}
+
+func TestPanic(t *testing.T) {
+	var res error
+	func() {
+		defer Recover(func(err error) {
+			res = err
+		})
+
+		Panic(errFoo)
+	}()
+
+	assert.True(t, errors.Is(res, errFoo))
+	assert.Equal(t, "PANIC: foo", res.Error())
 }
 
 func BenchmarkAbortResume(b *testing.B) {
@@ -57,7 +72,7 @@ func BenchmarkAbortResume(b *testing.B) {
 				// do nothing
 			})
 
-			Abort(errAbortTest)
+			Abort(errFoo)
 		}()
 	}
 }

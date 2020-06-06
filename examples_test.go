@@ -58,26 +58,49 @@ func ExampleTrace() {
 	// get context
 	ctx := context.Background()
 
-	// trace
-	ctx1, span1 := Trace(ctx, "One")
-	time.Sleep(100 * time.Millisecond)
-	ctx2, span2 := Trace(ctx1, "Two")
-	span2.Log("hello world")
-	time.Sleep(100 * time.Millisecond)
-	_, span3 := Trace(ctx2, "Three")
-	span3.Tag("foo", "bar")
-	time.Sleep(100 * time.Millisecond)
-	span3.End()
-	span2.End()
-	ctx4, span4 := Trace(ctx1, "Four")
-	span4.Record(F("fatal"))
-	time.Sleep(100 * time.Millisecond)
-	_, span5 := Trace(ctx4, "Five")
-	span5.Tag("baz", 42)
-	time.Sleep(100 * time.Millisecond)
-	span5.End()
-	span4.End()
-	span1.End()
+	// trace one
+	func() {
+		ctx, span := Trace(ctx, "One")
+		defer span.End()
+
+		time.Sleep(100 * time.Millisecond)
+
+		// trace two
+		func() {
+			ctx, span := Trace(ctx, "Two")
+			span.Log("hello world")
+			defer span.End()
+
+			time.Sleep(100 * time.Millisecond)
+
+			// trace three
+			func() {
+				_, span := Trace(ctx, "Three")
+				span.Tag("foo", "bar")
+				defer span.End()
+
+				time.Sleep(100 * time.Millisecond)
+			}()
+		}()
+
+		// trace four
+		func() {
+			ctx, span := Trace(ctx, "Four")
+			span.Record(F("fatal"))
+			defer span.End()
+
+			// trace five
+			func() {
+				_, span := Trace(ctx, "Five")
+				span.Tag("baz", 42)
+				defer span.End()
+
+				time.Sleep(100 * time.Millisecond)
+			}()
+
+			time.Sleep(100 * time.Millisecond)
+		}()
+	}()
 
 	// flush
 	time.Sleep(10 * time.Millisecond)
@@ -90,7 +113,7 @@ func ExampleTrace() {
 	//     Three                                   ├──────────────┤                                   100ms
 	//   Four                                                      ├──────────────────────────────┤   200ms
 	//   :error                                                    •                                  300ms
-	//     Five                                                                    ├──────────────┤   100ms
+	//     Five                                                    ├──────────────┤                   100ms
 }
 
 func ExampleCapture() {

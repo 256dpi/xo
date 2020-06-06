@@ -15,8 +15,7 @@ import (
 func Test(fn func(tester *Tester)) {
 	// create tester
 	tester := &Tester{
-		CleanEvents: true,
-		Sinks:       map[string]*BufferSink{},
+		Sinks: map[string]*BufferSink{},
 	}
 
 	// setup tracing
@@ -41,11 +40,6 @@ func Test(fn func(tester *Tester)) {
 // Tester is a virtual logging, tracing and reporting provider for testing
 // purposes.
 type Tester struct {
-	// Whether events should be cleaned.
-	//
-	// Default: true.
-	CleanEvents bool
-
 	// The collected spans.
 	Spans []VSpan
 

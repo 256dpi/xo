@@ -119,8 +119,8 @@ func ExampleTrace() {
 func ExampleCapture() {
 	// install
 	teardown := Debug(Config{
-		NoEventContext:     true,
-		NoEventLineNumbers: true,
+		NoReportContext:     true,
+		NoReportLineNumbers: true,
 	})
 	defer teardown()
 
@@ -131,7 +131,7 @@ func ExampleCapture() {
 	time.Sleep(10 * time.Millisecond)
 
 	// Output:
-	// ===== EVENT =====
+	// ===== REPORT =====
 	// Level: error
 	// Exceptions:
 	// - some error (*xo.Err)

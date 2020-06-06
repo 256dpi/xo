@@ -39,19 +39,19 @@ type Config struct {
 	// Whether to omit trace attributes.
 	NoTraceAttributes bool
 
-	// The output for events.
+	// The output for reports.
 	//
-	// Default: Sink("EVENT").
-	EventOutput io.Writer
+	// Default: Sink("REPORT").
+	ReportOutput io.Writer
 
-	// Whether to omit event context data.
-	NoEventContext bool
+	// Whether to omit report context data.
+	NoReportContext bool
 
-	// Whether to omit file paths from event stack traces.
-	NoEventPaths bool
+	// Whether to omit file paths from report stack traces.
+	NoReportPaths bool
 
-	// Whether to omit line numbers from event stack traces.
-	NoEventLineNumbers bool
+	// Whether to omit line numbers from report stack traces.
+	NoReportLineNumbers bool
 }
 
 // Ensure will ensure defaults.
@@ -71,9 +71,9 @@ func (c *Config) Ensure() {
 		c.TraceWidth = 80
 	}
 
-	// set default event output
-	if c.EventOutput == nil {
-		c.EventOutput = Sink("EVENT")
+	// set default report output
+	if c.ReportOutput == nil {
+		c.ReportOutput = Sink("REPORT")
 	}
 }
 
@@ -291,7 +291,7 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		check(fmt.Fprintf(&buf, "Level: %s\n", report.Level))
 
 		// print context
-		if !d.config.NoEventContext {
+		if !d.config.NoReportContext {
 			check(fmt.Fprintf(&buf, "Context:\n"))
 			iterateMap(report.Context, func(key string, value interface{}) {
 				check(fmt.Fprintf(&buf, "- %s: %v\n", key, convertValue(value)))
@@ -307,14 +307,14 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 			// print frames
 			for _, frame := range exc.Frames {
 				// check path
-				if d.config.NoEventPaths {
+				if d.config.NoReportPaths {
 					check(fmt.Fprintf(&buf, "  > %s (%s)\n", frame.Func, frame.Module))
 					continue
 				}
 
 				// prepare line
 				var line = ""
-				if !d.config.NoEventLineNumbers {
+				if !d.config.NoReportLineNumbers {
 					line = ":" + strconv.Itoa(frame.Line)
 				}
 
@@ -324,7 +324,7 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		}
 
 		// write event
-		_, err := buf.WriteTo(d.config.EventOutput)
+		_, err := buf.WriteTo(d.config.ReportOutput)
 		if err != nil {
 			raise(err)
 		}

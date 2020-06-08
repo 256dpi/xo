@@ -293,9 +293,17 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		check(fmt.Fprintf(&buf, "Level: %s\n", report.Level))
 
 		// print context
-		if !d.config.NoReportContext {
+		if !d.config.NoReportContext && len(report.Context) > 0 {
 			check(fmt.Fprintf(&buf, "Context:\n"))
 			iterateMap(report.Context, func(key string, value interface{}) {
+				check(fmt.Fprintf(&buf, "- %s: %v\n", key, convertValue(value)))
+			})
+		}
+
+		// print tags
+		if len(report.Tags) > 0 {
+			check(fmt.Fprintf(&buf, "Tags:\n"))
+			iterateMap(report.Tags, func(key string, value interface{}) {
 				check(fmt.Fprintf(&buf, "- %s: %v\n", key, convertValue(value)))
 			})
 		}

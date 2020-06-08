@@ -127,6 +127,9 @@ func ExampleCapture() {
 	// capture error
 	Capture(F("some error"))
 
+	// report error
+	Reporter(SM{"foo": "bar"})(F("another error"))
+
 	// flush
 	time.Sleep(10 * time.Millisecond)
 
@@ -135,6 +138,13 @@ func ExampleCapture() {
 	// Level: error
 	// Exceptions:
 	// > some error (*xo.Err)
+	// |   ExampleCapture (github.com/256dpi/xo): github.com/256dpi/xo/examples_test.go
+	// |   main (main): _testmain.go
+	// Level: error
+	// Tags:
+	// - foo: bar
+	// Exceptions:
+	// > another error (*xo.Err)
 	// |   ExampleCapture (github.com/256dpi/xo): github.com/256dpi/xo/examples_test.go
 	// |   main (main): _testmain.go
 }

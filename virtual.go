@@ -59,7 +59,7 @@ type VReport struct {
 	Level      string
 	Time       time.Time
 	Context    M
-	Tags       SM
+	Tags       M
 	Exceptions []VException
 }
 
@@ -111,7 +111,10 @@ func ConvertReport(event *sentry.Event) VReport {
 
 	// add tags
 	if len(event.Tags) > 0 {
-		report.Tags = event.Tags
+		report.Tags = map[string]interface{}{}
+		for key, value := range event.Tags {
+			report.Tags[key] = value
+		}
 	}
 
 	// add exceptions

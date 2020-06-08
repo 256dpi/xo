@@ -69,7 +69,7 @@ func TestReporter(t *testing.T) {
 		assert.Equal(t, []VReport{
 			{
 				Level: "error",
-				Tags: SM{
+				Tags: M{
 					"foo": "bar",
 				},
 				Exceptions: []VException{

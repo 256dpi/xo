@@ -24,34 +24,7 @@ func main() {
 
 	// prepare mux
 	mux := http.NewServeMux()
-
-	// register
-	mux.HandleFunc("/calc", func(w http.ResponseWriter, r *http.Request) {
-		// trace
-		ctx, span := xo.Trace(r.Context(), "Index")
-		defer span.End()
-
-		// get params
-		a := r.URL.Query().Get("a")
-		b := r.URL.Query().Get("b")
-
-		// call business logic
-		result, err := businessLogic(ctx, a, b)
-		if err != nil {
-			xo.Capture(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		// tag result
-		span.Tag("result", result)
-
-		// log result
-		log.Printf("result: %s", result)
-
-		// write result
-		_, _ = w.Write([]byte(result))
-	})
+	mux.HandleFunc("/calc", calculate)
 
 	// prepare handler
 	handler := serve.Compose(
@@ -61,6 +34,33 @@ func main() {
 
 	// listen and serve
 	_ = http.ListenAndServe(":8000", handler)
+}
+
+func calculate(w http.ResponseWriter, r *http.Request) {
+	// trace
+	ctx, span := xo.Trace(r.Context(), "calculate")
+	defer span.End()
+
+	// get params
+	a := r.URL.Query().Get("a")
+	b := r.URL.Query().Get("b")
+
+	// call business logic
+	result, err := businessLogic(ctx, a, b)
+	if err != nil {
+		xo.Capture(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// tag result
+	span.Tag("result", result)
+
+	// log result
+	log.Printf("result: %s", result)
+
+	// write result
+	_, _ = w.Write([]byte(result))
 }
 
 func businessLogic(ctx context.Context, a, b string) (res string, err error) {

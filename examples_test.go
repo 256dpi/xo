@@ -135,12 +135,12 @@ func ExampleCapture() {
 
 	// Output:
 	// ===== REPORT =====
-	// Level: error
+	// ERROR
 	// Exceptions:
 	// > some error (*xo.Err)
 	// |   ExampleCapture (github.com/256dpi/xo): github.com/256dpi/xo/examples_test.go
 	// |   main (main): _testmain.go
-	// Level: error
+	// ERROR
 	// Tags:
 	// - foo: bar
 	// Exceptions:

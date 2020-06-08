@@ -290,7 +290,7 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		var buf bytes.Buffer
 
 		// print info
-		check(fmt.Fprintf(&buf, "Level: %s\n", report.Level))
+		check(fmt.Fprintf(&buf, "%s\n", strings.ToUpper(report.Level)))
 
 		// print context
 		if !d.config.NoReportContext && len(report.Context) > 0 {

@@ -18,8 +18,8 @@ var SinkFactory = func(name string) io.WriteCloser {
 	// create pipe
 	reader, writer := io.Pipe()
 
-	// forward
-	go Forward(name, reader)
+	// drain
+	go Drain(name, reader)
 
 	return writer
 }
@@ -47,8 +47,8 @@ func Intercept() func() {
 	// replace logging output
 	log.SetOutput(Sink("LOG"))
 
-	// forward
-	go Forward("STDOUT", reader)
+	// drain
+	go Drain("STDOUT", reader)
 
 	return func() {
 		// reset stdout
@@ -67,8 +67,8 @@ func Sink(name string) io.WriteCloser {
 	return SinkFactory(name)
 }
 
-// Forward will read log lines from the reader and write them to Stdout.
-func Forward(name string, reader io.Reader) {
+// Drain will read log lines from the reader and write them to Stdout.
+func Drain(name string, reader io.Reader) {
 	// prepare queue
 	queue := make(chan string, 32)
 

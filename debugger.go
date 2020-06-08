@@ -180,14 +180,14 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		for _, root := range roots {
 			WalkTrace(root, func(node *VNode) bool {
 				// check span name
-				length := 1 + node.Depth*2 + len(node.Span.Name)
+				length := 2 + node.Depth*2 + len(node.Span.Name)
 				if length > longest {
 					longest = length
 				}
 
 				// check event names
 				for _, event := range node.Span.Events {
-					length := 1 + node.Depth*2 + 1 + len(event.Name)
+					length := 2 + node.Depth*2 + 1 + len(event.Name)
 					if length > longest {
 						longest = length
 					}
@@ -208,8 +208,10 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 			WalkTrace(root, func(node *VNode) bool {
 				// prepare prefix
 				prefix := strings.Repeat(" ", node.Depth*2)
-				if node.Depth > 0 {
-					prefix = "|" + prefix
+				if node.Depth == 0 {
+					prefix = "> " + prefix
+				} else if node.Depth > 0 {
+					prefix = "| " + prefix
 				}
 
 				// prepare name
@@ -302,13 +304,13 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 		check(fmt.Fprintf(&buf, "Exceptions:\n"))
 		for _, exc := range report.Exceptions {
 			// print error
-			check(fmt.Fprintf(&buf, "- %s (%s)\n", exc.Value, exc.Type))
+			check(fmt.Fprintf(&buf, "> %s (%s)\n", exc.Value, exc.Type))
 
 			// print frames
 			for _, frame := range exc.Frames {
 				// check path
 				if d.config.NoReportPaths {
-					check(fmt.Fprintf(&buf, "  > %s (%s)\n", frame.Func, frame.Module))
+					check(fmt.Fprintf(&buf, "|   %s (%s)\n", frame.Func, frame.Module))
 					continue
 				}
 
@@ -319,7 +321,7 @@ func (d *Debugger) SentryTransport() sentry.Transport {
 				}
 
 				// print frame
-				check(fmt.Fprintf(&buf, "  > %s (%s): %s%s\n", frame.Func, frame.Module, frame.Path, line))
+				check(fmt.Fprintf(&buf, "|   %s (%s): %s%s\n", frame.Func, frame.Module, frame.Path, line))
 			}
 		}
 

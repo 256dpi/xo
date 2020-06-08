@@ -107,13 +107,13 @@ func ExampleTrace() {
 
 	// Output:
 	// ===== TRACE =====
-	// One          ├──────────────────────────────────────────────────────────────────────────────┤   500ms
-	// |  Two                       ├──────────────────────────────┤                                   200ms
-	// |  :log                      •                                                                  100ms
-	// |    Three                                   ├──────────────┤                                   100ms
-	// |  Four                                                      ├──────────────────────────────┤   200ms
-	// |  :error                                                    •                                  300ms
-	// |    Five                                                    ├──────────────┤                   100ms
+	// > One         ├──────────────────────────────────────────────────────────────────────────────┤   500ms
+	// |   Two                       ├──────────────────────────────┤                                   200ms
+	// |   :log                      •                                                                  100ms
+	// |     Three                                   ├──────────────┤                                   100ms
+	// |   Four                                                      ├──────────────────────────────┤   200ms
+	// |   :error                                                    •                                  300ms
+	// |     Five                                                    ├──────────────┤                   100ms
 }
 
 func ExampleCapture() {
@@ -134,9 +134,9 @@ func ExampleCapture() {
 	// ===== REPORT =====
 	// Level: error
 	// Exceptions:
-	// - some error (*xo.Err)
-	//   > ExampleCapture (github.com/256dpi/xo): github.com/256dpi/xo/examples_test.go
-	//   > main (main): _testmain.go
+	// > some error (*xo.Err)
+	// |   ExampleCapture (github.com/256dpi/xo): github.com/256dpi/xo/examples_test.go
+	// |   main (main): _testmain.go
 }
 
 func ExampleSink() {

@@ -46,7 +46,7 @@ func Panic(err error) {
 	})
 }
 
-// Recover will recover any panic and call fn if an errors has been recovered.
+// Recover will recover any panic and call fn if an error has been recovered.
 //
 // Note: If the built-in panic function has been called with nil, a call to
 // Recover will discard that panic and continue execution.
@@ -62,4 +62,20 @@ func Recover(fn func(error)) {
 			fn(F("PANIC: %v", val))
 		}
 	}
+}
+
+// Catch will call fn and recover any panic and return an error.
+//
+// Note: If the built-in panic function has been called with nil, a call to
+// Recover will discard that panic and continue execution.
+func Catch(fn func() error) (err error) {
+	// recover panics
+	defer Recover(func(e error) {
+		err = e
+	})
+
+	// call fn
+	err = W(fn())
+
+	return
 }

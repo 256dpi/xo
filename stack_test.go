@@ -127,6 +127,70 @@ func TestPanic(t *testing.T) {
 	}, splitStackTrace(str))
 }
 
+func TestCatch(t *testing.T) {
+	err := Catch(func() error {
+		return nil
+	})
+	assert.NoError(t, err)
+
+	err = Catch(func() error {
+		return errFoo
+	})
+	assert.Error(t, err)
+
+	err = Catch(func() error {
+		Panic(errFoo)
+		return nil
+	})
+	assert.Error(t, err)
+
+	assert.True(t, errors.Is(err, errFoo))
+
+	str := err.Error()
+	assert.Equal(t, "PANIC: foo", str)
+
+	str = fmt.Sprintf("%s", err)
+	assert.Equal(t, "PANIC: foo", str)
+
+	str = fmt.Sprintf("%q", err)
+	assert.Equal(t, `"PANIC: foo"`, str)
+
+	str = fmt.Sprintf("%v", err)
+	assert.Equal(t, "xo.Recover: PANIC: foo", str)
+
+	str = fmt.Sprintf("%+v", err)
+	assert.Equal(t, []string{
+		"foo",
+		"> github.com/256dpi/xo.TestCatch.func3",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> github.com/256dpi/xo.Catch",
+		">   github.com/256dpi/xo/stack.go:LN",
+		"> github.com/256dpi/xo.TestCatch",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+		"PANIC",
+		"> github.com/256dpi/xo.Recover",
+		">   github.com/256dpi/xo/stack.go:LN",
+		"> runtime.gopanic",
+		">   runtime/panic.go:LN",
+		"> github.com/256dpi/xo.Panic",
+		">   github.com/256dpi/xo/stack.go:LN",
+		"> github.com/256dpi/xo.TestCatch.func3",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> github.com/256dpi/xo.Catch",
+		">   github.com/256dpi/xo/stack.go:LN",
+		"> github.com/256dpi/xo.TestCatch",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
+}
+
 func BenchmarkAbortResume(b *testing.B) {
 	b.ReportAllocs()
 

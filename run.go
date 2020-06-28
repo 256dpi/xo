@@ -37,7 +37,7 @@ func (c *Context) Tag(key string, value interface{}) {
 
 // Run will run the provided function and automatically handle tracing, error
 // handling and panic recovering.
-func Run(ctx context.Context, fn func(ctx *Context) error) (err error) {
+func Run(ctx context.Context, fn func(ctx *Context) error) error {
 	// ensure context
 	if ctx == nil {
 		ctx = context.Background()
@@ -57,38 +57,24 @@ func Run(ctx context.Context, fn func(ctx *Context) error) (err error) {
 		Span:    span,
 	}
 
-	// defer cleanup
-	defer func() {
-		// recover panic
-		val := recover()
-		if val != nil {
-			switch val := val.(type) {
-			case error:
-				err = WF(val, "PANIC")
-			case string:
-				err = F("PANIC: %s", val)
-			default:
-				err = F("PANIC: %v", val)
-			}
-		}
-
-		// check error
-		if err == nil {
-			return
-		}
-
-		// wrap error
-		err = &Err{
-			Err:    err,
-			Caller: xtc.Caller,
-		}
-
-		// record error
-		span.Record(err)
-	}()
-
 	// yield
-	err = fn(xtc)
+	err := Catch(func() error {
+		return fn(xtc)
+	})
 
-	return
+	// check error
+	if err == nil {
+		return nil
+	}
+
+	// wrap error
+	err = &Err{
+		Err:    err,
+		Caller: xtc.Caller,
+	}
+
+	// record error
+	span.Record(err)
+
+	return err
 }

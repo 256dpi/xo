@@ -91,7 +91,7 @@ func Debug(config Config) func() {
 	debugger := NewDebugger(config)
 
 	// setup tracing
-	revertTracing := SetupTracing(debugger.SpanSyncer())
+	revertTracing := SetupTracing(debugger.SpanExporter())
 
 	// setup reporting
 	revertReporting := SetupReporting(debugger.SentryTransport())
@@ -127,12 +127,12 @@ func NewDebugger(config Config) *Debugger {
 	}
 }
 
-// SpanSyncer will return a span syncer that prints received spans.
-func (d *Debugger) SpanSyncer() trace.SpanSyncer {
+// SpanExporter will return a span exporter that prints received spans.
+func (d *Debugger) SpanExporter() trace.SpanExporter {
 	// prepare spans
 	spans := map[string]VSpan{}
 
-	return SpanSyncer(func(data *trace.SpanData) {
+	return SpanExporter(func(data *trace.SpanData) error {
 		// acquire mutex
 		d.mutex.Lock()
 		defer d.mutex.Unlock()
@@ -143,7 +143,7 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		// store span if not root
 		if span.Parent != "" {
 			spans[span.ID] = span
-			return
+			return nil
 		}
 
 		// collect spans
@@ -270,6 +270,8 @@ func (d *Debugger) SpanSyncer() trace.SpanSyncer {
 		if err != nil {
 			raise(err)
 		}
+
+		return nil
 	})
 }
 

@@ -19,7 +19,7 @@ func Test(fn func(tester *Tester)) {
 	}
 
 	// setup tracing
-	teardownTracing := SetupTracing(tester.SpanSyncer())
+	teardownTracing := SetupTracing(tester.SpanExporter())
 	defer teardownTracing()
 
 	// setup reporting
@@ -148,10 +148,11 @@ func (t *Tester) Reset() {
 	t.Sinks = map[string]*BufferSink{}
 }
 
-// SpanSyncer will return a span syncer that collects spans.
-func (t *Tester) SpanSyncer() trace.SpanSyncer {
-	return SpanSyncer(func(span *trace.SpanData) {
+// SpanExporter will return a span exporter that collects spans.
+func (t *Tester) SpanExporter() trace.SpanExporter {
+	return SpanExporter(func(span *trace.SpanData) error {
 		t.Spans = append(t.Spans, ConvertSpan(span))
+		return nil
 	})
 }
 
@@ -182,12 +183,25 @@ func (t *Tester) SinkFactory() func(name string) io.WriteCloser {
 	}
 }
 
-// SpanSyncer is a functional span exporter.
-type SpanSyncer func(*trace.SpanData)
+// SpanExporter is a functional span exporter.
+type SpanExporter func(*trace.SpanData) error
 
-// ExportSpan implements the trace.SpanSyncer interface.
-func (s SpanSyncer) ExportSpan(_ context.Context, span *trace.SpanData) {
-	s(span)
+// ExportSpans implements the trace.SpanExporter interface.
+func (s SpanExporter) ExportSpans(_ context.Context, spans []*trace.SpanData) error {
+	// yield spans
+	for _, span := range spans {
+		err := s(span)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Shutdown implements the trace.SpanExporter interface.
+func (s SpanExporter) Shutdown(context.Context) error {
+	return nil
 }
 
 // SentryTransport is a functional sentry transport.

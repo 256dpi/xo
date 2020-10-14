@@ -6,6 +6,7 @@ require (
 	github.com/256dpi/serve v0.5.0
 	github.com/getsentry/sentry-go v0.7.0
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/stretchr/testify v1.6.0
-	go.opentelemetry.io/otel v0.6.0
+	github.com/stretchr/testify v1.6.1
+	go.opentelemetry.io/otel v0.13.0
+	go.opentelemetry.io/otel/sdk v0.13.0
 )

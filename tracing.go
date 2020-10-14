@@ -5,31 +5,28 @@ import (
 
 	"go.opentelemetry.io/otel/api/global"
 	"go.opentelemetry.io/otel/api/trace"
-	export "go.opentelemetry.io/otel/sdk/export/trace"
+	exportTrace "go.opentelemetry.io/otel/sdk/export/trace"
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
-// SetupTracing will setup tracing using the provided span syncer. The returned
-// function may be called to revert the previously configured provider.
-func SetupTracing(syncer export.SpanSyncer) func() {
+// SetupTracing will setup tracing using the provided span exporter. The
+// returned function may be called to revert the previously configured provider.
+func SetupTracing(exporter exportTrace.SpanExporter) func() {
 	// create provider
-	provider, err := sdkTrace.NewProvider(
-		sdkTrace.WithSyncer(syncer),
+	provider := sdkTrace.NewTracerProvider(
+		sdkTrace.WithSyncer(exporter),
 		sdkTrace.WithConfig(sdkTrace.Config{
 			DefaultSampler: sdkTrace.AlwaysSample(),
 		}),
 	)
-	if err != nil {
-		panic(err)
-	}
 
 	// wap provider
-	originalProvider := global.TraceProvider()
-	global.SetTraceProvider(provider)
+	originalProvider := global.TracerProvider()
+	global.SetTracerProvider(provider)
 
 	return func() {
 		// set original provider
-		global.SetTraceProvider(originalProvider)
+		global.SetTracerProvider(originalProvider)
 	}
 }
 

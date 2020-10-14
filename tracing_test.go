@@ -29,7 +29,7 @@ func TestGetSpan(t *testing.T) {
 
 		span = GetSpan(context.Background())
 		assert.NotNil(t, span)
-		assert.EqualValues(t, trace.NoopSpan{}, span)
+		assert.EqualValues(t, trace.SpanFromContext(context.Background()), span)
 
 		ctx, root := StartSpan(nil, "root")
 		span = GetSpan(ctx)

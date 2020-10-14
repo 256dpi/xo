@@ -1,6 +1,7 @@
 package xo
 
 import (
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -129,11 +130,24 @@ func ConvertReport(event *sentry.Event) VReport {
 		// add frames
 		if exc.Stacktrace != nil {
 			for _, frame := range exc.Stacktrace.Frames {
+				// get file and path
+				file := frame.Filename
+				path := frame.AbsPath
+				if file == "" && path != "" {
+					file = filepath.Base(path)
+				} else if file != "" && path == "" {
+					path = file
+					file = filepath.Base(file)
+				} else {
+					file = filepath.Base(file)
+				}
+
+				// add frame
 				exception.Frames = append(exception.Frames, VFrame{
 					Func:   frame.Function,
 					Module: frame.Module,
-					File:   frame.Filename,
-					Path:   frame.AbsPath,
+					File:   file,
+					Path:   path,
 					Line:   frame.Lineno,
 				})
 			}

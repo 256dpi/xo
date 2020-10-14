@@ -14,8 +14,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/export/trace"
 )
 
-// Config is used to configure xo.
-type Config struct {
+// DebugConfig is used to configure xo for debugging.
+type DebugConfig struct {
 	// Whether to omit interception.
 	//
 	// Default: false.
@@ -36,8 +36,8 @@ type Config struct {
 	// Default: 80.
 	TraceWidth int
 
-	// Whether to omit trace attributes.
-	NoTraceAttributes bool
+	// Whether to include trace attributes.
+	TraceAttributes bool
 
 	// The output for reports.
 	//
@@ -55,7 +55,7 @@ type Config struct {
 }
 
 // Ensure will ensure defaults.
-func (c *Config) Ensure() {
+func (c *DebugConfig) Ensure() {
 	// set default trace output
 	if c.TraceOutput == nil {
 		c.TraceOutput = Sink("TRACE")
@@ -80,7 +80,7 @@ func (c *Config) Ensure() {
 // Debug will install logging, reporting and tracing components for debugging
 // purposes. The returned function may be called to teardown all installed
 // components.
-func Debug(config Config) func() {
+func Debug(config DebugConfig) func() {
 	// intercept
 	var undoIntercept func()
 	if !config.NoIntercept {
@@ -113,12 +113,12 @@ func Debug(config Config) func() {
 // Debugger is a virtual logging, tracing and reporting provider for debugging
 // purposes.
 type Debugger struct {
-	config Config
+	config DebugConfig
 	mutex  sync.Mutex
 }
 
 // NewDebugger will create and return a new debugger.
-func NewDebugger(config Config) *Debugger {
+func NewDebugger(config DebugConfig) *Debugger {
 	// ensure config
 	config.Ensure()
 
@@ -225,7 +225,7 @@ func (d *Debugger) SpanExporter() trace.SpanExporter {
 
 				// prepare attributes
 				var attributes string
-				if !d.config.NoTraceAttributes {
+				if d.config.TraceAttributes {
 					attributes = buildMeta(node.Span.Attributes)
 				}
 
@@ -249,7 +249,7 @@ func (d *Debugger) SpanExporter() trace.SpanExporter {
 
 					// prepare attributes
 					var attributes string
-					if !d.config.NoTraceAttributes {
+					if d.config.TraceAttributes {
 						attributes = buildMeta(event.Attributes)
 					}
 

@@ -6,4 +6,4 @@
 [![Release](https://img.shields.io/github/release/256dpi/xo.svg)](https://github.com/256dpi/xo/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/256dpi/xo)](http://goreportcard.com/report/256dpi/xo)
 
-**A logging, reporting and tracing framework for Go applications.**
+**A configuration, logging, reporting and tracing framework for Go applications.**

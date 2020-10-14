@@ -39,6 +39,14 @@ func isNumber(s string) bool {
 	return len(s) > 0
 }
 
+func repeatString(str string, count int) string {
+	if count > 0 {
+		return strings.Repeat(str, count)
+	}
+
+	return ""
+}
+
 func numDigits(i int64) int {
 	var count int
 	for i != 0 {
@@ -163,8 +171,8 @@ func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) st
 	}
 
 	// prepare before part
-	beforePart := strings.Repeat(" ", start)
-	afterPart := strings.Repeat(" ", width-end)
+	beforePart := repeatString(" ", start)
+	afterPart := repeatString(" ", width-end)
 
 	// prepare span part
 	var spanPart string
@@ -174,7 +182,7 @@ func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) st
 	case 2:
 		spanPart = "├┤"
 	default:
-		spanPart = "├" + strings.Repeat("─", (end-start)-2) + "┤"
+		spanPart = "├" + repeatString("─", (end-start)-2) + "┤"
 	}
 
 	return beforePart + spanPart + afterPart
@@ -204,8 +212,8 @@ func buildDot(beforeLength, afterLength time.Duration, width int) string {
 	}
 
 	// prepare before part
-	beforePart := strings.Repeat(" ", position)
-	afterPart := strings.Repeat(" ", rest)
+	beforePart := repeatString(" ", position)
+	afterPart := repeatString(" ", rest)
 
 	return beforePart + "•" + afterPart
 }

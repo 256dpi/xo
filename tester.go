@@ -1,7 +1,6 @@
 package xo
 
 import (
-	"bytes"
 	"context"
 	"io"
 	"time"
@@ -11,7 +10,8 @@ import (
 )
 
 // Test will temporarily intercept and collect logging, tracing and reporting
-// data for testing purposes.
+// data for testing purposes. Standard logging is not intercepted to prevent
+// messing with test output.
 func Test(fn func(tester *Tester)) {
 	// create tester
 	tester := &Tester{
@@ -96,7 +96,7 @@ func (t *Tester) ReducedSpans(resolution time.Duration) []VSpan {
 
 // ReducedReports will return a copy of the report list with reduced information.
 // This representation can be used in tests for easy direct comparison.
-func (t *Tester) ReducedReports() []VReport {
+func (t *Tester) ReducedReports(includeFrames bool) []VReport {
 	// prepare reports
 	reports := make([]VReport, 0, len(t.Reports))
 
@@ -125,7 +125,11 @@ func (t *Tester) ReducedReports() []VReport {
 			}
 
 			// set frames
-			exc.Frames = frames
+			if includeFrames {
+				exc.Frames = frames
+			} else {
+				exc.Frames = nil
+			}
 
 			// add exception
 			exceptions = append(exceptions, exc)
@@ -172,9 +176,7 @@ func (t *Tester) SinkFactory() func(name string) io.WriteCloser {
 		}
 
 		// create buffer
-		buf := &BufferSink{
-			Buffer: new(bytes.Buffer),
-		}
+		buf := &BufferSink{}
 
 		// store sink
 		t.Sinks[name] = buf
@@ -222,13 +224,16 @@ func (t SentryTransport) Flush(time.Duration) bool {
 
 // BufferSink wraps a bytes buffer.
 type BufferSink struct {
-	*bytes.Buffer
+	String string
+}
+
+// Write implements the io.Writer interface.
+func (s *BufferSink) Write(p []byte) (n int, err error) {
+	s.String += string(p)
+	return len(p), nil
 }
 
 // Close implements the io.Closer interface.
 func (s *BufferSink) Close() error {
-	// unset
-	s.Buffer = nil
-
 	return nil
 }

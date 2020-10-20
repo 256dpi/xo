@@ -54,7 +54,7 @@ func TestCapture(t *testing.T) {
 					},
 				},
 			},
-		}, tester.ReducedReports())
+		}, tester.ReducedReports(true))
 	})
 }
 
@@ -87,6 +87,6 @@ func TestReporter(t *testing.T) {
 					},
 				},
 			},
-		}, tester.ReducedReports())
+		}, tester.ReducedReports(true))
 	})
 }

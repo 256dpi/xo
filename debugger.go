@@ -90,11 +90,11 @@ func Debug(config DebugConfig) func() {
 	// create debugger
 	debugger := NewDebugger(config)
 
-	// setup tracing
-	revertTracing := SetupTracing(debugger.SpanExporter())
+	// hook tracing
+	revertTracing := HookTracing(debugger.SpanExporter())
 
-	// setup reporting
-	revertReporting := SetupReporting(debugger.SentryTransport())
+	// hook reporting
+	revertReporting := HookReporting(debugger.SentryTransport())
 
 	return func() {
 		// revert reporting

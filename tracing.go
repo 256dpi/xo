@@ -9,9 +9,9 @@ import (
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
-// SetupTracing will setup tracing using the provided span exporter. The
-// returned function may be called to revert the previously configured provider.
-func SetupTracing(exporter exportTrace.SpanExporter) func() {
+// HookTracing will hook tracing using the provided span exporter. The returned
+// function may be called to revert the previously configured provider.
+func HookTracing(exporter exportTrace.SpanExporter) func() {
 	// create provider
 	provider := sdkTrace.NewTracerProvider(
 		sdkTrace.WithSyncer(exporter),

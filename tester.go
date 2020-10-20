@@ -18,12 +18,12 @@ func Test(fn func(tester *Tester)) {
 		Sinks: map[string]*BufferSink{},
 	}
 
-	// setup tracing
-	teardownTracing := SetupTracing(tester.SpanExporter())
+	// hook tracing
+	teardownTracing := HookTracing(tester.SpanExporter())
 	defer teardownTracing()
 
-	// setup reporting
-	teardownReporting := SetupReporting(tester.SentryTransport())
+	// hook reporting
+	teardownReporting := HookReporting(tester.SentryTransport())
 	defer teardownReporting()
 
 	// swap factory

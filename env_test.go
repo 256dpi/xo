@@ -35,8 +35,8 @@ func TestLoad(t *testing.T) {
 
 	Devel = false
 
-	assert.NotEmpty(t, Load(Var{Name: "file", Main: "./env.go", File: true}))
+	assert.NotEmpty(t, Load(Var{Name: "file", Main: "@file:env.go"}))
 	assert.Panics(t, func() {
-		assert.NotEmpty(t, Load(Var{Name: "file", Main: "./foo.go", File: true}))
+		assert.NotEmpty(t, Load(Var{Name: "file", Main: "@file:foo.go"}))
 	})
 }

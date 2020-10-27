@@ -3,6 +3,7 @@ package xo
 import (
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 // Get will get the specified environment variable and fallback to the specified
@@ -10,11 +11,14 @@ import (
 func Get(key, fallback string) string {
 	// get value
 	value := os.Getenv(key)
-	if value != "" {
-		return value
+	if value == "" {
+		value = fallback
 	}
 
-	return fallback
+	// eval
+	value = eval(value)
+
+	return value
 }
 
 // Devel is true when the program runs in development mode.
@@ -33,36 +37,40 @@ type Var struct {
 
 	// The development default value.
 	Devel string
-
-	// Whether the value names a file that should be read.
-	File bool
 }
 
 // Load will return the value of the provided environment variable.
 func Load(v Var) string {
 	// get variable
-	val := os.Getenv(v.Name)
-	if val == "" {
+	value := os.Getenv(v.Name)
+	if value == "" {
 		if Devel {
-			val = v.Devel
+			value = v.Devel
 		} else {
-			val = v.Main
+			value = v.Main
 		}
 	}
 
 	// check require
-	if val == "" && v.Require {
+	if value == "" && v.Require {
 		Panic(F("missing variable " + v.Name))
 	}
 
-	// load file
-	if v.File {
-		buf, err := ioutil.ReadFile(val)
+	// eval
+	value = eval(value)
+
+	return value
+}
+
+func eval(value string) string {
+	// check for file
+	if strings.HasPrefix(value, "@file:") {
+		file, err := ioutil.ReadFile(strings.TrimPrefix(value, "@file:"))
 		if err != nil {
-			Panic(WF(err, "unable to load file"))
+			Panic(err)
 		}
-		val = string(buf)
+		return string(file)
 	}
 
-	return val
+	return value
 }

@@ -14,9 +14,9 @@ func TestGet(t *testing.T) {
 	assert.Equal(t, "baz", Get("FOO", ""))
 	assert.Equal(t, "baz", Get("FOO", "bar"))
 
-	assert.NotEmpty(t, Get("foo", "@file:env.go"))
+	assert.Equal(t, "Hello world!", Get("foo", "@file:file"))
 	assert.Panics(t, func() {
-		Get("foo", "@file:foo.go")
+		Get("foo", "@file:_file")
 	})
 }
 
@@ -40,8 +40,8 @@ func TestLoad(t *testing.T) {
 
 	Devel = false
 
-	assert.NotEmpty(t, Load(Var{Name: "file", Main: "@file:env.go"}))
+	assert.Equal(t, "Hello world!", Load(Var{Name: "file", Main: "@file:file"}))
 	assert.Panics(t, func() {
-		Load(Var{Name: "file", Main: "@file:foo.go"})
+		Load(Var{Name: "file", Main: "@file:_file"})
 	})
 }

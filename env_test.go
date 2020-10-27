@@ -7,41 +7,55 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGet(t *testing.T) {
-	assert.Equal(t, "", Get("FOO", ""))
-	assert.Equal(t, "bar", Get("FOO", "bar"))
-	assert.NoError(t, os.Setenv("FOO", "baz"))
-	assert.Equal(t, "baz", Get("FOO", ""))
-	assert.Equal(t, "baz", Get("FOO", "bar"))
+func init() {
+	err := os.Setenv("FOO", "bar")
+	if err != nil {
+		panic(err)
+	}
+}
 
-	assert.Equal(t, "Hello world!", Get("foo", "@file:file"))
+func TestGet(t *testing.T) {
+	assert.Equal(t, "", Get("BAR", ""))
+	assert.Equal(t, "bar", Get("BAR", "bar"))
+
+	assert.Equal(t, "bar", Get("FOO", ""))
+	assert.Equal(t, "bar", Get("FOO", "baz"))
+
+	assert.Equal(t, "Hello world!", Get("BAR", "@file:file"))
 	assert.Panics(t, func() {
-		Get("foo", "@file:_file")
+		Get("BAR", "@file:_file")
+	})
+
+	assert.Equal(t, "Hello world!", Get("BAR", "@config:config"))
+	assert.Panics(t, func() {
+		Get("BAR", "@config:_config")
 	})
 }
 
 func TestLoad(t *testing.T) {
-	assert.Equal(t, "", Load(Var{Name: "foo", Main: "", Devel: ""}))
-	assert.Equal(t, "main", Load(Var{Name: "foo", Main: "main", Devel: "devel"}))
-	assert.NoError(t, os.Setenv("foo", "baz"))
-	assert.Equal(t, "baz", Load(Var{Name: "foo", Main: "main", Devel: "devel"}))
+	assert.Equal(t, "", Load(Var{Name: "BAR", Main: "", Devel: ""}))
+	assert.Equal(t, "main", Load(Var{Name: "BAR", Main: "main", Devel: "devel"}))
+	assert.Equal(t, "bar", Load(Var{Name: "FOO", Main: "main", Devel: "devel"}))
 
 	Devel = true
-	assert.NoError(t, os.Setenv("foo", ""))
 
-	assert.Equal(t, "", Load(Var{Name: "foo", Main: "", Devel: ""}))
-	assert.Equal(t, "devel", Load(Var{Name: "foo", Main: "main", Devel: "devel"}))
-	assert.NoError(t, os.Setenv("foo", "baz"))
-	assert.Equal(t, "baz", Load(Var{Name: "foo", Main: "main", Devel: "devel"}))
+	assert.Equal(t, "", Load(Var{Name: "BAR", Main: "", Devel: ""}))
+	assert.Equal(t, "devel", Load(Var{Name: "BAR", Main: "main", Devel: "devel"}))
+	assert.Equal(t, "bar", Load(Var{Name: "FOO", Main: "main", Devel: "devel"}))
 
 	assert.Panics(t, func() {
-		Load(Var{Name: "bar", Require: true})
+		Load(Var{Name: "BAR", Require: true})
 	})
 
 	Devel = false
 
-	assert.Equal(t, "Hello world!", Load(Var{Name: "file", Main: "@file:file"}))
+	assert.Equal(t, "Hello world!", Load(Var{Name: "BAR", Main: "@file:file"}))
 	assert.Panics(t, func() {
-		Load(Var{Name: "file", Main: "@file:_file"})
+		Load(Var{Name: "BAR", Main: "@file:_file"})
+	})
+
+	assert.Equal(t, "Hello world!", Load(Var{Name: "BAR", Main: "@config:config"}))
+	assert.Panics(t, func() {
+		Load(Var{Name: "BAR", Main: "@config:_config"})
 	})
 }

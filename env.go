@@ -16,7 +16,7 @@ func Get(key, fallback string) string {
 	}
 
 	// eval
-	value = eval(value)
+	value = eval(key, value)
 
 	return value
 }
@@ -57,19 +57,37 @@ func Load(v Var) string {
 	}
 
 	// eval
-	value = eval(value)
+	value = eval(v.Name, value)
 
 	return value
 }
 
-func eval(value string) string {
-	// check for file
+func eval(key, value string) string {
+	// handle file
 	if strings.HasPrefix(value, "@file:") {
+		// read file
 		file, err := ioutil.ReadFile(strings.TrimPrefix(value, "@file:"))
 		if err != nil {
 			Panic(err)
 		}
-		value = strings.TrimSpace(string(file))
+
+		return strings.TrimSpace(string(file))
+	}
+
+	// handle config
+	if strings.HasPrefix(value, "@config:") {
+		// read file
+		file, err := ioutil.ReadFile(strings.TrimPrefix(value, "@config:"))
+		if err != nil {
+			Panic(err)
+		}
+
+		// parse lines
+		for _, line := range strings.Split(string(file), "\n") {
+			if strings.HasPrefix(line, key+":") {
+				return strings.TrimSpace(strings.TrimPrefix(line, key+":"))
+			}
+		}
 	}
 
 	return value

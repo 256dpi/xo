@@ -69,7 +69,7 @@ func eval(value string) string {
 		if err != nil {
 			Panic(err)
 		}
-		return string(file)
+		value = strings.TrimSpace(string(file))
 	}
 
 	return value

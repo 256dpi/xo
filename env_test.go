@@ -13,6 +13,11 @@ func TestGet(t *testing.T) {
 	assert.NoError(t, os.Setenv("FOO", "baz"))
 	assert.Equal(t, "baz", Get("FOO", ""))
 	assert.Equal(t, "baz", Get("FOO", "bar"))
+
+	assert.NotEmpty(t, Get("foo", "@file:env.go"))
+	assert.Panics(t, func() {
+		Get("foo", "@file:foo.go")
+	})
 }
 
 func TestLoad(t *testing.T) {
@@ -37,6 +42,6 @@ func TestLoad(t *testing.T) {
 
 	assert.NotEmpty(t, Load(Var{Name: "file", Main: "@file:env.go"}))
 	assert.Panics(t, func() {
-		assert.NotEmpty(t, Load(Var{Name: "file", Main: "@file:foo.go"}))
+		Load(Var{Name: "file", Main: "@file:foo.go"})
 	})
 }

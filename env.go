@@ -6,6 +6,21 @@ import (
 	"strings"
 )
 
+// Devel is true when the program runs in development mode.
+var Devel = os.Getenv("DEVEL") == "true" || Testing()
+
+// Testing will return true if the program is likely being tested.
+func Testing() bool {
+	// detect if an argument has the prefix "-test." or suffix ".test"
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test.") || strings.HasSuffix(arg, ".test") {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Get will get the specified environment variable and fallback to the specified
 // value if it is missing or empty.
 func Get(key, fallback string) string {
@@ -19,18 +34,6 @@ func Get(key, fallback string) string {
 	value = eval(key, value)
 
 	return value
-}
-
-// Devel is true when the program runs in development mode.
-var Devel = os.Getenv("DEVEL") == "true"
-
-func init() {
-	// set devel if argument "-test.v" has been given
-	for _, arg := range os.Args {
-		if arg == "-test.v" {
-			Devel = true
-		}
-	}
 }
 
 // Var defines an environment variable.

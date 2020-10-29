@@ -24,6 +24,15 @@ func Get(key, fallback string) string {
 // Devel is true when the program runs in development mode.
 var Devel = os.Getenv("DEVEL") == "true"
 
+func init() {
+	// set devel if argument "-test.v" has been given
+	for _, arg := range os.Args {
+		if arg == "-test.v" {
+			Devel = true
+		}
+	}
+}
+
 // Var defines an environment variable.
 type Var struct {
 	// Then name of the variable e.g. "SOME_VAR".

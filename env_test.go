@@ -33,6 +33,10 @@ func TestGet(t *testing.T) {
 }
 
 func TestLoad(t *testing.T) {
+	assert.True(t, Devel)
+
+	Devel = false
+
 	assert.Equal(t, "", Load(Var{Name: "BAR", Main: "", Devel: ""}))
 	assert.Equal(t, "main", Load(Var{Name: "BAR", Main: "main", Devel: "devel"}))
 	assert.Equal(t, "bar", Load(Var{Name: "FOO", Main: "main", Devel: "devel"}))

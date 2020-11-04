@@ -16,8 +16,10 @@ import (
 )
 
 func main() {
-	// install
-	xo.Debug(xo.DebugConfig{})
+	// enable xo
+	xo.Auto(xo.Config{
+		SentryDSN: xo.Get("SENTRY_DSN", ""),
+	})
 
 	// run repl
 	go repl()

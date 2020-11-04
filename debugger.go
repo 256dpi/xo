@@ -277,65 +277,68 @@ func (d *Debugger) SpanExporter() trace.SpanExporter {
 
 // SentryTransport will return a sentry transport that print received events.
 func (d *Debugger) SentryTransport() sentry.Transport {
-	return SentryTransport(func(event *sentry.Event) {
-		// convert report
-		report := ConvertReport(event)
+	return SentryTransport(d.Report)
+}
 
-		// reverse stack traces
-		for _, exc := range report.Exceptions {
-			for i, j := 0, len(exc.Frames)-1; i < j; i, j = i+1, j-1 {
-				exc.Frames[i], exc.Frames[j] = exc.Frames[j], exc.Frames[i]
+// Report will report the specified event.
+func (d *Debugger) Report(event *sentry.Event) {
+	// convert report
+	report := ConvertReport(event)
+
+	// reverse stack traces
+	for _, exc := range report.Exceptions {
+		for i, j := 0, len(exc.Frames)-1; i < j; i, j = i+1, j-1 {
+			exc.Frames[i], exc.Frames[j] = exc.Frames[j], exc.Frames[i]
+		}
+	}
+
+	// prepare buffer
+	var buf bytes.Buffer
+
+	// print info
+	check(fmt.Fprintf(&buf, "%s\n", strings.ToUpper(report.Level)))
+
+	// print context
+	if !d.config.NoReportContext && len(report.Context) > 0 {
+		iterateMap(report.Context, func(key string, value interface{}) {
+			check(fmt.Fprintf(&buf, "• %s: %v\n", key, convertValue(value)))
+		})
+	}
+
+	// print tags
+	if len(report.Tags) > 0 {
+		iterateMap(report.Tags, func(key string, value interface{}) {
+			check(fmt.Fprintf(&buf, "• %s: %v\n", key, convertValue(value)))
+		})
+	}
+
+	// print exceptions
+	for _, exc := range report.Exceptions {
+		// print error
+		check(fmt.Fprintf(&buf, "> %s (%s)\n", exc.Value, exc.Type))
+
+		// print frames
+		for _, frame := range exc.Frames {
+			// check path
+			if d.config.NoReportPaths {
+				check(fmt.Fprintf(&buf, "|   %s (%s)\n", frame.Func, frame.Module))
+				continue
 			}
-		}
 
-		// prepare buffer
-		var buf bytes.Buffer
-
-		// print info
-		check(fmt.Fprintf(&buf, "%s\n", strings.ToUpper(report.Level)))
-
-		// print context
-		if !d.config.NoReportContext && len(report.Context) > 0 {
-			iterateMap(report.Context, func(key string, value interface{}) {
-				check(fmt.Fprintf(&buf, "• %s: %v\n", key, convertValue(value)))
-			})
-		}
-
-		// print tags
-		if len(report.Tags) > 0 {
-			iterateMap(report.Tags, func(key string, value interface{}) {
-				check(fmt.Fprintf(&buf, "• %s: %v\n", key, convertValue(value)))
-			})
-		}
-
-		// print exceptions
-		for _, exc := range report.Exceptions {
-			// print error
-			check(fmt.Fprintf(&buf, "> %s (%s)\n", exc.Value, exc.Type))
-
-			// print frames
-			for _, frame := range exc.Frames {
-				// check path
-				if d.config.NoReportPaths {
-					check(fmt.Fprintf(&buf, "|   %s (%s)\n", frame.Func, frame.Module))
-					continue
-				}
-
-				// prepare line
-				var line = ""
-				if !d.config.NoReportLineNumbers {
-					line = ":" + strconv.Itoa(frame.Line)
-				}
-
-				// print frame
-				check(fmt.Fprintf(&buf, "|   %s (%s): %s%s\n", frame.Func, frame.Module, frame.Path, line))
+			// prepare line
+			var line = ""
+			if !d.config.NoReportLineNumbers {
+				line = ":" + strconv.Itoa(frame.Line)
 			}
-		}
 
-		// write event
-		_, err := buf.WriteTo(d.config.ReportOutput)
-		if err != nil {
-			raise(err)
+			// print frame
+			check(fmt.Fprintf(&buf, "|   %s (%s): %s%s\n", frame.Func, frame.Module, frame.Path, line))
 		}
-	})
+	}
+
+	// write event
+	_, err := buf.WriteTo(d.config.ReportOutput)
+	if err != nil {
+		raise(err)
+	}
 }

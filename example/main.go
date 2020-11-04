@@ -18,7 +18,10 @@ import (
 func main() {
 	// enable xo
 	xo.Auto(xo.Config{
-		SentryDSN: xo.Get("SENTRY_DSN", ""),
+		SentryDSN: xo.Load(xo.Var{
+			Name: "SENTRY_DSN",
+			Main: "http://token@examople.org/1234",
+		}),
 	})
 
 	// run repl

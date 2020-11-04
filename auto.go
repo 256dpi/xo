@@ -5,46 +5,60 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/lightstep/otel-launcher-go/launcher"
 )
 
 // Config is used to configure xo.
 type Config struct {
-	// The Sentry DSN.
-	SentryDSN string
-
-	// Whether to require a Sentry DSN if not development.
-	RequireDSN bool
-
-	// The debug config.
-	DebugConfig DebugConfig
-
 	// ReportOutput for writing events.
 	//
 	// Default: Sink("REPORT").
 	ReportOutput io.Writer
+
+	// The Sentry DSN.
+	SentryDSN string
+
+	// The Lightstep token.
+	LightstepToken string
+
+	// The Lightstep service name.
+	LightstepService string
+
+	// The debug config.
+	DebugConfig DebugConfig
 }
 
 // Auto will automatically install logging, reporting and tracing components.
 // The returned function should be deferred to catch panics and ensure flushing.
 func Auto(config Config) func() {
-	// check sentry dsn
-	if !Devel && config.RequireDSN && config.SentryDSN == "" {
-		panic("missing required sentry dsn")
-	}
-
-	// run debug in development or when sentry DSN is missing
-	if Devel || config.SentryDSN == "" {
+	// check if development
+	if Devel {
 		Debug(config.DebugConfig)
 		return func() {}
 	}
+
+	// prepare finalizers
+	var finalizers []func()
+
+	/* Logging */
+
+	// intercept
+	reset := Intercept()
+
+	// add reset finalizer
+	finalizers = append(finalizers, reset)
+
+	/* Reporting */
 
 	// ensure report output
 	if config.ReportOutput == nil {
 		config.ReportOutput = Sink("REPORT")
 	}
 
-	// intercept
-	reset := Intercept()
+	// check sentry dsn
+	if config.SentryDSN == "" {
+		panic("missing required sentry dsn")
+	}
 
 	// prepare debugger
 	debugger := NewDebugger(DebugConfig{
@@ -64,14 +78,37 @@ func Auto(config Config) func() {
 		Panic(err)
 	}
 
-	return func() {
-		// reset
-		reset()
+	// add flush finalizer
+	finalizers = append(finalizers, func() {
+		sentry.Flush(time.Second)
+	})
 
+	/* Tracing */
+
+	// check if lightstep token is available
+	if config.LightstepToken != "" {
+		// check service
+		if config.LightstepService == "" {
+			panic("missing lightstep service name")
+		}
+
+		// configure lightstep
+		lightstep := launcher.ConfigureOpentelemetry(
+			launcher.WithAccessToken(config.LightstepToken),
+			launcher.WithServiceName(config.LightstepService),
+		)
+
+		// add lightstep finalizer
+		finalizers = append(finalizers, lightstep.Shutdown)
+	}
+
+	return func() {
 		// recover panics
 		Recover(Capture)
 
-		// await flush
-		sentry.Flush(2 * time.Second)
+		// run finalizers
+		for _, fn := range finalizers {
+			fn()
+		}
 	}
 }

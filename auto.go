@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	"github.com/lightstep/otel-launcher-go/launcher"
 )
 
 // Config is used to configure xo.
@@ -17,12 +16,6 @@ type Config struct {
 
 	// The Sentry DSN.
 	SentryDSN string
-
-	// The Lightstep token.
-	LightstepToken string
-
-	// The Lightstep service name.
-	LightstepService string
 
 	// The debug config.
 	DebugConfig DebugConfig
@@ -82,25 +75,6 @@ func Auto(config Config) func() {
 	finalizers = append(finalizers, func() {
 		sentry.Flush(time.Second)
 	})
-
-	/* Tracing */
-
-	// check if lightstep token is available
-	if config.LightstepToken != "" {
-		// check service
-		if config.LightstepService == "" {
-			panic("missing lightstep service name")
-		}
-
-		// configure lightstep
-		lightstep := launcher.ConfigureOpentelemetry(
-			launcher.WithAccessToken(config.LightstepToken),
-			launcher.WithServiceName(config.LightstepService),
-		)
-
-		// add lightstep finalizer
-		finalizers = append(finalizers, lightstep.Shutdown)
-	}
 
 	return func() {
 		// recover panics

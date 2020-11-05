@@ -8,7 +8,7 @@ type abort struct {
 func Abort(err error) {
 	panic(abort{&Err{
 		Err:    err,
-		Caller: GetCaller(1),
+		Caller: GetCaller(1, 0),
 	}})
 }
 
@@ -17,7 +17,7 @@ func AbortIf(err error) {
 	if err != nil {
 		panic(abort{&Err{
 			Err:    err,
-			Caller: GetCaller(1),
+			Caller: GetCaller(1, 0),
 		}})
 	}
 }
@@ -42,7 +42,7 @@ func Resume(fn func(error)) {
 func Panic(err error) {
 	panic(&Err{
 		Err:    err,
-		Caller: GetCaller(1),
+		Caller: GetCaller(1, 0),
 	})
 }
 

@@ -18,7 +18,7 @@ type Err struct {
 func F(format string, args ...interface{}) error {
 	return &Err{
 		Msg:    fmt.Sprintf(format, args...),
-		Caller: GetCaller(1),
+		Caller: GetCaller(1, 0),
 	}
 }
 
@@ -31,7 +31,7 @@ func W(err error) error {
 	}
 
 	// get caller
-	caller := GetCaller(1)
+	caller := GetCaller(1, 0)
 
 	// check if wrapping is superfluous
 	if anErr, ok := err.(*Err); ok {
@@ -57,7 +57,7 @@ func WF(err error, format string, args ...interface{}) error {
 	return &Err{
 		Err:    err,
 		Msg:    fmt.Sprintf(format, args...),
-		Caller: GetCaller(1),
+		Caller: GetCaller(1, 0),
 	}
 }
 
@@ -123,7 +123,7 @@ func SF(format string, args ...interface{}) error {
 	return &SafeErr{
 		Err: Err{
 			Msg:    fmt.Sprintf(format, args...),
-			Caller: GetCaller(1),
+			Caller: GetCaller(1, 0),
 		},
 	}
 }
@@ -139,7 +139,7 @@ func SW(err error) error {
 	return &SafeErr{
 		Err: Err{
 			Err:    err,
-			Caller: GetCaller(1),
+			Caller: GetCaller(1, 0),
 		},
 	}
 }
@@ -170,7 +170,7 @@ func BF(format string, args ...interface{}) BaseErr {
 		err: &Err{
 			Err:    nil,
 			Msg:    fmt.Sprintf(format, args...),
-			Caller: GetCaller(1),
+			Caller: GetCaller(1, 1),
 		},
 	}
 }
@@ -180,7 +180,7 @@ func BW(err error) BaseErr {
 	return BaseErr{
 		err: &Err{
 			Err:    err,
-			Caller: GetCaller(1),
+			Caller: GetCaller(1, 1),
 		},
 	}
 }
@@ -194,7 +194,7 @@ func (b *BaseErr) Self() error {
 func (b *BaseErr) Wrap() error {
 	return &Err{
 		Err:    b.err,
-		Caller: GetCaller(1),
+		Caller: GetCaller(1, 0),
 	}
 }
 
@@ -203,7 +203,7 @@ func (b *BaseErr) WrapF(format string, args ...interface{}) error {
 	return &Err{
 		Err:    b.err,
 		Msg:    fmt.Sprintf(format, args...),
-		Caller: GetCaller(1),
+		Caller: GetCaller(1, 0),
 	}
 }
 

@@ -16,7 +16,7 @@ type Span struct {
 
 // SmartTrace calls Trace with the callers short name.
 func SmartTrace(ctx context.Context) (context.Context, Span) {
-	return Trace(ctx, GetCaller(1).Short)
+	return Trace(ctx, GetCaller(1, 1).Short)
 }
 
 // Trace is used to trace a function call. It will start a new span based on the

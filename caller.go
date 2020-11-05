@@ -18,9 +18,14 @@ type Caller struct {
 }
 
 // GetCaller returns information on the caller.
-func GetCaller(skip int) Caller {
+func GetCaller(skip, limit int) Caller {
+	// ensure limit
+	if limit == 0 {
+		limit = 32
+	}
+
 	// get callers
-	stack := make([]uintptr, 32)
+	stack := make([]uintptr, limit)
 	n := runtime.Callers(skip+2, stack)
 	stack = stack[:n]
 

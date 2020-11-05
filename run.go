@@ -44,7 +44,7 @@ func Run(ctx context.Context, fn func(ctx *Context) error) error {
 	}
 
 	// get caller
-	caller := GetCaller(1)
+	caller := GetCaller(1, 0)
 
 	// trace
 	ctx, span := Trace(ctx, caller.Short)

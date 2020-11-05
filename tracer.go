@@ -88,7 +88,7 @@ func GetTracer(ctx context.Context) *Tracer {
 
 // SmartPush will call Push() with callers short name.
 func (t *Tracer) SmartPush() {
-	t.Push(GetCaller(1).Short)
+	t.Push(GetCaller(1, 1).Short)
 }
 
 // Push will add a new span onto the stack.

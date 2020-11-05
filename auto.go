@@ -2,6 +2,7 @@ package xo
 
 import (
 	"io"
+	"os"
 	"time"
 
 	"github.com/getsentry/sentry-go"
@@ -9,13 +10,13 @@ import (
 
 // Config is used to configure xo.
 type Config struct {
-	// ReportOutput for writing events.
-	//
-	// Default: Sink("REPORT").
-	ReportOutput io.Writer
-
 	// The Sentry DSN.
 	SentryDSN string
+
+	// ReportOutput for writing errors.
+	//
+	// Default: os.Stderr.
+	ReportOutput io.Writer
 
 	// The debug config.
 	DebugConfig DebugConfig
@@ -30,22 +31,9 @@ func Auto(config Config) func() {
 		return func() {}
 	}
 
-	// prepare finalizers
-	var finalizers []func()
-
-	/* Logging */
-
-	// intercept
-	reset := Intercept()
-
-	// add reset finalizer
-	finalizers = append(finalizers, reset)
-
-	/* Reporting */
-
 	// ensure report output
 	if config.ReportOutput == nil {
-		config.ReportOutput = Sink("REPORT")
+		config.ReportOutput = os.Stderr
 	}
 
 	// check sentry dsn
@@ -77,18 +65,11 @@ func Auto(config Config) func() {
 		Panic(err)
 	}
 
-	// add flush finalizer
-	finalizers = append(finalizers, func() {
-		sentry.Flush(time.Second)
-	})
-
 	return func() {
 		// recover panics
 		Recover(Capture)
 
-		// run finalizers
-		for _, fn := range finalizers {
-			fn()
-		}
+		// flush
+		sentry.Flush(time.Second)
 	}
 }

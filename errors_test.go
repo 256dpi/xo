@@ -206,7 +206,7 @@ func TestSafeErr(t *testing.T) {
 
 var baseFoo = BF("foo")
 
-func TestBF(t *testing.T) {
+func TestBFWrap(t *testing.T) {
 	err := baseFoo.Wrap()
 	assert.Error(t, err)
 	assert.True(t, baseFoo.Is(err))
@@ -220,7 +220,7 @@ func TestBF(t *testing.T) {
 	assert.Equal(t, "foo", str)
 
 	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, "xo.TestBF: foo", str)
+	assert.Equal(t, "xo.TestBFWrap: foo", str)
 
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
@@ -235,7 +235,7 @@ func TestBF(t *testing.T) {
 		">   runtime/proc.go:LN",
 		"> runtime.goexit",
 		">   runtime/asm_amd64.s:LN",
-		"> github.com/256dpi/xo.TestBF",
+		"> github.com/256dpi/xo.TestBFWrap",
 		">   github.com/256dpi/xo/errors_test.go:LN",
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
@@ -246,21 +246,21 @@ func TestBF(t *testing.T) {
 
 var baseBar = BW(errors.New("bar"))
 
-func TestBW(t *testing.T) {
-	err := baseBar.Wrap()
+func TestBWWrapF(t *testing.T) {
+	err := baseBar.WrapF("baz")
 	assert.Error(t, err)
 	assert.True(t, baseBar.Is(err))
 	assert.True(t, baseBar.Is(baseBar.Self()))
 	assert.NotEqual(t, err, baseBar.Self())
 
 	str := err.Error()
-	assert.Equal(t, "bar", str)
+	assert.Equal(t, "baz: bar", str)
 
 	str = fmt.Sprintf("%s", err)
-	assert.Equal(t, "bar", str)
+	assert.Equal(t, "baz: bar", str)
 
 	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, "xo.TestBW: bar", str)
+	assert.Equal(t, "xo.TestBWWrapF: baz: bar", str)
 
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
@@ -275,7 +275,8 @@ func TestBW(t *testing.T) {
 		">   runtime/proc.go:LN",
 		"> runtime.goexit",
 		">   runtime/asm_amd64.s:LN",
-		"> github.com/256dpi/xo.TestBW",
+		"baz",
+		"> github.com/256dpi/xo.TestBWWrapF",
 		">   github.com/256dpi/xo/errors_test.go:LN",
 		"> testing.tRunner",
 		">   testing/testing.go:LN",

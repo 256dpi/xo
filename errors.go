@@ -198,6 +198,15 @@ func (b *BaseErr) Wrap() error {
 	}
 }
 
+// WrapF wraps, formats and returns an error value.
+func (b *BaseErr) WrapF(format string, args ...interface{}) error {
+	return &Err{
+		Err:    b.err,
+		Msg:    fmt.Sprintf(format, args...),
+		Caller: GetCaller(1),
+	}
+}
+
 // Is returns whether the provided error is a descendant.
 func (b *BaseErr) Is(err error) bool {
 	return errors.Is(err, b.err)

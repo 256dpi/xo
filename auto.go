@@ -63,7 +63,13 @@ func Auto(config Config) func() {
 		Dsn:          config.SentryDSN,
 		Integrations: FilterSentryIntegrations("ContextifyFrames"),
 		BeforeSend: func(event *sentry.Event, hint *sentry.EventHint) *sentry.Event {
-			debugger.Report(event)
+			// check event silent tag
+			if event.Tags["xo:silent"] == "true" {
+				delete(event.Tags, "silent")
+			} else {
+				debugger.Report(event)
+			}
+
 			return event
 		},
 	})

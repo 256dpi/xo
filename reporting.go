@@ -17,6 +17,13 @@ func Capture(err error) {
 	sentry.CaptureException(err)
 }
 
+var silentReporter = Reporter(SM{"xo:silent": "true"})
+
+// CaptureSilent will capture the error without printing it.
+func CaptureSilent(err error) {
+	silentReporter(err)
+}
+
 // Reporter will return a capture function that adds the provided tags.
 func Reporter(tags SM) func(error) {
 	// prepare scope

@@ -10,7 +10,7 @@ import (
 func Capture(err error) {
 	// ensure caller
 	if _, ok := err.(*Err); !ok {
-		err = W(err)
+		err = WS(err, 1)
 	}
 
 	// forward exception
@@ -33,7 +33,7 @@ func Reporter(tags SM) func(error) {
 	return func(err error) {
 		// ensure caller
 		if _, ok := err.(*Err); !ok {
-			err = W(err)
+			err = WS(err, 1)
 		}
 
 		// get client

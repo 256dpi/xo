@@ -6,19 +6,17 @@ type abort struct {
 
 // Abort will abort with the supplied error.
 func Abort(err error) {
-	panic(abort{&Err{
-		Err:    err,
-		Caller: GetCaller(1, 0),
-	}})
+	panic(abort{
+		err: WS(err, 1),
+	})
 }
 
 // AbortIf will only abort with the supplied error if present.
 func AbortIf(err error) {
 	if err != nil {
-		panic(abort{&Err{
-			Err:    err,
-			Caller: GetCaller(1, 0),
-		}})
+		panic(abort{
+			err: WS(err, 1),
+		})
 	}
 }
 
@@ -40,19 +38,13 @@ func Resume(fn func(error)) {
 
 // Panic will panic with the provided error.
 func Panic(err error) {
-	panic(&Err{
-		Err:    err,
-		Caller: GetCaller(1, 0),
-	})
+	panic(WS(err, 1))
 }
 
 // PanicIf will only panic if the supplied error is present.
 func PanicIf(err error) {
 	if err != nil {
-		panic(&Err{
-			Err:    err,
-			Caller: GetCaller(1, 0),
-		})
+		panic(WS(err, 1))
 	}
 }
 
@@ -63,14 +55,18 @@ func PanicIf(err error) {
 func Recover(fn func(error)) {
 	val := recover()
 	if val != nil {
+		var err error
 		switch val := val.(type) {
 		case error:
-			fn(WF(val, "PANIC"))
+			err = WF(val, "PANIC")
 		case string:
-			fn(F("PANIC: %s", val))
+			err = F("PANIC: %s", val)
 		default:
-			fn(F("PANIC: %v", val))
+			err = F("PANIC: %v", val)
 		}
+
+		// yield
+		fn(Drop(err, 1))
 	}
 }
 
@@ -81,11 +77,11 @@ func Recover(fn func(error)) {
 func Catch(fn func() error) (err error) {
 	// recover panics
 	defer Recover(func(e error) {
-		err = e
+		err = Drop(e, 1)
 	})
 
 	// call fn
-	err = W(fn())
+	err = WS(fn(), 1)
 
 	return
 }

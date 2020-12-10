@@ -10,7 +10,7 @@ import (
 
 var errFoo = errors.New("foo")
 
-func TestAbort(t *testing.T) {
+func TestAbortResume(t *testing.T) {
 	var res error
 	func() {
 		defer Resume(func(err error) {
@@ -19,27 +19,39 @@ func TestAbort(t *testing.T) {
 
 		Abort(errFoo)
 	}()
-
+	assert.Error(t, res)
 	assert.True(t, errors.Is(res, errFoo))
 
-	str := res.Error()
-	assert.Equal(t, "foo", str)
+	str := fmt.Sprintf("%+v", res)
+	assert.Equal(t, []string{
+		"foo",
+		"> github.com/256dpi/xo.TestAbortResume.func1",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> github.com/256dpi/xo.TestAbortResume",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
 
-	str = fmt.Sprintf("%s", res)
-	assert.Equal(t, "foo", str)
+	func() {
+		defer Resume(func(err error) {
+			res = err
+		})
 
-	str = fmt.Sprintf("%q", res)
-	assert.Equal(t, `"foo"`, str)
-
-	str = fmt.Sprintf("%v", res)
-	assert.Equal(t, "xo.TestAbort.func1: foo", str)
+		Abort(WF(errFoo, "bar"))
+	}()
+	assert.Error(t, res)
+	assert.True(t, errors.Is(res, errFoo))
 
 	str = fmt.Sprintf("%+v", res)
 	assert.Equal(t, []string{
 		"foo",
-		"> github.com/256dpi/xo.TestAbort.func1",
+		"bar",
+		"> github.com/256dpi/xo.TestAbortResume.func2",
 		">   github.com/256dpi/xo/stack_test.go:LN",
-		"> github.com/256dpi/xo.TestAbort",
+		"> github.com/256dpi/xo.TestAbortResume",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
@@ -48,17 +60,14 @@ func TestAbort(t *testing.T) {
 	}, splitStackTrace(str))
 }
 
-func TestAbortIfNil(t *testing.T) {
-	var res bool
-	func() {
-		defer Resume(func(err error) {
-			res = true
-		})
-
+func TestAbortIf(t *testing.T) {
+	assert.NotPanics(t, func() {
 		AbortIf(nil)
-	}()
+	})
 
-	assert.False(t, res)
+	assert.Panics(t, func() {
+		AbortIf(errFoo)
+	})
 }
 
 func TestResumePanic(t *testing.T) {
@@ -74,7 +83,7 @@ func TestResumePanic(t *testing.T) {
 	assert.Nil(t, res)
 }
 
-func TestPanic(t *testing.T) {
+func TestPanicRecover(t *testing.T) {
 	var res error
 	func() {
 		defer Recover(func(err error) {
@@ -84,41 +93,66 @@ func TestPanic(t *testing.T) {
 		Panic(errFoo)
 	}()
 
+	assert.Error(t, res)
 	assert.True(t, errors.Is(res, errFoo))
 
-	str := res.Error()
-	assert.Equal(t, "PANIC: foo", str)
-
-	str = fmt.Sprintf("%s", res)
-	assert.Equal(t, "PANIC: foo", str)
-
-	str = fmt.Sprintf("%q", res)
-	assert.Equal(t, `"PANIC: foo"`, str)
-
-	str = fmt.Sprintf("%v", res)
-	assert.Equal(t, "xo.Recover: PANIC: foo", str)
-
-	str = fmt.Sprintf("%+v", res)
+	str := fmt.Sprintf("%+v", res)
 	assert.Equal(t, []string{
 		"foo",
-		"> github.com/256dpi/xo.TestPanic.func1",
+		"> github.com/256dpi/xo.TestPanicRecover.func1",
 		">   github.com/256dpi/xo/stack_test.go:LN",
-		"> github.com/256dpi/xo.TestPanic",
+		"> github.com/256dpi/xo.TestPanicRecover",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
 		">   runtime/asm_amd64.s:LN",
 		"PANIC",
-		"> github.com/256dpi/xo.Recover",
-		">   github.com/256dpi/xo/stack.go:LN",
 		"> runtime.gopanic",
 		">   runtime/panic.go:LN",
 		"> github.com/256dpi/xo.Panic",
 		">   github.com/256dpi/xo/stack.go:LN",
-		"> github.com/256dpi/xo.TestPanic.func1",
+		"> github.com/256dpi/xo.TestPanicRecover.func1",
 		">   github.com/256dpi/xo/stack_test.go:LN",
-		"> github.com/256dpi/xo.TestPanic",
+		"> github.com/256dpi/xo.TestPanicRecover",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
+
+	func() {
+		defer Recover(func(err error) {
+			res = err
+		})
+
+		Panic(WF(errFoo, "bar"))
+	}()
+
+	assert.Error(t, res)
+	assert.True(t, errors.Is(res, errFoo))
+
+	str = fmt.Sprintf("%+v", res)
+	assert.Equal(t, []string{
+		"foo",
+		"bar",
+		"> github.com/256dpi/xo.TestPanicRecover.func2",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> github.com/256dpi/xo.TestPanicRecover",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+		"PANIC",
+		"> runtime.gopanic",
+		">   runtime/panic.go:LN",
+		"> github.com/256dpi/xo.Panic",
+		">   github.com/256dpi/xo/stack.go:LN",
+		"> github.com/256dpi/xo.TestPanicRecover.func2",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> github.com/256dpi/xo.TestPanicRecover",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
@@ -147,30 +181,29 @@ func TestCatch(t *testing.T) {
 		return errFoo
 	})
 	assert.Error(t, err)
-
-	err = Catch(func() error {
-		Panic(errFoo)
-		return nil
-	})
-	assert.Error(t, err)
-
 	assert.True(t, errors.Is(err, errFoo))
 
-	str := err.Error()
-	assert.Equal(t, "PANIC: foo", str)
+	str := fmt.Sprintf("%+v", err)
+	assert.Equal(t, []string{
+		"foo",
+		"> github.com/256dpi/xo.TestCatch",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
 
-	str = fmt.Sprintf("%s", err)
-	assert.Equal(t, "PANIC: foo", str)
-
-	str = fmt.Sprintf("%q", err)
-	assert.Equal(t, `"PANIC: foo"`, str)
-
-	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, "xo.Recover: PANIC: foo", str)
+	err = Catch(func() error {
+		return WF(errFoo, "bar")
+	})
+	assert.Error(t, err)
+	assert.True(t, errors.Is(err, errFoo))
 
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
+		"bar",
 		"> github.com/256dpi/xo.TestCatch.func3",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.Catch",
@@ -181,14 +214,68 @@ func TestCatch(t *testing.T) {
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
 		">   runtime/asm_amd64.s:LN",
-		"PANIC",
-		"> github.com/256dpi/xo.Recover",
+	}, splitStackTrace(str))
+
+	err = Catch(func() error {
+		Panic(errFoo)
+		return nil
+	})
+	assert.Error(t, err)
+	assert.True(t, errors.Is(err, errFoo))
+
+	str = fmt.Sprintf("%+v", err)
+	assert.Equal(t, []string{
+		"foo",
+		"> github.com/256dpi/xo.TestCatch.func4",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> github.com/256dpi/xo.Catch",
 		">   github.com/256dpi/xo/stack.go:LN",
-		"> runtime.gopanic",
-		">   runtime/panic.go:LN",
+		"> github.com/256dpi/xo.TestCatch",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+		"PANIC",
 		"> github.com/256dpi/xo.Panic",
 		">   github.com/256dpi/xo/stack.go:LN",
-		"> github.com/256dpi/xo.TestCatch.func3",
+		"> github.com/256dpi/xo.TestCatch.func4",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> github.com/256dpi/xo.Catch",
+		">   github.com/256dpi/xo/stack.go:LN",
+		"> github.com/256dpi/xo.TestCatch",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
+
+	err = Catch(func() error {
+		Panic(WF(errFoo, "bar"))
+		return nil
+	})
+	assert.Error(t, err)
+	assert.True(t, errors.Is(err, errFoo))
+
+	str = fmt.Sprintf("%+v", err)
+	assert.Equal(t, []string{
+		"foo",
+		"bar",
+		"> github.com/256dpi/xo.TestCatch.func5",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> github.com/256dpi/xo.Catch",
+		">   github.com/256dpi/xo/stack.go:LN",
+		"> github.com/256dpi/xo.TestCatch",
+		">   github.com/256dpi/xo/stack_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+		"PANIC",
+		"> github.com/256dpi/xo.Panic",
+		">   github.com/256dpi/xo/stack.go:LN",
+		"> github.com/256dpi/xo.TestCatch.func5",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.Catch",
 		">   github.com/256dpi/xo/stack.go:LN",

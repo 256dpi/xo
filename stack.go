@@ -46,6 +46,16 @@ func Panic(err error) {
 	})
 }
 
+// Panic will only panic if the supplied error is present.
+func PanicIf(err error) {
+	if err != nil {
+		panic(&Err{
+			Err:    err,
+			Caller: GetCaller(1, 0),
+		})
+	}
+}
+
 // Recover will recover any panic and call fn if an error has been recovered.
 //
 // Note: If the built-in panic function has been called with nil, a call to

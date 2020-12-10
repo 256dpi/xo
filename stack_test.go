@@ -127,6 +127,16 @@ func TestPanic(t *testing.T) {
 	}, splitStackTrace(str))
 }
 
+func TestPanicIf(t *testing.T) {
+	assert.NotPanics(t, func() {
+		PanicIf(nil)
+	})
+
+	assert.Panics(t, func() {
+		PanicIf(F("foo"))
+	})
+}
+
 func TestCatch(t *testing.T) {
 	err := Catch(func() error {
 		return nil

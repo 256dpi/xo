@@ -91,6 +91,100 @@ func TestW(t *testing.T) {
 	}, splitStackTrace(str))
 }
 
+func TestWS(t *testing.T) {
+	func() {
+		err := WS(nil, 1)
+		assert.NoError(t, err)
+
+		err = WS(errors.New("foo"), 1)
+		assert.Error(t, err)
+
+		str := err.Error()
+		assert.Equal(t, "foo", str)
+
+		str = fmt.Sprintf("%s", err)
+		assert.Equal(t, "foo", str)
+
+		str = fmt.Sprintf("%q", err)
+		assert.Equal(t, `"foo"`, str)
+
+		str = fmt.Sprintf("%v", err)
+		assert.Equal(t, "xo.TestWS: foo", str)
+
+		str = fmt.Sprintf("%+v", err)
+		assert.Equal(t, []string{
+			"foo",
+			"> github.com/256dpi/xo.TestWS",
+			">   github.com/256dpi/xo/errors_test.go:LN",
+			"> testing.tRunner",
+			">   testing/testing.go:LN",
+			"> runtime.goexit",
+			">   runtime/asm_amd64.s:LN",
+		}, splitStackTrace(str))
+
+		err = W(func() error {
+			return W(func() error {
+				return WS(errors.New("foo"), 1)
+			}())
+		}())
+		assert.Error(t, err)
+
+		str = fmt.Sprintf("%+v", err)
+		assert.Equal(t, []string{
+			"foo",
+			"> github.com/256dpi/xo.TestWS.func1.1",
+			">   github.com/256dpi/xo/errors_test.go:LN",
+			"> github.com/256dpi/xo.TestWS.func1",
+			">   github.com/256dpi/xo/errors_test.go:LN",
+			"> github.com/256dpi/xo.TestWS",
+			">   github.com/256dpi/xo/errors_test.go:LN",
+			"> testing.tRunner",
+			">   testing/testing.go:LN",
+			"> runtime.goexit",
+			">   runtime/asm_amd64.s:LN",
+		}, splitStackTrace(str))
+	}()
+}
+
+func TestWF(t *testing.T) {
+	err := WF(nil, "foo")
+	assert.NoError(t, err)
+
+	err = F("foo")
+	err = WF(err, "bar %d", 42)
+	assert.Error(t, err)
+
+	str := err.Error()
+	assert.Equal(t, "bar 42: foo", str)
+
+	str = fmt.Sprintf("%s", err)
+	assert.Equal(t, "bar 42: foo", str)
+
+	str = fmt.Sprintf("%q", err)
+	assert.Equal(t, `"bar 42: foo"`, str)
+
+	str = fmt.Sprintf("%v", err)
+	assert.Equal(t, "xo.TestWF: bar 42: foo", str)
+
+	str = fmt.Sprintf("%+v", err)
+	assert.Equal(t, []string{
+		"foo",
+		"> github.com/256dpi/xo.TestWF",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+		"bar 42",
+		"> github.com/256dpi/xo.TestWF",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
+}
+
 func TestDrop(t *testing.T) {
 	err := Drop(W(nil), 1)
 	assert.NoError(t, err)
@@ -132,45 +226,6 @@ func TestDrop(t *testing.T) {
 		"> github.com/256dpi/xo.TestDrop.func1",
 		">   github.com/256dpi/xo/errors_test.go:LN",
 		"> github.com/256dpi/xo.TestDrop",
-		">   github.com/256dpi/xo/errors_test.go:LN",
-		"> testing.tRunner",
-		">   testing/testing.go:LN",
-		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
-	}, splitStackTrace(str))
-}
-
-func TestWF(t *testing.T) {
-	err := WF(nil, "foo")
-	assert.NoError(t, err)
-
-	err = F("foo")
-	err = WF(err, "bar %d", 42)
-	assert.Error(t, err)
-
-	str := err.Error()
-	assert.Equal(t, "bar 42: foo", str)
-
-	str = fmt.Sprintf("%s", err)
-	assert.Equal(t, "bar 42: foo", str)
-
-	str = fmt.Sprintf("%q", err)
-	assert.Equal(t, `"bar 42: foo"`, str)
-
-	str = fmt.Sprintf("%v", err)
-	assert.Equal(t, "xo.TestWF: bar 42: foo", str)
-
-	str = fmt.Sprintf("%+v", err)
-	assert.Equal(t, []string{
-		"foo",
-		"> github.com/256dpi/xo.TestWF",
-		">   github.com/256dpi/xo/errors_test.go:LN",
-		"> testing.tRunner",
-		">   testing/testing.go:LN",
-		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
-		"bar 42",
-		"> github.com/256dpi/xo.TestWF",
 		">   github.com/256dpi/xo/errors_test.go:LN",
 		"> testing.tRunner",
 		">   testing/testing.go:LN",

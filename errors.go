@@ -25,13 +25,20 @@ func F(format string, args ...interface{}) error {
 // W will wrap an error. The error is not wrapped if the parent error already
 // captured the caller.
 func W(err error) error {
+	return WS(err, 1)
+}
+
+// WS will wrap an error. The error is not wrapped if the parent error already
+// captured the caller. If the error is wrapped the specified amount of frames
+// are skipped.
+func WS(err error, skip int) error {
 	// check nil
 	if err == nil {
 		return nil
 	}
 
 	// get caller
-	caller := GetCaller(1, 0)
+	caller := GetCaller(1+skip, 0)
 
 	// check if wrapping is superfluous
 	if anErr, ok := err.(*Err); ok {

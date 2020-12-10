@@ -46,7 +46,7 @@ func Panic(err error) {
 	})
 }
 
-// Panic will only panic if the supplied error is present.
+// PanicIf will only panic if the supplied error is present.
 func PanicIf(err error) {
 	if err != nil {
 		panic(&Err{

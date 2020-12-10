@@ -113,6 +113,16 @@ func (e *Err) StackTrace() []uintptr {
 	return e.Caller.Stack
 }
 
+// Drop will drop the specified amount of frames from the error if possible.
+func Drop(err error, n int) error {
+	// check error
+	if anErr, ok := err.(*Err); ok {
+		anErr.Caller.Drop(n)
+	}
+
+	return err
+}
+
 // SafeErr wraps an Err to indicate presentation safety.
 type SafeErr struct {
 	Err

@@ -24,13 +24,30 @@ func GetCaller(skip, limit int) Caller {
 		limit = 32
 	}
 
-	// get callers
+	// get stack
 	stack := make([]uintptr, limit)
 	n := runtime.Callers(skip+2, stack)
-	stack = stack[:n]
+
+	// prepare caller
+	caller := Caller{
+		Stack: stack[:n],
+	}
+
+	// analyze caller
+	caller.Analyze()
+
+	return caller
+}
+
+// Analyze will fill Short, Full, File and Line from the first stack frame.
+func (c *Caller) Analyze() {
+	// check stack
+	if len(c.Stack) == 0 {
+		return
+	}
 
 	// get first frame
-	frame, _ := runtime.CallersFrames(stack).Next()
+	frame, _ := runtime.CallersFrames(c.Stack).Next()
 
 	// get name, file and line
 	name := frame.Function
@@ -43,13 +60,25 @@ func GetCaller(skip, limit int) Caller {
 		short = short[idx+1:]
 	}
 
-	return Caller{
-		Short: short,
-		Full:  name,
-		File:  file,
-		Line:  line,
-		Stack: stack,
+	// set names
+	c.Short = short
+	c.Full = name
+	c.File = file
+	c.Line = line
+}
+
+// Drop will drop the specified amount of frames from the caller.
+func (c *Caller) Drop(n int) {
+	// check length
+	if len(c.Stack)-n <= 0 {
+		return
 	}
+
+	// drop frames
+	c.Stack = c.Stack[n:]
+
+	// re-analyze
+	c.Analyze()
 }
 
 // Includes returns whether the receiver fully includes the provided caller.

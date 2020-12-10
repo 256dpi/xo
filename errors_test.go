@@ -70,7 +70,7 @@ func TestW(t *testing.T) {
 
 	err = W(func() error {
 		return W(func() error {
-			return W(F("foo"))
+			return W(errors.New("foo"))
 		}())
 	}())
 	assert.Error(t, err)
@@ -83,6 +83,55 @@ func TestW(t *testing.T) {
 		"> github.com/256dpi/xo.TestW.func1",
 		">   github.com/256dpi/xo/errors_test.go:LN",
 		"> github.com/256dpi/xo.TestW",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
+}
+
+func TestDrop(t *testing.T) {
+	err := Drop(W(nil), 1)
+	assert.NoError(t, err)
+
+	err = Drop(W(errors.New("foo")), 1)
+	assert.Error(t, err)
+
+	str := err.Error()
+	assert.Equal(t, "foo", str)
+
+	str = fmt.Sprintf("%s", err)
+	assert.Equal(t, "foo", str)
+
+	str = fmt.Sprintf("%q", err)
+	assert.Equal(t, `"foo"`, str)
+
+	str = fmt.Sprintf("%v", err)
+	assert.Equal(t, "testing.tRunner: foo", str)
+
+	str = fmt.Sprintf("%+v", err)
+	assert.Equal(t, []string{
+		"foo",
+		"> testing.tRunner",
+		">   testing/testing.go:LN",
+		"> runtime.goexit",
+		">   runtime/asm_amd64.s:LN",
+	}, splitStackTrace(str))
+
+	err = W(func() error {
+		return W(func() error {
+			return Drop(W(errors.New("foo")), 1)
+		}())
+	}())
+	assert.Error(t, err)
+
+	str = fmt.Sprintf("%+v", err)
+	assert.Equal(t, []string{
+		"foo",
+		"> github.com/256dpi/xo.TestDrop.func1",
+		">   github.com/256dpi/xo/errors_test.go:LN",
+		"> github.com/256dpi/xo.TestDrop",
 		">   github.com/256dpi/xo/errors_test.go:LN",
 		"> testing.tRunner",
 		">   testing/testing.go:LN",

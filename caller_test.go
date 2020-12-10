@@ -31,6 +31,21 @@ func TestGetCaller(t *testing.T) {
 	}()
 }
 
+func TestCallerDrop(t *testing.T) {
+	func() {
+		caller := GetCaller(0, 0)
+		caller.Drop(1)
+		assert.Len(t, caller.Stack, 3)
+		assert.Equal(t, Caller{
+			Short: "xo.TestCallerDrop",
+			Full:  "github.com/256dpi/xo.TestCallerDrop",
+			File:  "github.com/256dpi/xo/caller_test.go",
+			Line:  46,
+			Stack: caller.Stack,
+		}, caller)
+	}()
+}
+
 func TestCallerIncludes(t *testing.T) {
 	parent := GetCaller(1, 0)
 	child := GetCaller(0, 0)

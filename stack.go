@@ -65,8 +65,16 @@ func Recover(fn func(error)) {
 			err = F("PANIC: %v", val)
 		}
 
+		// drop "xo.Recover" and "runtime.gopanic" frames
+		err = Drop(err, 2)
+
+		// drop "xo.Panic" frame
+		if err.(*Err).Caller.Short == "xo.Panic" {
+			err = Drop(err, 1)
+		}
+
 		// yield
-		fn(Drop(err, 1))
+		fn(err)
 	}
 }
 
@@ -77,7 +85,7 @@ func Recover(fn func(error)) {
 func Catch(fn func() error) (err error) {
 	// recover panics
 	defer Recover(func(e error) {
-		err = Drop(e, 1)
+		err = e
 	})
 
 	// call fn

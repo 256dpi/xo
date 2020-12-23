@@ -4,10 +4,10 @@ import (
 	"context"
 	"sync/atomic"
 
-	"go.opentelemetry.io/otel/api/global"
-	"go.opentelemetry.io/otel/api/trace"
+	"go.opentelemetry.io/otel"
 	exportTrace "go.opentelemetry.io/otel/sdk/export/trace"
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type globalTracer struct {
@@ -28,7 +28,7 @@ func GetGlobalTracer() trace.Tracer {
 
 	// store missing tracer
 	if gt.tracer == nil {
-		gt = globalTracer{tracer: global.Tracer("xo")}
+		gt = globalTracer{tracer: otel.Tracer("xo")}
 		cachedTracer.Store(gt)
 	}
 
@@ -53,15 +53,15 @@ func HookTracing(exporter exportTrace.SpanExporter) func() {
 	)
 
 	// swap provider
-	originalProvider := global.TracerProvider()
-	global.SetTracerProvider(provider)
+	originalProvider := otel.GetTracerProvider()
+	otel.SetTracerProvider(provider)
 
 	// reset cache
 	ResetGlobalTracer()
 
 	return func() {
 		// set original provider
-		global.SetTracerProvider(originalProvider)
+		otel.SetTracerProvider(originalProvider)
 
 		// reset cache
 		ResetGlobalTracer()

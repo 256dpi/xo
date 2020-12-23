@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"go.opentelemetry.io/otel/api/trace"
 	"go.opentelemetry.io/otel/label"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // Span is the underlying span used for tracing.
@@ -64,17 +64,17 @@ func (s Span) Tag(key string, value interface{}) {
 
 // Attach will add the provided event to the span.
 func (s Span) Attach(event string, attributes M) {
-	s.span.AddEvent(s.ctx, event, mapToKV(attributes)...)
+	s.span.AddEvent(event, trace.WithAttributes(mapToKV(attributes)...))
 }
 
 // Log will attach a log event to the span.
 func (s Span) Log(format string, args ...interface{}) {
-	s.span.AddEvent(s.ctx, "log", label.String("message", fmt.Sprintf(format, args...)))
+	s.span.AddEvent("log", trace.WithAttributes(label.String("message", fmt.Sprintf(format, args...))))
 }
 
 // Record will attach an error event to the span.
 func (s Span) Record(err error) {
-	s.span.RecordError(s.ctx, err)
+	s.span.RecordError(err)
 }
 
 // End will end the span.

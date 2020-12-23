@@ -99,3 +99,51 @@ func TestTraceMeta(t *testing.T) {
 		}, tester.ReducedSpans(0))
 	})
 }
+
+func BenchmarkTraceRoot(b *testing.B) {
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		_, span := Trace(nil, "foo")
+		span.Tag("a", 1)
+		span.End()
+	}
+}
+
+func BenchmarkTraceRootParallel(b *testing.B) {
+	b.ReportAllocs()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			_, span := Trace(nil, "foo")
+			span.Tag("a", 1)
+			span.End()
+		}
+	})
+}
+
+func BenchmarkTraceChild(b *testing.B) {
+	b.ReportAllocs()
+
+	ctx, _ := Trace(nil, "foo")
+
+	for i := 0; i < b.N; i++ {
+		_, span := Trace(ctx, "bar")
+		span.Tag("a", 1)
+		span.End()
+	}
+}
+
+func BenchmarkTraceChildParallel(b *testing.B) {
+	b.ReportAllocs()
+
+	ctx, _ := Trace(nil, "foo")
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			_, span := Trace(ctx, "bar")
+			span.Tag("a", 1)
+			span.End()
+		}
+	})
+}

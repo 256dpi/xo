@@ -43,7 +43,23 @@ func (s Span) Rename(name string) {
 
 // Tag will add the provided attribute to the span.
 func (s Span) Tag(key string, value interface{}) {
-	s.span.SetAttributes(label.Any(key, convertValue(value)))
+	// get label
+	var kv label.KeyValue
+	switch v := value.(type) {
+	case bool:
+		kv = label.Bool(key, v)
+	case int:
+		kv = label.Int(key, v)
+	case int64:
+		kv = label.Int64(key, v)
+	case string:
+		kv = label.String(key, v)
+	default:
+		kv = label.Any(key, convertValue(value))
+	}
+
+	// set attribute
+	s.span.SetAttributes(kv)
 }
 
 // Attach will add the provided event to the span.

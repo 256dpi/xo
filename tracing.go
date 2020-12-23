@@ -2,12 +2,44 @@ package xo
 
 import (
 	"context"
+	"sync/atomic"
 
 	"go.opentelemetry.io/otel/api/global"
 	"go.opentelemetry.io/otel/api/trace"
 	exportTrace "go.opentelemetry.io/otel/sdk/export/trace"
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 )
+
+type globalTracer struct {
+	tracer trace.Tracer
+}
+
+var cachedTracer atomic.Value
+
+func init() {
+	cachedTracer.Store(globalTracer{})
+}
+
+// GetGlobalTracer will return the global xo tracer. It will cache the tracer
+// to increase performance between calls.
+func GetGlobalTracer() trace.Tracer {
+	// load from cache
+	gt := cachedTracer.Load().(globalTracer)
+
+	// store missing tracer
+	if gt.tracer == nil {
+		gt = globalTracer{tracer: global.Tracer("xo")}
+		cachedTracer.Store(gt)
+	}
+
+	return gt.tracer
+}
+
+// ResetGlobalTracer will reset the cache global tracer.
+func ResetGlobalTracer() {
+	// reset cache
+	cachedTracer.Store(globalTracer{})
+}
 
 // HookTracing will hook tracing using the provided span exporter. The returned
 // function may be called to revert the previously configured provider.
@@ -20,13 +52,19 @@ func HookTracing(exporter exportTrace.SpanExporter) func() {
 		}),
 	)
 
-	// wap provider
+	// swap provider
 	originalProvider := global.TracerProvider()
 	global.SetTracerProvider(provider)
+
+	// reset cache
+	ResetGlobalTracer()
 
 	return func() {
 		// set original provider
 		global.SetTracerProvider(originalProvider)
+
+		// reset cache
+		ResetGlobalTracer()
 	}
 }
 
@@ -40,7 +78,7 @@ func StartSpan(ctx context.Context, name string) (context.Context, trace.Span) {
 	}
 
 	// start span
-	ctx, span := global.Tracer("xo").Start(ctx, name)
+	ctx, span := GetGlobalTracer().Start(ctx, name)
 
 	return ctx, span
 }

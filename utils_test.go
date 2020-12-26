@@ -37,6 +37,9 @@ func TestBuildBar(t *testing.T) {
 	str = buildBar(0, 0, 1, 1)
 	assert.Equal(t, "│", str)
 
+	str = buildBar(0, 2, 0, 2)
+	assert.Equal(t, "├┤", str)
+
 	str = buildBar(5, 5, 5, 15)
 	assert.Equal(t, "     ├───┤     ", str)
 }

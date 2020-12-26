@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-// Err is the error returned by F(), W() and WF().
+// Err is the error returned by F(), W(), WS() and WF().
 type Err struct {
 	Err    error
 	Msg    string
@@ -185,7 +185,6 @@ type BaseErr struct {
 func BF(format string, args ...interface{}) BaseErr {
 	return BaseErr{
 		err: &Err{
-			Err:    nil,
 			Msg:    fmt.Sprintf(format, args...),
 			Caller: GetCaller(1, 1),
 		},

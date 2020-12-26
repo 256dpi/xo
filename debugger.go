@@ -267,9 +267,7 @@ func (d *Debugger) SpanExporter() trace.SpanExporter {
 
 		// write trace
 		_, err := buf.WriteTo(d.config.TraceOutput)
-		if err != nil {
-			raise(err)
-		}
+		check(0, err)
 
 		return nil
 	})
@@ -338,7 +336,5 @@ func (d *Debugger) Report(event *sentry.Event) {
 
 	// write event
 	_, err := buf.WriteTo(d.config.ReportOutput)
-	if err != nil {
-		raise(err)
-	}
+	check(0, err)
 }

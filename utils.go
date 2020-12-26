@@ -19,10 +19,6 @@ type M = map[string]interface{}
 // SM is a short-hand for a string map.
 type SM = map[string]string
 
-func raise(err error) {
-	log.Printf("%v", W(err))
-}
-
 func check(_ int, err error) {
 	if err != nil {
 		log.Printf("%v", W(err))
@@ -179,8 +175,6 @@ func buildBar(beforeLength, spanLength, afterLength time.Duration, width int) st
 	switch end - start {
 	case 1:
 		spanPart = "│"
-	case 2:
-		spanPart = "├┤"
 	default:
 		spanPart = "├" + repeatString("─", (end-start)-2) + "┤"
 	}

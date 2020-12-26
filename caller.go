@@ -24,7 +24,7 @@ func GetCaller(skip, limit int) Caller {
 		limit = 32
 	}
 
-	// get stack
+	// get stack frames
 	stack := make([]uintptr, limit)
 	n := runtime.Callers(skip+2, stack)
 

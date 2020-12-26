@@ -10,35 +10,27 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type globalTracer struct {
-	tracer trace.Tracer
-}
-
 var cachedTracer atomic.Value
-
-func init() {
-	cachedTracer.Store(globalTracer{})
-}
 
 // GetGlobalTracer will return the global xo tracer. It will cache the tracer
 // to increase performance between calls.
 func GetGlobalTracer() trace.Tracer {
 	// load from cache
-	gt := cachedTracer.Load().(globalTracer)
+	tracer, _ := cachedTracer.Load().(trace.Tracer)
 
 	// store missing tracer
-	if gt.tracer == nil {
-		gt = globalTracer{tracer: otel.Tracer("xo")}
-		cachedTracer.Store(gt)
+	if tracer == nil {
+		tracer = otel.Tracer("xo")
+		cachedTracer.Store(tracer)
 	}
 
-	return gt.tracer
+	return tracer
 }
 
 // ResetGlobalTracer will reset the cache global tracer.
 func ResetGlobalTracer() {
-	// reset cache
-	cachedTracer.Store(globalTracer{})
+	// set new tracer
+	cachedTracer.Store(otel.Tracer("xo"))
 }
 
 // HookTracing will hook tracing using the provided span exporter. The returned

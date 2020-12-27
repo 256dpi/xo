@@ -235,3 +235,19 @@ func SortNodes(nodes []*VNode) {
 		SortNodes(node.Children)
 	}
 }
+
+// VSink provides a virtual string buffer.
+type VSink struct {
+	String string
+}
+
+// Write implements the io.Writer interface.
+func (s *VSink) Write(p []byte) (n int, err error) {
+	s.String += string(p)
+	return len(p), nil
+}
+
+// Close implements the io.Closer interface.
+func (s *VSink) Close() error {
+	return nil
+}

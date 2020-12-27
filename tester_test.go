@@ -13,7 +13,7 @@ func TestTest(t *testing.T) {
 		sink := Sink("sink")
 		_, _ = sink.Write([]byte("sink"))
 		_ = sink.Close()
-		assert.Equal(t, map[string]*BufferSink{
+		assert.Equal(t, map[string]*VSink{
 			"sink": {String: "sink"},
 		}, tester.Sinks)
 

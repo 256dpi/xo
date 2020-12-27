@@ -15,7 +15,7 @@ import (
 func Test(fn func(tester *Tester)) {
 	// create tester
 	tester := &Tester{
-		Sinks: map[string]*BufferSink{},
+		Sinks: map[string]*VSink{},
 	}
 
 	// hook tracing
@@ -47,7 +47,7 @@ type Tester struct {
 	Reports []VReport
 
 	// The collected sinks.
-	Sinks map[string]*BufferSink
+	Sinks map[string]*VSink
 }
 
 // ReducedSpans will return a copy of the span list with reduced information.
@@ -149,7 +149,7 @@ func (t *Tester) ReducedReports(includeFrames bool) []VReport {
 func (t *Tester) Reset() {
 	t.Spans = nil
 	t.Reports = nil
-	t.Sinks = map[string]*BufferSink{}
+	t.Sinks = map[string]*VSink{}
 }
 
 // SpanExporter will return a span exporter that collects spans.
@@ -175,8 +175,8 @@ func (t *Tester) SinkFactory() func(name string) io.WriteCloser {
 			return sink
 		}
 
-		// create buffer
-		buf := &BufferSink{}
+		// create sink
+		buf := &VSink{}
 
 		// store sink
 		t.Sinks[name] = buf
@@ -220,20 +220,4 @@ func (t SentryTransport) SendEvent(event *sentry.Event) {
 // Flush implements the sentry.Transport interface.
 func (t SentryTransport) Flush(time.Duration) bool {
 	return true
-}
-
-// BufferSink wraps a bytes buffer.
-type BufferSink struct {
-	String string
-}
-
-// Write implements the io.Writer interface.
-func (s *BufferSink) Write(p []byte) (n int, err error) {
-	s.String += string(p)
-	return len(p), nil
-}
-
-// Close implements the io.Closer interface.
-func (s *BufferSink) Close() error {
-	return nil
 }

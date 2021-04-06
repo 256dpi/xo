@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"go.opentelemetry.io/otel/label"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -44,18 +44,18 @@ func (s Span) Rename(name string) {
 // Tag will add the provided attribute to the span.
 func (s Span) Tag(key string, value interface{}) {
 	// get label
-	var kv label.KeyValue
+	var kv attribute.KeyValue
 	switch v := value.(type) {
 	case bool:
-		kv = label.Bool(key, v)
+		kv = attribute.Bool(key, v)
 	case int:
-		kv = label.Int(key, v)
+		kv = attribute.Int(key, v)
 	case int64:
-		kv = label.Int64(key, v)
+		kv = attribute.Int64(key, v)
 	case string:
-		kv = label.String(key, v)
+		kv = attribute.String(key, v)
 	default:
-		kv = label.Any(key, convertValue(value))
+		kv = attribute.Any(key, convertValue(value))
 	}
 
 	// set attribute
@@ -69,7 +69,7 @@ func (s Span) Attach(event string, attributes M) {
 
 // Log will attach a log event to the span.
 func (s Span) Log(format string, args ...interface{}) {
-	s.span.AddEvent("log", trace.WithAttributes(label.String("message", fmt.Sprintf(format, args...))))
+	s.span.AddEvent("log", trace.WithAttributes(attribute.String("message", fmt.Sprintf(format, args...))))
 }
 
 // Record will attach an error event to the span.

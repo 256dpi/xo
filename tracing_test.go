@@ -38,7 +38,7 @@ func TestGetSpan(t *testing.T) {
 		ctx, sub := StartSpan(ctx, "sub")
 		span = GetSpan(ctx)
 		assert.Equal(t, sub, span)
-		assert.Equal(t, root.SpanContext().TraceID, sub.SpanContext().TraceID)
+		assert.Equal(t, root.SpanContext().TraceID(), sub.SpanContext().TraceID())
 
 		sub.End()
 		root.End()

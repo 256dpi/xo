@@ -65,7 +65,7 @@ type VReport struct {
 }
 
 // ConvertSpan will convert a raw span to a virtual span.
-func ConvertSpan(data *trace.SpanData) VSpan {
+func ConvertSpan(data *trace.SpanSnapshot) VSpan {
 	// collect events
 	var events []VEvent
 	for _, event := range data.MessageEvents {
@@ -84,8 +84,8 @@ func ConvertSpan(data *trace.SpanData) VSpan {
 
 	// add span
 	return VSpan{
-		ID:         data.SpanContext.SpanID.String(),
-		Trace:      data.SpanContext.TraceID.String(),
+		ID:         data.SpanContext.SpanID().String(),
+		Trace:      data.SpanContext.TraceID().String(),
 		Parent:     parent,
 		Name:       data.Name,
 		Start:      data.StartTime,

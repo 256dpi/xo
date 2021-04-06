@@ -132,7 +132,7 @@ func (d *Debugger) SpanExporter() trace.SpanExporter {
 	// prepare spans
 	spans := map[string]VSpan{}
 
-	return SpanExporter(func(data *trace.SpanData) error {
+	return SpanExporter(func(data *trace.SpanSnapshot) error {
 		// acquire mutex
 		d.mutex.Lock()
 		defer d.mutex.Unlock()

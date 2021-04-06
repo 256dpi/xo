@@ -10,7 +10,7 @@ import (
 	"time"
 	"unicode"
 
-	"go.opentelemetry.io/otel/label"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 // M is a short-hand for a generic map.
@@ -57,7 +57,7 @@ func rescale(d time.Duration, precision int) time.Duration {
 	return d.Truncate(time.Duration(math.Pow10(numDigits(int64(d)) - precision)))
 }
 
-func kvToMap(list []label.KeyValue) M {
+func kvToMap(list []attribute.KeyValue) M {
 	// convert list to map
 	var dict M
 	if len(list) > 0 {
@@ -70,11 +70,11 @@ func kvToMap(list []label.KeyValue) M {
 	return dict
 }
 
-func mapToKV(dict M) []label.KeyValue {
+func mapToKV(dict M) []attribute.KeyValue {
 	// collect kv
-	var list []label.KeyValue
+	var list []attribute.KeyValue
 	for key, value := range dict {
-		list = append(list, label.Any(key, convertValue(value)))
+		list = append(list, attribute.Any(key, convertValue(value)))
 	}
 
 	return list

@@ -39,9 +39,7 @@ func HookTracing(exporter exportTrace.SpanExporter) func() {
 	// create provider
 	provider := sdkTrace.NewTracerProvider(
 		sdkTrace.WithSyncer(exporter),
-		sdkTrace.WithConfig(sdkTrace.Config{
-			DefaultSampler: sdkTrace.AlwaysSample(),
-		}),
+		sdkTrace.WithSampler(sdkTrace.AlwaysSample()),
 	)
 
 	// swap provider

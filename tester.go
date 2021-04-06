@@ -154,7 +154,7 @@ func (t *Tester) Reset() {
 
 // SpanExporter will return a span exporter that collects spans.
 func (t *Tester) SpanExporter() trace.SpanExporter {
-	return SpanExporter(func(span *trace.SpanData) error {
+	return SpanExporter(func(span *trace.SpanSnapshot) error {
 		t.Spans = append(t.Spans, ConvertSpan(span))
 		return nil
 	})
@@ -186,10 +186,10 @@ func (t *Tester) SinkFactory() func(name string) io.WriteCloser {
 }
 
 // SpanExporter is a functional span exporter.
-type SpanExporter func(*trace.SpanData) error
+type SpanExporter func(*trace.SpanSnapshot) error
 
 // ExportSpans implements the trace.SpanExporter interface.
-func (s SpanExporter) ExportSpans(_ context.Context, spans []*trace.SpanData) error {
+func (s SpanExporter) ExportSpans(_ context.Context, spans []*trace.SpanSnapshot) error {
 	// yield spans
 	for _, span := range spans {
 		err := s(span)

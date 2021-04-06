@@ -19,7 +19,7 @@ func Test(fn func(tester *Tester)) {
 	}
 
 	// hook tracing
-	teardownTracing := HookTracing(tester.SpanExporter())
+	teardownTracing := HookTracing(tester.SpanExporter(), "xo", false)
 	defer teardownTracing()
 
 	// hook reporting

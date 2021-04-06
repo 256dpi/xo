@@ -22,6 +22,8 @@ func main() {
 			Name: "SENTRY_DSN",
 			Main: "http://token@examople.org/1234",
 		}),
+		JaegerCollectorURL: "http://0.0.0.0:14268/api/traces",
+		TraceServiceName:   "xo/example",
 	})
 
 	// run repl

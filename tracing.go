@@ -6,7 +6,9 @@ import (
 
 	"go.opentelemetry.io/otel"
 	exportTrace "go.opentelemetry.io/otel/sdk/export/trace"
+	"go.opentelemetry.io/otel/sdk/resource"
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/semconv"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -35,11 +37,22 @@ func ResetGlobalTracer() {
 
 // HookTracing will hook tracing using the provided span exporter. The returned
 // function may be called to revert the previously configured provider.
-func HookTracing(exporter exportTrace.SpanExporter) func() {
+func HookTracing(exporter exportTrace.SpanExporter, serviceName string, async bool) func() {
+	// prepare span processor
+	var spanProcessor sdkTrace.TracerProviderOption
+	if async {
+		spanProcessor = sdkTrace.WithBatcher(exporter)
+	} else {
+		spanProcessor = sdkTrace.WithSyncer(exporter)
+	}
+
 	// create provider
 	provider := sdkTrace.NewTracerProvider(
-		sdkTrace.WithSyncer(exporter),
+		spanProcessor,
 		sdkTrace.WithSampler(sdkTrace.AlwaysSample()),
+		sdkTrace.WithResource(resource.NewWithAttributes(
+			semconv.ServiceNameKey.String(serviceName),
+		)),
 	)
 
 	// swap provider

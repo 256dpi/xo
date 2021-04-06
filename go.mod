@@ -10,6 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/stretchr/testify v1.7.0
 	go.opentelemetry.io/otel v0.19.0
+	go.opentelemetry.io/otel/exporters/trace/jaeger v0.19.0
 	go.opentelemetry.io/otel/sdk v0.19.0
 	go.opentelemetry.io/otel/trace v0.19.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect

@@ -6,12 +6,19 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"go.opentelemetry.io/otel/exporters/trace/jaeger"
 )
 
 // Config is used to configure xo.
 type Config struct {
 	// The Sentry DSN.
 	SentryDSN string
+
+	// The Jaeger collector URL.
+	JaegerCollectorURL string
+
+	// The trace service name.
+	TraceServiceName string
 
 	// ReportOutput for writing errors.
 	//
@@ -63,6 +70,16 @@ func Auto(config Config) func() {
 	})
 	if err != nil {
 		Panic(err)
+	}
+
+	// install jaeger if provided
+	if config.JaegerCollectorURL != "" {
+		exporter, err := jaeger.NewRawExporter(jaeger.WithCollectorEndpoint(config.JaegerCollectorURL))
+		if err != nil {
+			Capture(err)
+		} else {
+			HookTracing(exporter, config.TraceServiceName, true)
+		}
 	}
 
 	return func() {

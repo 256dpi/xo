@@ -12,7 +12,7 @@ func RootHandler(cleaners ...func([]string) []string) func(http.Handler) http.Ha
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// split url
-			segments := strings.Split(r.URL.Path, "/")
+			segments := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 
 			// run cleaners
 			for _, cleaner := range cleaners {
@@ -21,7 +21,7 @@ func RootHandler(cleaners ...func([]string) []string) func(http.Handler) http.Ha
 
 			// construct name
 			path := strings.Join(segments, "/")
-			name := fmt.Sprintf("%s %s", r.Method, path)
+			name := fmt.Sprintf("%s /%s", r.Method, path)
 
 			// create span from request
 			ctx, span := Trace(r.Context(), name)
@@ -38,14 +38,26 @@ func RootHandler(cleaners ...func([]string) []string) func(http.Handler) http.Ha
 	}
 }
 
-// NumberCleaner will replace number URL segments with a "#".
-func NumberCleaner(segments []string) []string {
-	// replace numbers
-	for i, s := range segments {
-		if isNumber(s) {
-			segments[i] = "#"
-		}
-	}
+// NumberCleaner will return a function that replaces number-like URL segments
+// with a "#". If fullNumber is true it will only replace if the whole segment is
+// a number instead of just the first character.
+//
+// Note: BSON ObjectIDs start with a number until 2055.
+func NumberCleaner(fullNumber bool) func([]string) []string {
+	return func(segments []string) []string {
+		// replace numbers
+		for i, s := range segments {
+			// skip empty segments
+			if s == "" {
+				continue
+			}
 
-	return segments
+			// replace if number-like or number
+			if (!fullNumber && isNumber(s[0:1])) || isNumber(s) {
+				segments[i] = "#"
+			}
+		}
+
+		return segments
+	}
 }

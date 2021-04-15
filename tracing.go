@@ -15,22 +15,21 @@ import (
 // atomic.Value does not work as it requires the same concrete type
 var tracerCache sync.Map
 
+func init() {
+	// set initial tracer
+	tracerCache.Store("xo", otel.Tracer("xo"))
+}
+
 // GetGlobalTracer will return the global xo tracer. It will cache the tracer
 // to increase performance between calls.
 func GetGlobalTracer() trace.Tracer {
 	// load from cache
-	tracer, ok := tracerCache.Load("xo")
-
-	// store missing tracer
-	if !ok {
-		tracer = otel.Tracer("xo")
-		tracerCache.Store("xo", tracer)
-	}
+	tracer, _ := tracerCache.Load("xo")
 
 	return tracer.(trace.Tracer)
 }
 
-// ResetGlobalTracer will reset the cache global tracer.
+// ResetGlobalTracer will reset the global tracer cache.
 func ResetGlobalTracer() {
 	// set new tracer
 	tracerCache.Store("xo", otel.Tracer("xo"))

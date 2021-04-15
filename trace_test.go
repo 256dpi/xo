@@ -7,11 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	// force default tracer
-	GetGlobalTracer()
-}
-
 func TestSmartTrace(t *testing.T) {
 	Test(func(tester *Tester) {
 		ctx, span := SmartTrace(nil)

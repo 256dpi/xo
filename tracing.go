@@ -2,7 +2,7 @@ package xo
 
 import (
 	"context"
-	"sync/atomic"
+	"sync"
 
 	"go.opentelemetry.io/otel"
 	exportTrace "go.opentelemetry.io/otel/sdk/export/trace"
@@ -12,27 +12,28 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-var cachedTracer atomic.Value
+// atomic.Value does not work as it requires the same concrete type
+var tracerCache sync.Map
 
 // GetGlobalTracer will return the global xo tracer. It will cache the tracer
 // to increase performance between calls.
 func GetGlobalTracer() trace.Tracer {
 	// load from cache
-	tracer, _ := cachedTracer.Load().(trace.Tracer)
+	tracer, ok := tracerCache.Load("xo")
 
 	// store missing tracer
-	if tracer == nil {
+	if !ok {
 		tracer = otel.Tracer("xo")
-		cachedTracer.Store(tracer)
+		tracerCache.Store("xo", tracer)
 	}
 
-	return tracer
+	return tracer.(trace.Tracer)
 }
 
 // ResetGlobalTracer will reset the cache global tracer.
 func ResetGlobalTracer() {
 	// set new tracer
-	cachedTracer.Store(otel.Tracer("xo"))
+	tracerCache.Store("xo", otel.Tracer("xo"))
 }
 
 // HookTracing will hook tracing using the provided span exporter. The returned

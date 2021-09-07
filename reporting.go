@@ -44,7 +44,7 @@ func Reporter(tags SM) func(error) {
 	}
 }
 
-// HookReporting will setup error reporting using sentry. The returned
+// HookReporting will set up error reporting using sentry. The returned
 // function may be called to revert the previously configured client.
 func HookReporting(transport sentry.Transport) func() {
 	// create client

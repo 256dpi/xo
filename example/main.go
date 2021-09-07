@@ -20,7 +20,7 @@ func main() {
 	xo.Auto(xo.Config{
 		SentryDSN: xo.Load(xo.Var{
 			Name: "SENTRY_DSN",
-			Main: "http://token@examople.org/1234",
+			Main: "https://token@example.org/1234",
 		}),
 		JaegerCollectorURL: "http://0.0.0.0:14268/api/traces",
 		TraceServiceName:   "xo/example",

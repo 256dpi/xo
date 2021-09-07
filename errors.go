@@ -30,7 +30,7 @@ func W(err error) error {
 
 // WS will wrap an error. The error is not wrapped if the parent error already
 // captured the caller. If the error is wrapped the specified amount of frames
-// are skipped.
+// is skipped.
 func WS(err error, skip int) error {
 	// check nil
 	if err == nil {
@@ -130,7 +130,7 @@ func Drop(err error, n int) error {
 	return err
 }
 
-// SafeErr wraps an Err to indicate presentation safety.
+// SafeErr wraps Err to indicate presentation safety.
 type SafeErr struct {
 	Err
 }

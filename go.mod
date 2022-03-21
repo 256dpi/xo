@@ -3,7 +3,7 @@ module github.com/256dpi/xo
 go 1.17
 
 require (
-	github.com/256dpi/serve v0.5.0
+	github.com/256dpi/serve v0.8.0
 	github.com/getsentry/sentry-go v0.13.0
 	github.com/stretchr/testify v1.7.0
 	go.opentelemetry.io/otel v1.5.0

@@ -34,7 +34,7 @@ func TestF(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -65,7 +65,7 @@ func TestW(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 
 	err = W(func() error {
@@ -87,7 +87,7 @@ func TestW(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -119,7 +119,7 @@ func TestWS(t *testing.T) {
 			"> testing.tRunner",
 			">   testing/testing.go:LN",
 			"> runtime.goexit",
-			">   runtime/asm_amd64.s:LN",
+			">   runtime/asm_" + arch + ".s:LN",
 		}, splitStackTrace(str))
 
 		err = W(func() error {
@@ -141,7 +141,7 @@ func TestWS(t *testing.T) {
 			"> testing.tRunner",
 			">   testing/testing.go:LN",
 			"> runtime.goexit",
-			">   runtime/asm_amd64.s:LN",
+			">   runtime/asm_" + arch + ".s:LN",
 		}, splitStackTrace(str))
 	}()
 }
@@ -174,14 +174,14 @@ func TestWF(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 		"bar 42",
 		"> github.com/256dpi/xo.TestWF",
 		">   github.com/256dpi/xo/errors_test.go:LN",
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -210,7 +210,7 @@ func TestDrop(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 
 	err = W(func() error {
@@ -230,7 +230,7 @@ func TestDrop(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -255,7 +255,7 @@ func TestSF(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 
 	/* wrapped */
@@ -280,14 +280,14 @@ func TestSF(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 		"bar",
 		"> github.com/256dpi/xo.TestSF",
 		">   github.com/256dpi/xo/errors_test.go:LN",
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -336,7 +336,7 @@ func TestBFWrap(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -369,7 +369,7 @@ func TestBWWrapF(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 }
 

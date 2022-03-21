@@ -55,7 +55,10 @@ func (s Span) Tag(key string, value interface{}) {
 	case string:
 		kv = attribute.String(key, v)
 	default:
-		kv = attribute.Any(key, convertValue(value))
+		kv = attribute.KeyValue{
+			Key:   attribute.Key(key),
+			Value: convertValue(value),
+		}
 	}
 
 	// set attribute

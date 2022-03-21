@@ -61,10 +61,10 @@ func TestRun(t *testing.T) {
 						},
 					},
 					{
-						Name: "error",
+						Name: "exception",
 						Attributes: M{
-							"error.message": "error",
-							"error.type":    "*xo.Err",
+							"exception.message": "error",
+							"exception.type":    "*xo.Err",
 						},
 					},
 				},
@@ -82,10 +82,10 @@ func TestRun(t *testing.T) {
 						},
 					},
 					{
-						Name: "error",
+						Name: "exception",
 						Attributes: M{
-							"error.message": "PANIC: error",
-							"error.type":    "*xo.Err",
+							"exception.message": "PANIC: error",
+							"exception.type":    "*xo.Err",
 						},
 					},
 				},

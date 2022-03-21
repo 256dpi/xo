@@ -82,10 +82,10 @@ func TestTraceMeta(t *testing.T) {
 						},
 					},
 					{
-						Name: "error",
+						Name: "exception",
 						Attributes: M{
-							"error.message": "some error",
-							"error.type":    "*xo.Err",
+							"exception.message": "some error",
+							"exception.type":    "*xo.Err",
 						},
 					},
 					{

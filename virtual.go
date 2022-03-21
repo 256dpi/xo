@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	"go.opentelemetry.io/otel/sdk/export/trace"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 // VEvent is a virtual span event.
@@ -65,10 +65,10 @@ type VReport struct {
 }
 
 // ConvertSpan will convert a raw span to a virtual span.
-func ConvertSpan(data *trace.SpanSnapshot) VSpan {
+func ConvertSpan(data trace.ReadOnlySpan) VSpan {
 	// collect events
 	var events []VEvent
-	for _, event := range data.MessageEvents {
+	for _, event := range data.Events() {
 		events = append(events, VEvent{
 			Name:       event.Name,
 			Time:       event.Time,
@@ -77,21 +77,21 @@ func ConvertSpan(data *trace.SpanSnapshot) VSpan {
 	}
 
 	// get parent
-	parent := data.ParentSpanID.String()
-	if !data.ParentSpanID.IsValid() || data.HasRemoteParent {
+	parent := data.Parent().SpanID().String()
+	if !data.Parent().SpanID().IsValid() || data.Parent().IsRemote() {
 		parent = ""
 	}
 
 	// add span
 	return VSpan{
-		ID:         data.SpanContext.SpanID().String(),
-		Trace:      data.SpanContext.TraceID().String(),
+		ID:         data.SpanContext().SpanID().String(),
+		Trace:      data.SpanContext().TraceID().String(),
 		Parent:     parent,
-		Name:       data.Name,
-		Start:      data.StartTime,
-		End:        data.EndTime,
-		Duration:   data.EndTime.Sub(data.StartTime),
-		Attributes: kvToMap(data.Attributes),
+		Name:       data.Name(),
+		Start:      data.StartTime(),
+		End:        data.EndTime(),
+		Duration:   data.EndTime().Sub(data.StartTime()),
+		Attributes: kvToMap(data.Attributes()),
 		Events:     events,
 	}
 }

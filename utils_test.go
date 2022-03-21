@@ -1,10 +1,13 @@
 package xo
 
 import (
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+var arch = runtime.GOARCH
 
 func TestBuildMeta(t *testing.T) {
 	str := buildMeta(nil)

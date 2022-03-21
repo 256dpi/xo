@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	"go.opentelemetry.io/otel/exporters/trace/jaeger"
+	"go.opentelemetry.io/otel/exporters/jaeger"
 )
 
 // Config is used to configure xo.
@@ -74,7 +74,7 @@ func Auto(config Config) func() {
 
 	// install jaeger if provided
 	if config.JaegerCollectorURL != "" {
-		exporter, err := jaeger.NewRawExporter(jaeger.WithCollectorEndpoint(config.JaegerCollectorURL))
+		exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(config.JaegerCollectorURL)))
 		if err != nil {
 			Capture(err)
 		} else {

@@ -32,7 +32,7 @@ func TestAbortResume(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 
 	func() {
@@ -56,7 +56,7 @@ func TestAbortResume(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -106,7 +106,7 @@ func TestPanicRecover(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 		"PANIC",
 		"> github.com/256dpi/xo.TestPanicRecover.func1",
 		">   github.com/256dpi/xo/stack_test.go:LN",
@@ -115,7 +115,7 @@ func TestPanicRecover(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 
 	func() {
@@ -140,7 +140,7 @@ func TestPanicRecover(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 		"PANIC",
 		"> github.com/256dpi/xo.TestPanicRecover.func2",
 		">   github.com/256dpi/xo/stack_test.go:LN",
@@ -149,7 +149,7 @@ func TestPanicRecover(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 }
 
@@ -183,7 +183,7 @@ func TestCatch(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 
 	err = Catch(func() error {
@@ -205,7 +205,7 @@ func TestCatch(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 
 	err = Catch(func() error {
@@ -227,7 +227,7 @@ func TestCatch(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 		"PANIC",
 		"> github.com/256dpi/xo.TestCatch.func4",
 		">   github.com/256dpi/xo/stack_test.go:LN",
@@ -238,7 +238,7 @@ func TestCatch(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 
 	err = Catch(func() error {
@@ -261,7 +261,7 @@ func TestCatch(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 		"PANIC",
 		"> github.com/256dpi/xo.TestCatch.func5",
 		">   github.com/256dpi/xo/stack_test.go:LN",
@@ -272,7 +272,7 @@ func TestCatch(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 }
 

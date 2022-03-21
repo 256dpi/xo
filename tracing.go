@@ -5,10 +5,10 @@ import (
 	"sync"
 
 	"go.opentelemetry.io/otel"
-	exportTrace "go.opentelemetry.io/otel/sdk/export/trace"
 	"go.opentelemetry.io/otel/sdk/resource"
+	exportTrace "go.opentelemetry.io/otel/sdk/trace"
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
-	"go.opentelemetry.io/otel/semconv"
+	"go.opentelemetry.io/otel/semconv/v1.5.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -50,7 +50,7 @@ func HookTracing(exporter exportTrace.SpanExporter, serviceName string, async bo
 	provider := sdkTrace.NewTracerProvider(
 		spanProcessor,
 		sdkTrace.WithSampler(sdkTrace.AlwaysSample()),
-		sdkTrace.WithResource(resource.NewWithAttributes(
+		sdkTrace.WithResource(resource.NewSchemaless(
 			semconv.ServiceNameKey.String(serviceName),
 		)),
 	)

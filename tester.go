@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	"go.opentelemetry.io/otel/sdk/export/trace"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 // Test will temporarily intercept and collect logging, tracing and reporting
@@ -154,7 +154,7 @@ func (t *Tester) Reset() {
 
 // SpanExporter will return a span exporter that collects spans.
 func (t *Tester) SpanExporter() trace.SpanExporter {
-	return SpanExporter(func(span *trace.SpanSnapshot) error {
+	return SpanExporter(func(span trace.ReadOnlySpan) error {
 		t.Spans = append(t.Spans, ConvertSpan(span))
 		return nil
 	})
@@ -186,10 +186,10 @@ func (t *Tester) SinkFactory() func(name string) io.WriteCloser {
 }
 
 // SpanExporter is a functional span exporter.
-type SpanExporter func(*trace.SpanSnapshot) error
+type SpanExporter func(trace.ReadOnlySpan) error
 
 // ExportSpans implements the trace.SpanExporter interface.
-func (s SpanExporter) ExportSpans(_ context.Context, spans []*trace.SpanSnapshot) error {
+func (s SpanExporter) ExportSpans(_ context.Context, spans []trace.ReadOnlySpan) error {
 	// yield spans
 	for _, span := range spans {
 		err := s(span)

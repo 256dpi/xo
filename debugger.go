@@ -11,7 +11,7 @@ import (
 	"unicode"
 
 	"github.com/getsentry/sentry-go"
-	"go.opentelemetry.io/otel/sdk/export/trace"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 // DebugConfig is used to configure xo for debugging.
@@ -132,7 +132,7 @@ func (d *Debugger) SpanExporter() trace.SpanExporter {
 	// prepare spans
 	spans := map[string]VSpan{}
 
-	return SpanExporter(func(data *trace.SpanSnapshot) error {
+	return SpanExporter(func(data trace.ReadOnlySpan) error {
 		// acquire mutex
 		d.mutex.Lock()
 		defer d.mutex.Unlock()
@@ -299,14 +299,14 @@ func (d *Debugger) Report(event *sentry.Event) {
 	// print context
 	if !d.config.NoReportContext && len(report.Context) > 0 {
 		iterateMap(report.Context, func(key string, value interface{}) {
-			check(fmt.Fprintf(&buf, "• %s: %v\n", key, convertValue(value)))
+			check(fmt.Fprintf(&buf, "• %s: %v\n", key, convertValue(value).Emit()))
 		})
 	}
 
 	// print tags
 	if len(report.Tags) > 0 {
 		iterateMap(report.Tags, func(key string, value interface{}) {
-			check(fmt.Fprintf(&buf, "• %s: %v\n", key, convertValue(value)))
+			check(fmt.Fprintf(&buf, "• %s: %v\n", key, convertValue(value).Emit()))
 		})
 	}
 

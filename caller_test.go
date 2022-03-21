@@ -89,7 +89,7 @@ func TestCallerFormat(t *testing.T) {
 		"> testing.tRunner",
 		">   testing/testing.go:LN",
 		"> runtime.goexit",
-		">   runtime/asm_amd64.s:LN",
+		">   runtime/asm_" + arch + ".s:LN",
 	}, splitStackTrace(str))
 }
 

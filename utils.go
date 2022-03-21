@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"reflect"
 	"sort"
 	"strings"
 	"time"
@@ -74,18 +75,32 @@ func mapToKV(dict M) []attribute.KeyValue {
 	// collect kv
 	var list []attribute.KeyValue
 	for key, value := range dict {
-		list = append(list, attribute.Any(key, convertValue(value)))
+		list = append(list, attribute.KeyValue{
+			Key:   attribute.Key(key),
+			Value: convertValue(value),
+		})
 	}
 
 	return list
 }
 
-func convertValue(value interface{}) interface{} {
+func convertValue(value interface{}) attribute.Value {
+	rv := reflect.ValueOf(value)
+
 	// check primitive
-	switch value.(type) {
-	case bool, int, int8, int16, int32, int64, uint, uint8, uint16, uint32,
-		uint64, float32, float64, string, fmt.Stringer:
-		return value
+	switch v := value.(type) {
+	case bool:
+		return attribute.BoolValue(v)
+	case int, int8, int16, int32, int64:
+		return attribute.Int64Value(rv.Int())
+	case uint, uint8, uint16, uint32, uint64:
+		return attribute.Int64Value(int64(rv.Uint()))
+	case float32, float64:
+		return attribute.Float64Value(rv.Float())
+	case string:
+		return attribute.StringValue(v)
+	case fmt.Stringer:
+		return attribute.StringValue(v.String())
 	}
 
 	// encode value
@@ -94,7 +109,7 @@ func convertValue(value interface{}) interface{} {
 		panic(err)
 	}
 
-	return string(buf)
+	return attribute.StringValue(string(buf))
 }
 
 func iterateMap(dict M, fn func(key string, value interface{})) {
@@ -122,15 +137,11 @@ func buildMeta(dict M) string {
 	// prepare builder
 	var builder strings.Builder
 
-	// add all key values
+	// write all key values
 	iterateMap(dict, func(key string, value interface{}) {
-		// convert value
-		value = convertValue(value)
-
-		// write value
 		builder.WriteString(key)
 		builder.WriteRune(':')
-		builder.WriteString(fmt.Sprint(value))
+		builder.WriteString(convertValue(value).Emit())
 		builder.WriteRune(' ')
 	})
 

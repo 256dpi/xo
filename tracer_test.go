@@ -39,10 +39,10 @@ func TestTracer(t *testing.T) {
 				Name: "xo.TestTracer.func1",
 				Events: []VEvent{
 					{
-						Name: "error",
+						Name: "exception",
 						Attributes: M{
-							"error.message": "fail",
-							"error.type":    "*xo.Err",
+							"exception.message": "fail",
+							"exception.type":    "*xo.Err",
 						},
 					},
 				},

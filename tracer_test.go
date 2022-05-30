@@ -67,3 +67,12 @@ func TestTracer(t *testing.T) {
 		}, tester.ReducedSpans(0))
 	})
 }
+
+func TestNakedTracer(t *testing.T) {
+	tracer, ctx := CreateTracer(nil, "tracer")
+	tracer.Log("7")
+	assert.NotNil(t, tracer)
+	assert.Equal(t, tracer, GetTracer(ctx))
+	assert.Equal(t, tracer.Root().Native(), GetSpan(ctx))
+	assert.Equal(t, tracer.Tail().Native(), GetSpan(ctx))
+}

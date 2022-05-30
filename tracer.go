@@ -13,21 +13,15 @@ type tracerContext struct {
 	tracer *Tracer
 }
 
-func (c *tracerContext) Value(key interface{}) interface{} {
+func (c *tracerContext) Value(key interface{}) (val interface{}) {
 	// check key
 	if key == tracerKey {
 		return c.tracer
-	}
-
-	// get value
-	val := c.Context.Value(key)
-
-	// return tail if root is returned
-	if val == c.tracer.root.span {
+	} else if key == currentSpanKey {
 		return c.tracer.Tail().span
 	}
 
-	return val
+	return c.Context.Value(key)
 }
 
 // Tracer manages a span stack that can be used with fat contexts. Rather than

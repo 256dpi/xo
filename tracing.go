@@ -15,9 +15,24 @@ import (
 // atomic.Value does not work as it requires the same concrete type
 var tracerCache sync.Map
 
+var currentSpanKey any
+
+type sniffContext struct {
+	context.Context
+}
+
+func (s *sniffContext) Value(key any) any {
+	currentSpanKey = key
+	return nil
+}
+
 func init() {
 	// set initial tracer
 	tracerCache.Store("xo", otel.Tracer("xo"))
+
+	// sniff current span key
+	var ctx sniffContext
+	trace.SpanFromContext(&ctx)
 }
 
 // GetGlobalTracer will return the global xo tracer. It will cache the tracer

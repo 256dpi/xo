@@ -10,6 +10,22 @@ import (
 
 var errFoo = errors.New("foo")
 
+func TestCrash(t *testing.T) {
+	assert.Panics(t, func() {
+		Crash(errFoo)
+	})
+}
+
+func TestCrashIf(t *testing.T) {
+	assert.NotPanics(t, func() {
+		CrashIf(nil)
+	})
+
+	assert.Panics(t, func() {
+		CrashIf(errFoo)
+	})
+}
+
 func TestAbortResume(t *testing.T) {
 	var res error
 	func() {

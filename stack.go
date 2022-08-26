@@ -1,5 +1,19 @@
 package xo
 
+import "fmt"
+
+// Crash will panic with a formatted error.
+func Crash(err error) {
+	panic(fmt.Sprintf("%+v", WS(err, 1)))
+}
+
+// CrashIf will only panic with a formatted error if an error is present.
+func CrashIf(err error) {
+	if err != nil {
+		panic(fmt.Sprintf("%+v", WS(err, 1)))
+	}
+}
+
 type abort struct {
 	err error
 }

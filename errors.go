@@ -86,13 +86,12 @@ func (e *Err) Unwrap() error {
 
 // Format will format the error.
 //
-//  %s   message
-//  %q   "message"
-//  %v   caller: message
-//  %+v  err
-//       message
-//       caller
-//
+//	%s   message
+//	%q   "message"
+//	%v   caller: message
+//	%+v  err
+//	     message
+//	     caller
 func (e *Err) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 'v':

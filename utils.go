@@ -14,10 +14,10 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 )
 
-// M is a short-hand for a generic map.
+// M is a shorthand for a generic map.
 type M = map[string]interface{}
 
-// SM is a short-hand for a string map.
+// SM is a shorthand for a string map.
 type SM = map[string]string
 
 func check(_ int, err error) {

@@ -114,11 +114,10 @@ func (c Caller) String() string {
 
 // Format will format the caller.
 //
-//  %s   short name
-//  %q   "short name"
-//  %v   full name
-//  %+v  stack trace
-//
+//	%s   short name
+//	%q   "short name"
+//	%v   full name
+//	%+v  stack trace
 func (c Caller) Format(s fmt.State, verb rune) {
 	if verb == 's' {
 		check(io.WriteString(s, c.Short))

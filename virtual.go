@@ -107,7 +107,10 @@ func ConvertReport(event *sentry.Event) VReport {
 
 	// add context
 	if len(event.Contexts) > 0 {
-		report.Context = event.Contexts
+		report.Context = M{}
+		for name, ctx := range event.Contexts {
+			report.Context[name] = ctx
+		}
 	}
 
 	// add tags

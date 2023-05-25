@@ -1,6 +1,6 @@
 module github.com/256dpi/xo
 
-go 1.18
+go 1.19
 
 require (
 	github.com/256dpi/serve v0.8.1

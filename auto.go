@@ -1,12 +1,13 @@
 package xo
 
 import (
+	"context"
 	"io"
 	"os"
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	"go.opentelemetry.io/otel/exporters/jaeger"
+	otlp "go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 )
 
 // Config is used to configure xo.
@@ -14,8 +15,8 @@ type Config struct {
 	// The Sentry DSN.
 	SentryDSN string
 
-	// The Jaeger collector URL.
-	JaegerCollectorURL string
+	// The OTLP endpoint URL.
+	OTLPEndpointURL string
 
 	// The trace service name.
 	TraceServiceName string
@@ -72,9 +73,9 @@ func Auto(config Config) func() {
 		Panic(err)
 	}
 
-	// install jaeger if provided
-	if config.JaegerCollectorURL != "" {
-		exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(config.JaegerCollectorURL)))
+	// install OTLP if provided
+	if config.OTLPEndpointURL != "" {
+		exporter, err := otlp.New(context.Background(), otlp.WithEndpointURL(config.OTLPEndpointURL))
 		if err != nil {
 			Capture(err)
 		} else {

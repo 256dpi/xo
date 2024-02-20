@@ -22,8 +22,8 @@ func main() {
 			Name: "SENTRY_DSN",
 			Main: "https://token@example.org/1234",
 		}),
-		JaegerCollectorURL: "http://0.0.0.0:14268/api/traces",
-		TraceServiceName:   "xo/example",
+		OTLPEndpointURL:  "http://0.0.0.0:4318",
+		TraceServiceName: "xo/example",
 	})
 
 	// run repl
@@ -40,7 +40,7 @@ func main() {
 	)
 
 	// listen and serve
-	_ = http.ListenAndServe(":8000", handler)
+	panic(http.ListenAndServe(":8000", handler))
 }
 
 func calculate(w http.ResponseWriter, r *http.Request) {

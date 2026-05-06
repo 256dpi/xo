@@ -3,10 +3,10 @@ package xo
 import (
 	"context"
 	"sync"
+	"time"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/sdk/resource"
-	exportTrace "go.opentelemetry.io/otel/sdk/trace"
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/semconv/v1.5.0"
 	"go.opentelemetry.io/otel/trace"
@@ -51,8 +51,9 @@ func ResetGlobalTracer() {
 }
 
 // HookTracing will hook tracing using the provided span exporter. The returned
-// function may be called to revert the previously configured provider.
-func HookTracing(exporter exportTrace.SpanExporter, serviceName string, async bool) func() {
+// function may be called to revert the previously configured provider. It will
+// also shut down the created provider, flushing any pending spans.
+func HookTracing(exporter sdkTrace.SpanExporter, serviceName string, async bool) func() {
 	// prepare span processor
 	var spanProcessor sdkTrace.TracerProviderOption
 	if async {
@@ -83,6 +84,11 @@ func HookTracing(exporter exportTrace.SpanExporter, serviceName string, async bo
 
 		// reset cache
 		ResetGlobalTracer()
+
+		// shut down provider with a bounded timeout
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		_ = provider.Shutdown(ctx)
 	}
 }
 

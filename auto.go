@@ -46,7 +46,7 @@ func Auto(config Config) func() {
 
 	// check sentry dsn
 	if config.SentryDSN == "" {
-		panic("missing required sentry dsn")
+		Panic(F("missing required sentry dsn"))
 	}
 
 	// prepare debugger
@@ -74,12 +74,13 @@ func Auto(config Config) func() {
 	}
 
 	// install OTLP if provided
+	revertTracing := func() {}
 	if config.OTLPEndpointURL != "" {
 		exporter, err := otlp.New(context.Background(), otlp.WithEndpointURL(config.OTLPEndpointURL))
 		if err != nil {
 			Capture(err)
 		} else {
-			HookTracing(exporter, config.TraceServiceName, true)
+			revertTracing = HookTracing(exporter, config.TraceServiceName, true)
 		}
 	}
 
@@ -87,7 +88,10 @@ func Auto(config Config) func() {
 		// recover panics
 		Recover(Capture)
 
-		// flush
+		// flush sentry
 		sentry.Flush(time.Second)
+
+		// revert tracing (also flushes batched spans)
+		revertTracing()
 	}
 }

@@ -1,7 +1,6 @@
 package xo
 
 import (
-	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -83,7 +82,7 @@ func Eval(key, value string) string {
 	// handle file
 	if strings.HasPrefix(value, "@file:") {
 		// read file
-		file, err := ioutil.ReadFile(strings.TrimPrefix(value, "@file:"))
+		file, err := os.ReadFile(strings.TrimPrefix(value, "@file:"))
 		if err != nil {
 			Panic(err)
 		}
@@ -94,7 +93,7 @@ func Eval(key, value string) string {
 	// handle config
 	if strings.HasPrefix(value, "@config:") {
 		// read file
-		file, err := ioutil.ReadFile(strings.TrimPrefix(value, "@config:"))
+		file, err := os.ReadFile(strings.TrimPrefix(value, "@config:"))
 		if err != nil {
 			Panic(err)
 		}

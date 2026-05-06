@@ -3,6 +3,7 @@ package xo
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -44,7 +45,7 @@ func Tunnel(limit int64, verify func(*http.Request, string, *url.URL) bool, repo
 
 		// read body
 		body, err := io.ReadAll(r.Body)
-		if err == serve.ErrBodyLimitExceeded {
+		if errors.Is(err, serve.ErrBodyLimitExceeded) {
 			w.WriteHeader(http.StatusRequestEntityTooLarge)
 			return
 		} else if err != nil {

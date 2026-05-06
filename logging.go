@@ -77,6 +77,12 @@ func Drain(name string, reader io.Reader) {
 
 	// run writer
 	go func() {
+		// reusable timer for the flush window (avoids per-iteration allocs)
+		timer := time.NewTimer(time.Millisecond)
+		if !timer.Stop() {
+			<-timer.C
+		}
+
 		for {
 			// await first line
 			line, ok := <-queue
@@ -90,23 +96,34 @@ func Drain(name string, reader io.Reader) {
 			// write header
 			check(output.WriteString(fmt.Sprintf("===== %s =====\n", name)))
 
-			// write first lone
+			// write first line
 			check(output.WriteString(line))
 
-			// add lines
+			// add lines until idle for one flush window
+			timer.Reset(time.Millisecond)
+		batch:
 			for {
 				select {
-				case line = <-queue:
+				case line, ok = <-queue:
+					if !ok {
+						if !timer.Stop() {
+							<-timer.C
+						}
+						break batch
+					}
 					check(output.WriteString(line))
-					continue
-				case <-time.After(time.Millisecond):
+				case <-timer.C:
+					break batch
 				}
-
-				break
 			}
 
 			// write out
 			check(Stdout.Write(output.Bytes()))
+
+			// exit if queue closed
+			if !ok {
+				return
+			}
 		}
 	}()
 

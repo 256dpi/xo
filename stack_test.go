@@ -41,7 +41,7 @@ func TestAbortResume(t *testing.T) {
 	str := fmt.Sprintf("%+v", res)
 	assert.Equal(t, []string{
 		"foo",
-		"> github.com/256dpi/xo.TestAbortResume.func1",
+		"> github.com/256dpi/xo.TestAbortResume.funcN",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.TestAbortResume",
 		">   github.com/256dpi/xo/stack_test.go:LN",
@@ -65,7 +65,7 @@ func TestAbortResume(t *testing.T) {
 	assert.Equal(t, []string{
 		"foo",
 		"bar",
-		"> github.com/256dpi/xo.TestAbortResume.func2",
+		"> github.com/256dpi/xo.TestAbortResume.funcN",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.TestAbortResume",
 		">   github.com/256dpi/xo/stack_test.go:LN",
@@ -115,7 +115,7 @@ func TestPanicRecover(t *testing.T) {
 	str := fmt.Sprintf("%+v", res)
 	assert.Equal(t, []string{
 		"foo",
-		"> github.com/256dpi/xo.TestPanicRecover.func1",
+		"> github.com/256dpi/xo.TestPanicRecover.funcN",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.TestPanicRecover",
 		">   github.com/256dpi/xo/stack_test.go:LN",
@@ -124,7 +124,7 @@ func TestPanicRecover(t *testing.T) {
 		"> runtime.goexit",
 		">   runtime/asm_" + arch + ".s:LN",
 		"PANIC",
-		"> github.com/256dpi/xo.TestPanicRecover.func1",
+		"> github.com/256dpi/xo.TestPanicRecover.funcN",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.TestPanicRecover",
 		">   github.com/256dpi/xo/stack_test.go:LN",
@@ -149,7 +149,7 @@ func TestPanicRecover(t *testing.T) {
 	assert.Equal(t, []string{
 		"foo",
 		"bar",
-		"> github.com/256dpi/xo.TestPanicRecover.func2",
+		"> github.com/256dpi/xo.TestPanicRecover.funcN",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.TestPanicRecover",
 		">   github.com/256dpi/xo/stack_test.go:LN",
@@ -158,7 +158,7 @@ func TestPanicRecover(t *testing.T) {
 		"> runtime.goexit",
 		">   runtime/asm_" + arch + ".s:LN",
 		"PANIC",
-		"> github.com/256dpi/xo.TestPanicRecover.func2",
+		"> github.com/256dpi/xo.TestPanicRecover.funcN",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.TestPanicRecover",
 		">   github.com/256dpi/xo/stack_test.go:LN",
@@ -212,7 +212,7 @@ func TestCatch(t *testing.T) {
 	assert.Equal(t, []string{
 		"foo",
 		"bar",
-		"> github.com/256dpi/xo.TestCatch.func3",
+		"> github.com/256dpi/xo.TestCatch.funcN",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.Catch",
 		">   github.com/256dpi/xo/stack.go:LN",
@@ -234,7 +234,7 @@ func TestCatch(t *testing.T) {
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"> github.com/256dpi/xo.TestCatch.func4",
+		"> github.com/256dpi/xo.TestCatch.funcN",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.Catch",
 		">   github.com/256dpi/xo/stack.go:LN",
@@ -245,7 +245,7 @@ func TestCatch(t *testing.T) {
 		"> runtime.goexit",
 		">   runtime/asm_" + arch + ".s:LN",
 		"PANIC",
-		"> github.com/256dpi/xo.TestCatch.func4",
+		"> github.com/256dpi/xo.TestCatch.funcN",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.Catch",
 		">   github.com/256dpi/xo/stack.go:LN",
@@ -268,7 +268,7 @@ func TestCatch(t *testing.T) {
 	assert.Equal(t, []string{
 		"foo",
 		"bar",
-		"> github.com/256dpi/xo.TestCatch.func5",
+		"> github.com/256dpi/xo.TestCatch.funcN",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.Catch",
 		">   github.com/256dpi/xo/stack.go:LN",
@@ -279,7 +279,7 @@ func TestCatch(t *testing.T) {
 		"> runtime.goexit",
 		">   runtime/asm_" + arch + ".s:LN",
 		"PANIC",
-		"> github.com/256dpi/xo.TestCatch.func5",
+		"> github.com/256dpi/xo.TestCatch.funcN",
 		">   github.com/256dpi/xo/stack_test.go:LN",
 		"> github.com/256dpi/xo.Catch",
 		">   github.com/256dpi/xo/stack.go:LN",

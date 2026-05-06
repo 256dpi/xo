@@ -78,9 +78,9 @@ func TestW(t *testing.T) {
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"> github.com/256dpi/xo.TestW.func1.1",
+		"> github.com/256dpi/xo.TestW.funcN",
 		">   github.com/256dpi/xo/errors_test.go:LN",
-		"> github.com/256dpi/xo.TestW.func1",
+		"> github.com/256dpi/xo.TestW.funcN",
 		">   github.com/256dpi/xo/errors_test.go:LN",
 		"> github.com/256dpi/xo.TestW",
 		">   github.com/256dpi/xo/errors_test.go:LN",
@@ -132,9 +132,9 @@ func TestWS(t *testing.T) {
 		str = fmt.Sprintf("%+v", err)
 		assert.Equal(t, []string{
 			"foo",
-			"> github.com/256dpi/xo.TestWS.func1.1",
+			"> github.com/256dpi/xo.TestWS.funcN",
 			">   github.com/256dpi/xo/errors_test.go:LN",
-			"> github.com/256dpi/xo.TestWS.func1",
+			"> github.com/256dpi/xo.TestWS.funcN",
 			">   github.com/256dpi/xo/errors_test.go:LN",
 			"> github.com/256dpi/xo.TestWS",
 			">   github.com/256dpi/xo/errors_test.go:LN",
@@ -223,7 +223,7 @@ func TestDrop(t *testing.T) {
 	str = fmt.Sprintf("%+v", err)
 	assert.Equal(t, []string{
 		"foo",
-		"> github.com/256dpi/xo.TestDrop.func1",
+		"> github.com/256dpi/xo.TestDrop.funcN",
 		">   github.com/256dpi/xo/errors_test.go:LN",
 		"> github.com/256dpi/xo.TestDrop",
 		">   github.com/256dpi/xo/errors_test.go:LN",
@@ -404,8 +404,22 @@ func BenchmarkWF(b *testing.B) {
 	}
 }
 
+// Go's closure naming has changed over versions:
+//   - Go ≤1.20: ".func1", ".func1.1", ".func1.1.1"
+//   - Go ≥1.21: ".func1", ".TestX.func1.func2" (nested closures get the
+//     enclosing function name re-injected, e.g. "TestW.TestW.func1.func2")
+//
+// To keep stack-trace assertions stable across Go versions we collapse all
+// closure suffixes to the canonical form ".funcN".
+var (
+	closureDoubled = regexp.MustCompile(`(\.\w+)\.\w+(\.func\d+){2,}`)
+	closureChain   = regexp.MustCompile(`\.func\d+(\.\d+|\.func\d+)*`)
+)
+
 func splitStackTrace(str string) []string {
 	str = strings.ReplaceAll(str, "\t", "  ")
-	str = regexp.MustCompile(":\\d+").ReplaceAllString(str, ":LN")
+	str = regexp.MustCompile(`:\d+`).ReplaceAllString(str, ":LN")
+	str = closureDoubled.ReplaceAllString(str, "$1.funcN")
+	str = closureChain.ReplaceAllString(str, ".funcN")
 	return strings.Split(str, "\n")
 }

@@ -7,7 +7,8 @@ import (
 )
 
 // RootHandler is the middleware used to create the root trace span for
-// incoming HTTP requests.
+// incoming HTTP requests. Span attributes follow the OpenTelemetry HTTP
+// semantic conventions (server side).
 func RootHandler(cleaners ...func([]string) []string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -19,15 +20,21 @@ func RootHandler(cleaners ...func([]string) []string) func(http.Handler) http.Ha
 				segments = cleaner(segments)
 			}
 
-			// construct name
-			path := strings.Join(segments, "/")
-			name := fmt.Sprintf("%s /%s", r.Method, path)
+			// construct route and span name
+			route := "/" + strings.Join(segments, "/")
+			name := fmt.Sprintf("%s %s", r.Method, route)
+
+			// split protocol (e.g. "HTTP/1.1" -> "http", "1.1")
+			protoName, protoVersion := splitProto(r.Proto)
 
 			// create span from request
 			ctx, span := Trace(r.Context(), name)
-			span.Tag("http.proto", r.Proto)
-			span.Tag("http.host", r.Host)
-			span.Tag("http.url", r.URL.String())
+			span.Tag("http.request.method", r.Method)
+			span.Tag("http.route", route)
+			span.Tag("url.full", r.URL.String())
+			span.Tag("server.address", r.Host)
+			span.Tag("network.protocol.name", protoName)
+			span.Tag("network.protocol.version", protoVersion)
 
 			// ensure end
 			defer span.End()
@@ -36,6 +43,13 @@ func RootHandler(cleaners ...func([]string) []string) func(http.Handler) http.Ha
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+func splitProto(proto string) (name, version string) {
+	if i := strings.IndexByte(proto, '/'); i > 0 {
+		return strings.ToLower(proto[:i]), proto[i+1:]
+	}
+	return strings.ToLower(proto), ""
 }
 
 // NumberCleaner will return a function that replaces number-like URL segments

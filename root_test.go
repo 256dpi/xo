@@ -20,7 +20,7 @@ func TestRootHandler(t *testing.T) {
 			}),
 		)
 
-		res := serve.Record(handler, "GET", "/foo/123/bar/1bc5", nil, "")
+		res := serve.Record(nil, handler, "GET", "/foo/123/bar/1bc5", nil, "")
 		assert.Equal(t, http.StatusOK, res.Code)
 		assert.Equal(t, "", res.Body.String())
 
@@ -31,9 +31,12 @@ func TestRootHandler(t *testing.T) {
 			{
 				Name: "GET /foo/#/bar/#",
 				Attributes: M{
-					"http.proto": "HTTP/1.1",
-					"http.host":  "example.com",
-					"http.url":   "/foo/123/bar/1bc5",
+					"http.request.method":      "GET",
+					"http.route":               "/foo/#/bar/#",
+					"url.full":                 "/foo/123/bar/1bc5",
+					"server.address":           "example.com",
+					"network.protocol.name":    "http",
+					"network.protocol.version": "1.1",
 				},
 			},
 		}, tester.ReducedSpans(0))

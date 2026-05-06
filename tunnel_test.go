@@ -36,15 +36,15 @@ func TestTunnel(t *testing.T) {
 	defer srv.Close()
 
 	handler := Tunnel(0, VerifyDSN("http://key@0.0.0.0:1337/42"), Panic)
-	res := serve.Record(handler, "POST", "/", nil, exampleEnvelope)
+	res := serve.Record(nil, handler, "POST", "/", nil, exampleEnvelope)
 	assert.Equal(t, http.StatusOK, res.Result().StatusCode)
 	assert.Equal(t, "OK", res.Body.String())
 
 	handler = Tunnel(1, VerifyDSN("http://key@0.0.0.0:1337/42"), Panic)
-	res = serve.Record(handler, "POST", "/", nil, exampleEnvelope)
+	res = serve.Record(nil, handler, "POST", "/", nil, exampleEnvelope)
 	assert.Equal(t, http.StatusRequestEntityTooLarge, res.Result().StatusCode)
 
 	handler = Tunnel(0, VerifyDSN(), Panic)
-	res = serve.Record(handler, "POST", "/", nil, exampleEnvelope)
+	res = serve.Record(nil, handler, "POST", "/", nil, exampleEnvelope)
 	assert.Equal(t, http.StatusBadRequest, res.Result().StatusCode)
 }

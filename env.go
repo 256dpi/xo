@@ -65,7 +65,7 @@ func Load(v Var) string {
 
 	// check require
 	if value == "" && v.Require {
-		Panic(F("missing variable " + v.Name))
+		Panic(F("missing variable %s", v.Name))
 	}
 
 	// eval value

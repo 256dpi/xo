@@ -110,6 +110,7 @@ func (t *Tester) ReducedReports(includeFrames bool) []VReport {
 		delete(report.Context, "device")
 		delete(report.Context, "os")
 		delete(report.Context, "runtime")
+		delete(report.Context, "trace")
 		if len(report.Context) == 0 {
 			report.Context = nil
 		}
@@ -221,3 +222,11 @@ func (t SentryTransport) SendEvent(event *sentry.Event) {
 func (t SentryTransport) Flush(time.Duration) bool {
 	return true
 }
+
+// FlushWithContext implements the sentry.Transport interface.
+func (t SentryTransport) FlushWithContext(context.Context) bool {
+	return true
+}
+
+// Close implements the sentry.Transport interface.
+func (t SentryTransport) Close() {}

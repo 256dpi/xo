@@ -61,7 +61,7 @@ func Auto(config Config) func() {
 		BeforeSend: func(event *sentry.Event, hint *sentry.EventHint) *sentry.Event {
 			// check event silent tag
 			if event.Tags["xo:silent"] == "true" {
-				delete(event.Tags, "silent")
+				delete(event.Tags, "xo:silent")
 			} else {
 				debugger.Report(event)
 			}

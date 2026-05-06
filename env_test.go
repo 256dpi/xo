@@ -33,6 +33,9 @@ func TestGet(t *testing.T) {
 }
 
 func TestLoad(t *testing.T) {
+	devel := Devel
+	t.Cleanup(func() { Devel = devel })
+
 	assert.True(t, Devel)
 
 	Devel = false

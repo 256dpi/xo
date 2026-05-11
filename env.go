@@ -2,7 +2,9 @@ package xo
 
 import (
 	"os"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // Devel is true when the program runs in development or testing mode.
@@ -72,6 +74,60 @@ func Load(v Var) string {
 	value = Eval(v.Name, value)
 
 	return value
+}
+
+// LoadInt will return the value of the provided environment variable parsed as
+// an integer. The loaded value is evaluated using Eval.
+func LoadInt(v Var) int {
+	// load value
+	value := Load(v)
+	if value == "" {
+		return 0
+	}
+
+	// parse value
+	num, err := strconv.Atoi(value)
+	if err != nil {
+		Panic(WF(err, "invalid value for %s", v.Name))
+	}
+
+	return num
+}
+
+// LoadBool will return the value of the provided environment variable parsed as
+// a boolean. The loaded value is evaluated using Eval.
+func LoadBool(v Var) bool {
+	// load value
+	value := Load(v)
+	if value == "" {
+		return false
+	}
+
+	// parse value
+	flag, err := strconv.ParseBool(value)
+	if err != nil {
+		Panic(WF(err, "invalid value for %s", v.Name))
+	}
+
+	return flag
+}
+
+// LoadDuration will return the value of the provided environment variable
+// parsed as a duration. The loaded value is evaluated using Eval.
+func LoadDuration(v Var) time.Duration {
+	// load value
+	value := Load(v)
+	if value == "" {
+		return 0
+	}
+
+	// parse value
+	dur, err := time.ParseDuration(value)
+	if err != nil {
+		Panic(WF(err, "invalid value for %s", v.Name))
+	}
+
+	return dur
 }
 
 // Eval will evaluate a rule found in value. If a value is formatted as

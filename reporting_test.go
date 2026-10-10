@@ -3,6 +3,7 @@ package xo
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -83,6 +84,14 @@ func TestCapture(t *testing.T) {
 				},
 			},
 		}, tester.ReducedReports(true))
+	})
+}
+
+func TestFlush(t *testing.T) {
+	Test(func(tester *Tester) {
+		Capture(F("foo"))
+		assert.True(t, Flush(time.Second))
+		assert.Len(t, tester.Reports, 1)
 	})
 }
 

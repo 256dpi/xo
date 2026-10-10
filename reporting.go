@@ -17,6 +17,12 @@ func Capture(err error) {
 	sentry.CaptureException(err)
 }
 
+// Flush will wait until the captured errors have been sent or the timeout has
+// been reached. It returns whether all errors have been sent.
+func Flush(timeout time.Duration) bool {
+	return sentry.Flush(timeout)
+}
+
 var silentReporter = Reporter(SM{"xo:silent": "true"})
 
 // CaptureSilent will capture the error without printing it.

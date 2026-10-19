@@ -15,6 +15,12 @@ type Config struct {
 	// The Sentry DSN.
 	SentryDSN string
 
+	// The Sentry release (e.g. "app@1.2.3").
+	//
+	// Default: Derived by the Sentry SDK from the environment, the build info
+	// or the Git repository in the working directory.
+	SentryRelease string
+
 	// The OTLP endpoint URL.
 	OTLPEndpointURL string
 
@@ -57,6 +63,7 @@ func Auto(config Config) func() {
 	// init sentry
 	err := sentry.Init(sentry.ClientOptions{
 		Dsn:          config.SentryDSN,
+		Release:      config.SentryRelease,
 		Integrations: FilterSentryIntegrations("ContextifyFrames"),
 		BeforeSend: func(event *sentry.Event, hint *sentry.EventHint) *sentry.Event {
 			// check event silent tag

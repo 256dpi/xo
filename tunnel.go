@@ -15,6 +15,10 @@ import (
 
 const envelopeContentType = "application/x-sentry-envelope"
 
+// DefaultTunnelLimit is the body limit Tunnel enforces when none is given,
+// generous for a single event.
+const DefaultTunnelLimit = 1 << 20
+
 var newlineBytes = []byte("\n")
 
 // VerifyDSN will require the submitted DNS to match one of the provided DSNs.
@@ -33,15 +37,21 @@ func VerifyDSN(list ...string) func(*http.Request, string, *url.URL) bool {
 // endpoint specified by the DSN received in the envelopes. The optional verify
 // callback may set to verify received DSNs. This handler can be used together
 // with the sentry tunnel feature to relay browser errors via a custom endpoint.
+// A zero limit selects DefaultTunnelLimit. Malformed envelopes are answered
+// with 400 and not reported, as anyone may send them; only failures to read
+// the body or to relay the envelope are reported.
 func Tunnel(limit int64, verify func(*http.Request, string, *url.URL) bool, reporter func(error)) http.Handler {
 	// prepare client
 	var client http.Client
 
+	// apply default limit
+	if limit == 0 {
+		limit = DefaultTunnelLimit
+	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// enforce limit
-		if limit != 0 {
-			serve.LimitBody(w, r, limit)
-		}
+		serve.LimitBody(w, r, limit)
 
 		// read body
 		body, err := io.ReadAll(r.Body)
@@ -63,16 +73,14 @@ func Tunnel(limit int64, verify func(*http.Request, string, *url.URL) bool, repo
 		}
 		err = json.Unmarshal(parts[0], &headerData)
 		if err != nil {
-			reporter(W(err))
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		// parse dsn
 		dsn, err := url.Parse(headerData.DSN)
-		if err != nil {
-			reporter(W(err))
-			w.WriteHeader(http.StatusInternalServerError)
+		if err != nil || dsn.Host == "" || (dsn.Scheme != "http" && dsn.Scheme != "https") {
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 

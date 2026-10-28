@@ -4,6 +4,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/256dpi/serve"
@@ -47,4 +48,25 @@ func TestTunnel(t *testing.T) {
 	handler = Tunnel(0, VerifyDSN(), Panic)
 	res = serve.Record(nil, handler, "POST", "/", nil, exampleEnvelope)
 	assert.Equal(t, http.StatusBadRequest, res.Result().StatusCode)
+
+	handler = Tunnel(0, nil, Panic)
+	res = serve.Record(nil, handler, "POST", "/", nil, strings.Repeat("x", DefaultTunnelLimit+1))
+	assert.Equal(t, http.StatusRequestEntityTooLarge, res.Result().StatusCode)
+}
+
+func TestTunnelMalformed(t *testing.T) {
+	// the reporter panics, so nothing may be reported
+	handler := Tunnel(0, nil, Panic)
+
+	for _, body := range []string{
+		"",
+		"junk",
+		`{ "event_id": "123" }`,
+		`{ "dsn": "key@0.0.0.0:1337/42" }`,
+		`{ "dsn": "ftp://key@0.0.0.0:1337/42" }`,
+		`{ "dsn": "http://%zz" }`,
+	} {
+		res := serve.Record(nil, handler, "POST", "/", nil, body)
+		assert.Equal(t, http.StatusBadRequest, res.Result().StatusCode, body)
+	}
 }
